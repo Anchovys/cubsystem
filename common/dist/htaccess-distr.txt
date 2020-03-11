@@ -1,0 +1,13 @@
+Options +FollowSymLinks
+Options -Indexes
+DirectoryIndex index.php
+AddDefaultCharset UTF-8
+
+<IfModule mod_rewrite.c>
+    RewriteEngine on
+    RewriteBase {path}
+    RewriteCond $1 !^(index\.php|robots\.txt|favicon\.ico)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ {path}index.php?m=$1 [QSA] 
+</IfModule>
