@@ -1,0 +1,149 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+/*
+	MM page
+*/
+
+.mm__page
+{
+    padding: 10px;
+    padding-top: 0px;
+}
+
+.mm__page_content
+{
+    padding: 10px;
+    border-bottom: 1px solid;
+}
+
+.mm__page_info
+{
+    padding: 10px;
+}
+
+.mm__page_title, .mm__other_pages, .mm__comments
+{
+	text-align: center;
+    padding: 10px;
+    background: black;
+}
+
+.mm__page_title, .mm__other_pages, .mm__comments, .mm__page_title_link
+{
+    color: white;
+    text-decoration: none;
+}
+
+ul.mm__page_info_list
+{
+	list-style: none;
+}
+
+ul.mm__page_info_list li
+{
+    display: inline-block;
+    margin-left: 5px;
+}
+
+ul.mm__page_info_list > li:before
+{
+    margin-right: 0.5em;
+    content: '◦';
+}
+
+/*
+	MM footer
+*/
+
+.mm__footer
+{
+    text-align: center;
+    padding: 15px;
+    background: #000;
+    color: #fff;
+}
+
+
+/*
+	MM widget sidebar
+*/
+
+.mm__widget
+{
+    padding: 10px;
+    padding-top: 0px;
+}
+
+.mm__widget_header
+{
+	text-align: center;
+    padding: 10px;
+    background: black;
+    color: #fff;
+}
+
+.mm__widget_content
+{
+    padding: 10px;
+}
+
+ul.mm__vertical_menu a.mm_menu_item 
+{
+    margin-left: 10px;
+    padding: 2px 5px;
+    display: block;
+}
+
+#rater{margin-top:10px}
+.rater_block{padding:9px;margin-top:15px;margin-bottom:15px;background:linear-gradient(to left,transparent,#5b9d2c,#5b9d2c,#5b9d2c,#5b9d2c,#5b9d2c,transparent );height:65px}
+.star-rating,.star-rating a:hover,.star-rating a:active,.star-rating a:focus,.star-rating .current-rating{background:url('https://mine-mods-info.ru/application/maxsite/plugins/rater/star.png') left -1000px repeat-x}
+.star-rating{position:relative;width:125px;height:25px;overflow:hidden;list-style:none;margin:0;padding:0;background-position:left top}
+.star-rating li{display:inline;margin-left:0}
+.star-rating a,.star-rating .current-rating{position:absolute;top:0;left:0;text-indent:-1000em;height:25px;line-height:25px;outline:none;overflow:hidden;border:none}
+.star-rating a:hover,.star-rating a:active,.star-rating a:focus{background-position:left bottom}
+.star-rating .current-rating{z-index:1;background-position:left center}
+.inline-rating{display:-moz-inline-block;display:-moz-inline-box;display:inline-block;vertical-align:middle}
+.small-star{width:50px;height:10px}
+.small-star,.small-star a:hover,.small-star a:active,.small-star a:focus,.small-star .current-rating{background-image:url(star_small.gif);line-height:10px;height:10px}
+.star-rating-result{display:block;color:maroon;margin:-5px 0 15px}

@@ -3,7 +3,7 @@ defined('CS__BASEPATH') OR exit('No direct script access allowed');
 
 /*
 | -------------------------------------------------------------------------
-| hooks_helper.php [rev 1.1], Назначение: внедрение функциональности хуков
+| hooks.php [rev 1.1], Назначение: внедрение функциональности хуков
 | -------------------------------------------------------------------------
 | В этом файле описана базовая функциональность хуков, с помощью которой
 | можно изменить код программы и внедрить свой функционал.
@@ -11,7 +11,7 @@ defined('CS__BASEPATH') OR exit('No direct script access allowed');
 |
 |
 @
-@   Cubsystem CMS, (с) 2019
+@   Cubsystem CMS, (с) 2020
 @   Author: Anchovy
 @   GitHub: //github.com/Anchovys/cubsystem
 @

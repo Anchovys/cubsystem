@@ -1,18 +1,17 @@
-<?php if(!defined('CS__BASEPATH')) die('Wrong path');
+<?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
 
 define("CS__CFG",
 [
-    'routes'  =>
-    [
-        'auto' => false,
-        'manual' =>
-        [
-            'games' =>
-            [
-                'f' => 'games.php'
-            ],
-        ]
-    ],
+    'installed' => TRUE,
+    'database' => [
+        'host' => 'localhost',
+        'username' => 'root', 
+        'password' => '',
+        'db'=> 'cubsystem',
+        'port' => 3306,
+        'prefix' => 'cs_',
+        'charset' => 'utf8'
+    ]
 ]);
 
 ?>

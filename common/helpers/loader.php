@@ -2,13 +2,13 @@
 
 /*
 | -------------------------------------------------------------------------
-| loader_helper.php, Назначение: хелпер загрузки модулей и классов
+| loader.php, Назначение: хелпер загрузки модулей и классов
 | -------------------------------------------------------------------------
 | Основные методы, которые используются для загрузки модулей.
 | Также сюда внедрены методы загрузки классов, помимо модулей.
 |
 @
-@   Cubsystem CMS, (с) 2019
+@   Cubsystem CMS, (с) 2020
 @   Author: Anchovy
 @   GitHub: //github.com/Anchovys/cubsystem
 @
@@ -22,7 +22,8 @@ class loader_helper {
      * 
      * @return No
     */
-    public function mod_load_for ($list = array()) {
+    public function mod_load_for ($list = array())
+    {
 
         if(!$list || !is_array($list)) 
         {
@@ -42,7 +43,8 @@ class loader_helper {
      * 
      * @return Boolean
     */
-    public function mod_load ($name = '', $args = array()) {
+    public function mod_load ($name = '', $args = array())
+    {
 
         $name = Filter($name, 'trim');
 
@@ -76,7 +78,8 @@ class loader_helper {
      * 
      * @return No
     */
-    public function class_load_for ($list = array()) {
+    public function class_load_for ($list = array())
+    {
         
         if(!$list || !is_array($list))
         {
@@ -112,7 +115,8 @@ class loader_helper {
      * 
      * @return Boolean
     */
-    public function class_load ($classname = '', $autojoin = true) {
+    public function class_load ($classname = '', $autojoin = true)
+    {
         if(!$classname) 
         {
             return false;
@@ -120,11 +124,9 @@ class loader_helper {
 
         global $CS;
 
-        if
-        (
-            preg_match("/^\w+$/i", $classname) && 
-            file_exists($CS->config['classes_dir'] . $classname . ".class.php")
-        ) {
+        if(preg_match("/^\w+$/i", $classname) && 
+            file_exists($CS->config['classes_dir'] . $classname . ".class.php")) 
+        {
             //подключим класс
             include_once($CS->config['classes_dir'] . $classname . ".class.php");
 
@@ -141,17 +143,10 @@ class loader_helper {
                         $CS->classes[$classname] = new $fullClassname();
                         return true;
                     }
-                
                 } 
             }
         }
         return false;
-
-
     }
 }
-
-
-
-
 ?>

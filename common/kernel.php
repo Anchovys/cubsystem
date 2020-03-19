@@ -1,4 +1,4 @@
-<?php if(!defined('CS__BASEPATH') || !defined('CS__CFG')) die('Wrong path');
+<?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
 
 function cs_autoload_js($dir = CS__BASEPATH . 'js', $print_output = false)
 {
@@ -12,7 +12,8 @@ function cs_autoload_js($dir = CS__BASEPATH . 'js', $print_output = false)
         $output_html .= '<script src="' . $file . '"></script>'; 
     }
 
-    if($print_output) print($output_html);
+    if($print_output)
+        print($output_html);
 
     return $output_html;
 }
@@ -28,31 +29,21 @@ function cs_autoload_css($dir = CS__BASEPATH . 'css/')
         $output_html .= '<link rel="stylesheet" href="' . $file . '">';
     }
 
-    if($print_output) print($output_html);
+    if($print_output)
+        print($output_html);
     
     return $output_html;
 }
 
-function cs_template_output($data = ['title' => '', 'head' => '', 'body' => '', 'body-attr'=> ''])
+function cs_execute_template($path = CS__KERNELPATH . 'template' . _DS)
 {
-    global $CS;
+    if(!file_exists($f = $path . 'index.php'))
+        die('Template load failed!');
 
-    $pr  = '';
-    $pr .= '<!DOCTYPE html><html lang="en">';
-    $pr .=      '<head>';
-    $pr .=          $data['head'];
-    $pr .=          '<meta charset="UTF-8">';
-    $pr .=          '<meta name="viewport" content="width=device-width, initial-scale=1.0">';
-    $pr .=          '<title>' . $data['title'] . '</title>';
-    $pr .=      '</head>';
-    $pr .=      '<body ' . $data['body-attr'] . '>';
-    $pr .=          $data['body'];
-    $pr .=      '</body>';
-    $pr .= '</html>';
+    require_once($f);
 
-    $time = microtime(true) - $CS->dynamic['time_pre'];
-    $pr .= '<!--Execute time:' . $time . '-->';
-    return $pr;
+    if(function_exists('load_template'))
+        load_template();
 }
 
 function cs_get_segments()
@@ -67,7 +58,7 @@ function cs_get_segments()
 
 function cs_make_htaccess()
 {
-	$htaccess = file_get_contents(CS__KERNELPATH . _DS . 'dist' . _DS . 'htaccess-distr.txt');
+	$htaccess = file_get_contents(CS__KERNELPATH . 'dist' . _DS . 'htaccess-distr.txt');
 	$htaccess = str_replace('{path}', isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/', $htaccess);
 	file_put_contents(CS__BASEPATH . '.htaccess', $htaccess);
 }
@@ -76,7 +67,7 @@ function cs_path_to_url($path, $absolute = TRUE)
 {
     $path = $absolute ? str_replace(CS__BASEPATH, '', $path) : $path;
     $path = str_replace(['\\'],  '/', $path); 
-    $path = str_replace(['.', '~'],  '_', $path); 
+    //$path = str_replace(['.', '~'],  '_', $path); 
     $path = CS__BASEURL . $path;
 
     return $path;
@@ -85,6 +76,14 @@ function cs_path_to_url($path, $absolute = TRUE)
 function cs_file_ext($file)
 {
 	return strtolower(substr(strrchr($file, '.'), 1));
+}
+
+function cs_return_output($file, $__data = false)
+{
+    global $CS;
+    ob_start();
+    include $file;
+    return ob_get_clean();
 }
 
 function cs_get_path_files($path = '', $full_path = TRUE, $exts = ['jpg', 'jpeg', 'png', 'gif', 'ico', 'svg'], $minus = TRUE)
@@ -143,6 +142,7 @@ function cs_load_helpers($path = CS__KERNELPATH . 'helpers' . _DS)
     return $helpers;
 }
 
+/* TODO: rewrite
 function cs_handle_routes($path = CS__KERNELPATH . 'routes' . _DS) 
 {
     global $CS;
@@ -203,7 +203,7 @@ function cs_handle_routes($path = CS__KERNELPATH . 'routes' . _DS)
         if(isset($page_settings))
             $CS->dynamic['page_data'] = $page_settings;
     }
-}
+}*/
 
 function directory_map($source_dir, $directory_depth = 0, $hidden = FALSE)
 {

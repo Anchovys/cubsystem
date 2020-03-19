@@ -12,7 +12,6 @@ if(file_exists($f = CS__KERNELPATH . 'kernel.php'))
 if(file_exists($f = CS__KERNELPATH . 'cubsystem.php'))
     require_once($f);
 
-
-if(!isset($CS)) $CS = new Cubsystem();  
-if($CS) $CS->init();
+if(!isset($CS) && $CS = new Cubsystem())
+    $CS->init();
 ?>
