@@ -2,7 +2,7 @@
 class Cubsystem 
 {
     public $info = [
-        "version" => "0.02",
+        "version" => "0.03",
         "name"    => "Cubsystem"
     ];
 
@@ -46,7 +46,7 @@ class Cubsystem
     public function working_time ()
     {
         $diff = microtime(true) - $this->dynamic['time_pre'];
-        return $diff . 'ms.';
+        return $diff . 'sec.';
     }
 
     public function init ()

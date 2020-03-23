@@ -19,7 +19,7 @@ class blog_helper
 {
     public $callback = ''; // file for callback
     
-    public function loadPageBy($by = null, $value = null, $callback = false)
+    public function loadPageBy($by = false, $value = false, $callback = false)
     {     
         global $CS;
 
@@ -37,8 +37,8 @@ class blog_helper
         // return as buffer output
         return cs_return_output($f, $data);
     }
-    
-    public function getCountsPageBy($by = null, $value = null)
+
+    public function getPagesBy($by = false, $value = false, $count = false)
     {
         global $CS;
 
@@ -47,7 +47,10 @@ class blog_helper
 
         if($by && $value)
             $db->where($by, $value);
-        return count($data = $db->get("pages"));
+        
+        $result = $db->get("pages");
+        
+        return $count ? count($result) : $result;
     }
 
     public function load404Page($callback = false)
