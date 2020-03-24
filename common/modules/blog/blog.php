@@ -16,7 +16,8 @@
 */
 
 class blog_module extends cs_module
-{
+{   
+    public $template = null;
     public $callback = ''; // file for callback
     private $_page = null;
 
@@ -33,17 +34,7 @@ class blog_module extends cs_module
         $this->_page = new cs_page();
     }
 
-    public function callback_load($data, $callback = false)
-    {
-        $callback = CS__TEMPLATE_VIEWS_DIR . $callback . '.php';
-        if(!file_exists($f = $callback ? $callback : $this->callback))
-            die("[blog] Can`t load template callback file : {$callback}");
-
-        // return as buffer output
-        return cs_return_output($f, $data);
-    }
-
-    public function get_pages_by($by, $data, $view_name = 'short-page_view')
+    public function get_pages_by($by, $data, $view_name = 'short-page_view', $set_meta = TRUE)
     {
         $content = '';
         $pages = $this->_page->get_list_by($by, $data);
@@ -52,7 +43,9 @@ class blog_module extends cs_module
         {
             foreach($pages['result'] as $page_data)
             {
-                $content .= $this->callback_load(['page' => new cs_page($page_data)], $view_name);
+                $page = new cs_page($page_data);
+                $content .= $this->template->callback_load(['page' => $page], $view_name);
+                $this->template->meta_data = $page->meta;
             }
             return $content;
         }
@@ -69,7 +62,7 @@ class blog_module extends cs_module
             'title'         => "Страница не найдена!",
             'context'       => "404 Страница не найдена!"
         ];
-        return $this->callback_load(['page' => new cs_page($data)], $view_name);
+        return $this->template->callback_load(['page' => new cs_page($data)], $view_name);
     }
 }
 ?>

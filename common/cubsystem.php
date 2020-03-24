@@ -8,7 +8,6 @@ class cs_module
     public $fullpath       = null;
 }
 
-
 class Cubsystem 
 {
     private static $instance = null;
@@ -78,6 +77,24 @@ class Cubsystem
 
     public function init()
     {
+        /////// --> CREATING HTACCESS ////////
+            
+            // make htaccess if not exists
+            if(!file_exists( CS__BASEPATH . '.htaccess')) 
+            {
+                cs_make_htaccess(); 
+                exit('Reload the page');
+            }
+
+        /////// CREATING HTACCESS <-- ////////
+
+        /////// --> INSTALL CHECK ////////
+
+            if(!$this->config || $this->config['installed'] === FALSE) 
+                die("System not installed! <a href='{CS__BASEURL}install'>Install now!</a>");
+
+        /////// INSTALL CHECK <-- ////////
+
         /////// --> HELPERS LOADING ////////
 
             // load all helpers
@@ -96,24 +113,6 @@ class Cubsystem
             }
 
         /////// MODULES LOADING <-- ////////
-
-        /////// --> CREATING HTACCESS ////////
-            
-            // make htaccess if not exists
-            if(!file_exists( CS__BASEPATH . '.htaccess')) 
-            {
-                cs_make_htaccess(); 
-                exit('Reload the page');
-            }
-
-        /////// CREATING HTACCESS <-- ////////
-
-        /////// --> INSTALL CHECK ////////
-
-            if(!$this->config || $this->config['installed'] === FALSE) 
-                die("System not installated! <a href='{$base_url}install'>Install now!</a>");
-
-        /////// INSTALL CHECK <-- ////////
 
         /////// --> MYSQL CONNECTING ////////
 
@@ -141,20 +140,19 @@ class Cubsystem
 
         /////// --> TEMPLATE LOADING ////////
 
+            // trying load the template helper
+            if(!$tmpl = $this->gc('template_helper', 'helpers'))
+                die("Can`t load template helper!");
+                
+            // init the helper to selected template
+            $tmpl->join($this->config['template']);
+
             // check if config skip template load
             if($this->config['skip_template'] !== TRUE)
-            {
-                // trying load the template helper
-                if(!$tmpl = $this->gc('template_helper', 'helpers'))
-                    die("Can`t load template helper!");
-                
-                // init the helper to selected template
-                $tmpl->join($this->config['template']);
-
                 // print formatted page
                 if(!$tmpl->render())
                     die("Can`t load render template!");
-            }
+                
 
         /////// TEMPLATE LOADING <-- ////////
 

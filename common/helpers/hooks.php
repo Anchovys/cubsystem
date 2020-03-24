@@ -35,17 +35,18 @@ class hooks_helper {
         //хук и функция должна быть указана
         if (!$hook || !$func)
         {
-            return false;
+            return FALSE;
         }
 
         //хуки отключены?
-        if(!$CS->config['enable_hooks']) 
+        if($CS->config['enable_hooks'] === FALSE) 
         {
-            return false;
+            return FALSE;
         }
 
         //фильтр для значения приоритета
-        $priority = Filter($priority, 'int;ab_zero');
+        $priority = (int) $priority;
+        if($priority < 0) $priority = 0;
 
         if(is_string($func))    //в качестве функции передана строка
         {
@@ -83,7 +84,8 @@ class hooks_helper {
             if($class)
             {
                 $priority = $class; //используем как приоритет
-                $priority = Filter($priority, 'int;ab_zero'); //фильтр значений
+                $priority = (int) $priority; //фильтр значений
+                if($priority < 0) $priority = 0;
                 $class = null; //класс для анонмной функции не нужен
             }
         }

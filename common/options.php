@@ -20,13 +20,19 @@ define("CS__CFG",
     'installed' => TRUE,
 
     // skip template loading
+    // if enable, template stop rendering
     'skip_template' => FALSE,
 
     // skip database connection
+    // WARNING: if you enable that option
+    // ALL HELPERS/MODULES/PLUGINS using DB will not work
     'skip_database-connect' => FALSE,
 
     // array of modules for load on system load
-    'modules'   => ['blog'],
+    'modules'   => ['auth', 'adminpanel', 'blog'],
+
+    // enable hook system
+    'enable_hooks' => TRUE,
 
     // template-name in catalog ROOT/templates
     'template'  => 'example',

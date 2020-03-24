@@ -3,9 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="loader.js"></script>
-    <?=cs_autoload_css(CS__TEMPLATE_ASSETS_DIR . 'css/');?>
+    <?=$__data['meta']?>
 </head>
 <body>
     <div class="container">
@@ -16,7 +14,7 @@
     <div class="container mm__main_container" style="margin-top:50px">
         <div class="row mm__main_row">
             <div class="col-md-12 col-lg-8 col-sm-12 mm__main_pagebar">
-                <?=$content?>
+                <?=$__data['content']?>
             </div>
             <div class="col-md-12 col-lg-4 col-sm-12 mm__main_sidebar">
                 <div class="mm__sidebar">

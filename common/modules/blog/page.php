@@ -26,11 +26,13 @@ class cs_page
     public $author      = null;
     public $views       = null;
     public $link        = null;
+    public $meta        = [];
 
     function __construct($data = [])
     {
         if(is_array($data))
         {
+            // all basic data
             if (isset($data['id']))         $this->id = (int)$data['id'];
             if (isset($data['title']))      $this->title = (string)$data['title'];
             if (isset($data['tag']))        $this->tag = (string)$data['tag'];
@@ -38,7 +40,11 @@ class cs_page
             if (isset($data['author']))     $this->author = (string)$data['author'];
             if (isset($data['views']))      $this->views = (int)$data['views'];
             if (isset($data['link']))       $this->link = (string)$data['link'];
-            if (isset($data['context']))    $this->context = (string)$data['context'];  
+            if (isset($data['context']))    $this->context = (string)$data['context'];
+
+            // meta data
+            if (isset($data['title']))      $this->meta['title'] = (string)$data['title'];
+            if (isset($data['context']))    $this->meta['context'] = (string)$data['title'];
         }
         /*
         else if(gettype($params) == gettype($this))

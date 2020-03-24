@@ -14,7 +14,7 @@
 @
 */
 
-function cs_autoload_js($dir = CS__BASEPATH . 'js', $print_output = false)
+function cs_autoload_js($dir = CS__BASEPATH . 'js', $print_output = FALSE)
 {
     $files = cs_get_path_files($dir, true, ['js']);
     $output_html = '';
@@ -32,7 +32,7 @@ function cs_autoload_js($dir = CS__BASEPATH . 'js', $print_output = false)
     return $output_html;
 }
 
-function cs_autoload_css($dir = CS__BASEPATH . 'css/')
+function cs_autoload_css($dir = CS__BASEPATH . 'css/', $print_output = FALSE)
 {
     $files = cs_get_path_files($dir, true, ['css']);
     $output_html = '';
@@ -84,8 +84,12 @@ function cs_file_ext($file)
 function cs_return_output($file, $__data = false)
 {
     global $CS;
+
     ob_start();
-    include $file;
+
+    if(file_exists($file))
+        include($file);
+
     return ob_get_clean();
 }
 
@@ -136,7 +140,7 @@ function cs_load_helpers($path = CS__KERNELPATH . 'helpers' . _DS)
 
         // check mathes, class exsists
         if(!preg_match("/^\w+$/i", $helper_name) || !class_exists($helper_name) ||
-           array_key_exists($name, $helpers))
+           array_key_exists($helper_name, $helpers))
             continue;
         
         // add to array

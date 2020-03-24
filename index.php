@@ -7,11 +7,14 @@ define('CS__MODULESPATH', CS__KERNELPATH   . 'modules' . _DS);
 if(file_exists($f = CS__KERNELPATH . 'options.php'))
     require_once($f);
 
+
 if(file_exists($f = CS__KERNELPATH . 'kernel.php'))
     require_once($f);
 
+
 if(file_exists($f = CS__KERNELPATH . 'cubsystem.php'))
     require_once($f);
+
 
 if(!isset($CS) && $CS = Cubsystem::getInstance())
     $CS->init();
