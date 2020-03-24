@@ -11,6 +11,7 @@ class cs_module
 
 class Cubsystem 
 {
+    private static $instance = null;
     public $info = [
         "version" => "0.03",
         "name"    => "Cubsystem"
@@ -44,6 +45,14 @@ class Cubsystem
         if(defined('CS__CFG')) $this->config = CS__CFG;
         $this->dynamic['url-address']  = CS__BASEURL;
         $this->dynamic['url-segments'] = $segments;
+    }
+
+    public static function getInstance() // for singleton
+    {
+      if (self::$instance == null)
+        self::$instance = new Cubsystem();
+   
+      return self::$instance;
     }
 
     public function gc($classname, $category=FALSE)
@@ -108,29 +117,53 @@ class Cubsystem
 
         /////// --> MYSQL CONNECTING ////////
 
-            if(!$db = $this->gc('mysqli_db_helper', 'helpers'))
-                die("Can`t load database helper!");
+            // check if config skip mysql load
+            if($this->config['skip_database-connect'] !== TRUE)
+            {
+                if(!$db = $this->gc('mysqli_db_helper', 'helpers'))
+                    die("Can`t load database helper!");
 
-            // make connection with mysql
-            $db->addConnection('default', $this->config['database']);
-            $db->connect('default');
+                // make connection with mysql
+                $db->addConnection('default', $this->config['database']);
+                $db->connect('default');
 
-            if(!$db) die('Can`t connect to MySql Database');
+                if(!$db) die('Can`t connect to MySql Database');
+            }
 
         /////// MYSQL CONNECTING <-- ////////
 
+        /////// --> PRE-TEMPLATE HOOK ////////
+            
+            if($h = $this->gc('hooks_helper', 'helpers'))
+                $h->here('cs__pre-template_hook');
+
+        /////// PRE-TEMPLATE HOOK <-- ////////
+
         /////// --> TEMPLATE LOADING ////////
 
-            if(!$tmpl = $this->gc('template_helper', 'helpers'))
+            // check if config skip template load
+            if($this->config['skip_template'] !== TRUE)
+            {
+                // trying load the template helper
+                if(!$tmpl = $this->gc('template_helper', 'helpers'))
                     die("Can`t load template helper!");
-            
-            $tmpl->join($this->config['template']);
+                
+                // init the helper to selected template
+                $tmpl->join($this->config['template']);
 
-            // print formatted page
-            if(!$tmpl->render())
-                die("Can`t load render template!");
+                // print formatted page
+                if(!$tmpl->render())
+                    die("Can`t load render template!");
+            }
 
         /////// TEMPLATE LOADING <-- ////////
+
+        /////// --> POST-TEMPLATE HOOK ////////
+            
+            if($h = $this->gc('hooks_helper', 'helpers'))
+                $h->here('cs__post-template_hook');
+
+        /////// POST-TEMPLATE HOOK <-- ////////
     }
 }
 ?>

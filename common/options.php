@@ -16,9 +16,22 @@
 
 define("CS__CFG",
 [
+    // system is installed?
     'installed' => TRUE,
+
+    // skip template loading
+    'skip_template' => FALSE,
+
+    // skip database connection
+    'skip_database-connect' => FALSE,
+
+    // array of modules for load on system load
     'modules'   => ['blog'],
+
+    // template-name in catalog ROOT/templates
     'template'  => 'example',
+
+    // database connection info
     'database'  => [
         'host'     => 'localhost',
         'username' => 'root', 
