@@ -1,26 +1,28 @@
-<?php defined('CS__BASEPATH') OR exit('No direct script access allowed'); ?>
+<?php defined('CS__BASEPATH') OR exit('No direct script access allowed');?>
 <div class="mm__page">
     <div class="mm__page_title">
-        <a class="mm__page_title_link" href="page/<?=$__data['link']?>">
-            <h1 class="mm__page_title_label"><?=$__data['title']?></h1>
+        <a class="mm__page_title_link" href="page/<?=$__data['page']->link?>">
+            <h1 class="mm__page_title_label">
+                <?=$__data['page']->title?>
+            </h1>
         </a>
     </div>
     <div class="mm__page_info">
         <ul class="mm__page_info_list">
             <li>Автор:
-                <?=$__data['author']?>
+                <?=$__data['page']->author?>
             </li>
             <li>Просмотров:
-                <?=$__data['views']?>
+                <?=$__data['page']->views?>
             </li>
             <li>Комментариев:
-                <?=$__data['comments']?>
+                <?=$__data['page']->comments?>
             </li>
         </ul>
     </div>
     <div class="mm__page_content">
         <article id="content">
-            <?=$__data['context']?>
+            <?=$__data['page']->context?>
         </article>
     </div>
 </div>

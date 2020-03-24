@@ -1,5 +1,19 @@
 <?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
 
+/*
+| -------------------------------------------------------------------------
+| kernel.php [rev 1.0], Назначение: основные функции системы Cubsystem
+| -------------------------------------------------------------------------
+| В этом файле описаны основные функции, используемые системой
+|
+|
+@
+@   Cubsystem CMS, (с) 2020
+@   Author: Anchovy
+@   GitHub: //github.com/Anchovys/cubsystem
+@
+*/
+
 function cs_autoload_js($dir = CS__BASEPATH . 'js', $print_output = false)
 {
     $files = cs_get_path_files($dir, true, ['js']);
@@ -33,17 +47,6 @@ function cs_autoload_css($dir = CS__BASEPATH . 'css/')
         print($output_html);
     
     return $output_html;
-}
-
-function cs_execute_template($path = CS__KERNELPATH . 'template' . _DS)
-{
-    if(!file_exists($f = $path . 'index.php'))
-        die('Template load failed!');
-
-    require_once($f);
-
-    if(function_exists('load_template'))
-        load_template();
 }
 
 function cs_get_segments()
@@ -141,69 +144,6 @@ function cs_load_helpers($path = CS__KERNELPATH . 'helpers' . _DS)
     }
     return $helpers;
 }
-
-/* TODO: rewrite
-function cs_handle_routes($path = CS__KERNELPATH . 'routes' . _DS) 
-{
-    global $CS;
-    $segments = defined('CS__SEGMENTS') ? CS__SEGMENTS : cs_get_segments();
-
-    // not defined config
-    if(!defined('CS__CFG')) return;
-
-    $files = cs_get_path_files($path, false, ['php']);
-    $routes = [];
-    foreach($files as $file)
-    {
-        // make routename from filename
-        $name  = str_replace(  '.php', '',  $file);
-        $name  = str_replace(  '-',    '_', $name);
-        
-        if(!preg_match("/^\w+$/i", $name) || 
-            array_key_exists($name, $routes))
-        {
-            continue;
-        }
-
-        // add to array
-        $routes[] = [
-            'fn' => $file,  // file name
-            'rn'  => $name  // route name
-        ];
-    }
-
-    foreach($routes as $route) 
-    {
-        if($route['rn'] != $segments[0])
-            continue;
-
-        $filename = $path . _DS;
-
-        // manual working mode
-        if(CS__CFG['routes']['auto'] != TRUE)
-        {
-            if(!array_key_exists($route['rn'], CS__CFG['routes']['manual']))
-                continue;
-
-            // custom filename
-            $filename .= CS__CFG['routes']['manual'][$route['rn']]['f'];
-            if(!file_exists($filename))
-                continue;
-            
-        } else $filename .= $route['fn'];
-
-        // connect the file
-        require_once($filename);
-
-        // calling user function
-        $function = "cs_route_{$route['rn']}";
-        if(function_exists($function))
-            call_user_func($function);
-
-        if(isset($page_settings))
-            $CS->dynamic['page_data'] = $page_settings;
-    }
-}*/
 
 function directory_map($source_dir, $directory_depth = 0, $hidden = FALSE)
 {

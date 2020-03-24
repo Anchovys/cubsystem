@@ -1,4 +1,14 @@
 <?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
+
+class cs_module
+{
+    public $name           = null;
+    public $description    = null;
+    public $version        = null;
+    public $fullpath       = null;
+}
+
+
 class Cubsystem 
 {
     public $info = [
@@ -8,18 +18,18 @@ class Cubsystem
 
     public $config  = [];
     public $dynamic = [];
-    public $classes = [];
     public $hooks   = [];
 
     public $autoload = [
         'classes' => [],
-        'modules' => []
+        'modules' => [],
+        'helpers' => []
     ];
 
-    function __construct ()
+    function __construct()
     {
         // for statistics
-        $this->dynamic['time_pre'] = microtime(true);
+        $this->dynamic['time_pre'] = microtime(TRUE);
 
         // http-address
         $base_url  = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
@@ -34,30 +44,49 @@ class Cubsystem
         if(defined('CS__CFG')) $this->config = CS__CFG;
         $this->dynamic['url-address']  = CS__BASEURL;
         $this->dynamic['url-segments'] = $segments;
-
     }
 
-    public function gc ($classname)
+    public function gc($classname, $category=FALSE)
     {
         $classname = strtolower(trim($classname));
-        return !array_key_exists($classname, $this->classes) ? false : $this->classes[$classname];
+
+        $seek_array = $category === FALSE ? FALSE : $this->autoload[$category];
+
+        if(!$seek_array) {
+            foreach(array_keys($this->autoload) as $key)
+                if(array_key_exists($classname, $this->autoload[$key]))
+                        return $this->autoload[$key][$classname];
+            return FALSE;
+            
+        } else return !array_key_exists($classname, $seek_array) ? FALSE : $seek_array[$classname];
     }
 
-    public function working_time ()
+    public function working_time()
     {
-        $diff = microtime(true) - $this->dynamic['time_pre'];
+        $diff = microtime(TRUE) - $this->dynamic['time_pre'];
         return $diff . 'sec.';
     }
 
-    public function init ()
+    public function init()
     {
         /////// --> HELPERS LOADING ////////
 
             // load all helpers
-            $custom_helpers = cs_load_helpers();
-            $this->classes = array_merge( $this->classes,  $custom_helpers );
+            if($custom_helpers = cs_load_helpers())
+                $this->autoload['helpers'] = array_merge( $this->autoload['helpers'],  $custom_helpers );
 
         /////// HELPERS LOADING <-- ////////
+
+        /////// --> MODULES LOADING ////////
+
+            if($loader = $this->gc('loader_helper', 'helpers'))
+            {
+                // load all modules
+                if($custom_modules = $loader->mod_load_for($this->config['modules']))
+                    $this->autoload['modules'] = array_merge( $this->autoload['modules'],  $custom_modules );   
+            }
+
+        /////// MODULES LOADING <-- ////////
 
         /////// --> CREATING HTACCESS ////////
             
@@ -70,16 +99,16 @@ class Cubsystem
 
         /////// CREATING HTACCESS <-- ////////
 
-        /////// --> INSTALL CHECKED ////////
+        /////// --> INSTALL CHECK ////////
 
             if(!$this->config || $this->config['installed'] === FALSE) 
                 die("System not installated! <a href='{$base_url}install'>Install now!</a>");
 
-        /////// INSTALL CHECKED <-- ////////
+        /////// INSTALL CHECK <-- ////////
 
-        /////// --> MYSQL CONNECTION ////////
+        /////// --> MYSQL CONNECTING ////////
 
-            if(!$db = $this->gc('mysqli_db_helper'))
+            if(!$db = $this->gc('mysqli_db_helper', 'helpers'))
                 die("Can`t load database helper!");
 
             // make connection with mysql
@@ -88,13 +117,20 @@ class Cubsystem
 
             if(!$db) die('Can`t connect to MySql Database');
 
-        /////// MYSQL CONNECTION <-- ////////
+        /////// MYSQL CONNECTING <-- ////////
 
-        // handle the routes
-        # cs_handle_routes();
+        /////// --> TEMPLATE LOADING ////////
 
-        // print formatted page
-        cs_execute_template();
+            if(!$tmpl = $this->gc('template_helper', 'helpers'))
+                    die("Can`t load template helper!");
+            
+            $tmpl->join($this->config['template']);
+
+            // print formatted page
+            if(!$tmpl->render())
+                die("Can`t load render template!");
+
+        /////// TEMPLATE LOADING <-- ////////
     }
 }
 ?>

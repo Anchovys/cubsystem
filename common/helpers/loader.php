@@ -22,18 +22,19 @@ class loader_helper {
      * 
      * @return No
     */
-    public function mod_load_for ($list = array())
+    public function mod_load_for ($list = [])
     {
-
+        $mods = [];
         if(!$list || !is_array($list)) 
-        {
             return false;
-        }
 
         foreach($list as $item) 
         {
-            $this->mod_load($item, array());
+            $obj = $this->mod_load($item, []);
+            $mods[$obj[0]] = $obj[1];
         }
+
+        return $mods;
     }
     /**
      * Подгружает указанный модуль.
@@ -43,28 +44,20 @@ class loader_helper {
      * 
      * @return Boolean
     */
-    public function mod_load ($name = '', $args = array())
+    public function mod_load ($name = '', $args = [])
     {
-
-        $name = Filter($name, 'trim');
-
-        if(!$name)
-        {
+        if(!$name = trim($name))
             return false;
-        }
 
         global $CS;
 
-        if  
-        (
-            preg_match("/^\w+$/i", $name) && 
-            file_exists($CS->config['modules_dir'] . $name . "/index.php")
-        ) {
-            include_once($CS->config['modules_dir'] . $name . "/index.php");
+        if(preg_match("/^\w+$/i", $name) && 
+           file_exists($f = CS__MODULESPATH . $name . _DS . $name . '.php'))
+        {
+            include_once($f);
 
-            $name = $name . "_module";
-
-            $module = new $name($this);
+            $name = $name . '_module';
+            return class_exists($name) ? [$name, $module = new $name($this)] : false;
 		}
 
         return false; 
