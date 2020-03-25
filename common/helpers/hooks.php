@@ -26,7 +26,7 @@ class hooks_helper {
      * @param $class - объект класса, в котором нужно вызвать
      * @param $priority - приоритет выполнения (сначала с более высокими)
      * Если мы используем анонимную функцию, то вместо class можно указать priority
-     * @return Not
+     * @return bool
     */
     public function register($hook = '', $func = '', $class = '', $priority = 10)
     {
@@ -55,14 +55,14 @@ class hooks_helper {
             {
                 if ( !function_exists($func) ) 
                 {
-                    return false;
+                    return FALSE;
                 }
             }
             else
             {
                 if( !method_exists($class, $func) )
                 {
-                    return false;
+                    return FALSE;
                 }
             }
 
@@ -90,8 +90,11 @@ class hooks_helper {
             }
         }
 
+        // формируем имя
+        $hook_name = $func . spl_object_hash($class);
+
         //добавим в хуки
-        $CS->hooks[$hook][$func] = array($priority, $class, $data);
+        $CS->hooks[$hook][$hook_name] = [$func, $priority, $class, $data];
 
         //сортируем элементы в порядке убывания
         arsort($CS->hooks[$hook]);
@@ -118,10 +121,12 @@ class hooks_helper {
             if ( in_array($hook, $arr) )
             {
                 //перебор всех хуков с нужным именем
-                foreach ( $CS->hooks[$hook] as $func => $val)
+                foreach ( $CS->hooks[$hook] as $key => $val)
                 {
                     //получаем класс
-                    $class = $val[1];
+                    $class = $val[2];
+
+                    $func = $val[0];
 
                     //доп параметр
                     $data = '';
