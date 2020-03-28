@@ -18,14 +18,14 @@
 
 class cs_page
 {
-    public $id          = null;
-    public $title       = null;
-    public $tag         = null;
-    public $context     = null;
-    public $comments    = null;
-    public $author      = null;
-    public $views       = null;
-    public $link        = null;
+    public $id          = NULL;
+    public $title       = NULL;
+    public $tag         = NULL;
+    public $context     = NULL;
+    public $comments    = NULL;
+    public $author      = NULL;
+    public $views       = NULL;
+    public $link        = NULL;
     public $meta        = [];
 
     function __construct($data = [])
@@ -61,21 +61,26 @@ class cs_page
         */
     }
 
-    public function get_by_id($id = FALSE)
+    public static function getById($id = FALSE)
     {
         global $CS;
-        if(!$id) return;
 
-        if(!$db = $CS->gc('mysqli_db_helper', 'helpers')->getInstance())
+        if(!$id) return NULL;
+
+        $id = intval($id);
+
+        if(!$db = $CS->database->getInstance())
                 die('[blog] Can`t connect to database');
 
         $db->where('id', $id);
         
         if($data = $db->getOne('pages'))
             return new cs_page($data);
+
+        return NULL;
     }
 
-    public function get_list_by($by = false, $value = false)
+    public static function getListBy($by = false, $value = false)
     {
         global $CS;
 
@@ -90,7 +95,7 @@ class cs_page
         
         return
         [
-            'count'   =>  count($result),
+            'count'   => count($result),
             'result' =>  $result            
         ];
     }

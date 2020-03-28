@@ -19,6 +19,8 @@ class Cubsystem
     public $config  = [];
     public $dynamic = [];
     public $hooks   = [];
+    public $session = null;
+    public $database = null;
 
     public $autoload = [
         'classes' => [],
@@ -91,7 +93,7 @@ class Cubsystem
         /////// --> INSTALL CHECK ////////
 
             if(!$this->config || $this->config['installed'] === FALSE) 
-                die("System not installed! <a href='{CS__BASEURL}install'>Install now!</a>");
+                die("System not installed! <a href='". cs_absolute_url('install') ."'>Install now!</a>");
 
         /////// INSTALL CHECK <-- ////////
 
@@ -103,33 +105,76 @@ class Cubsystem
 
         /////// HELPERS LOADING <-- ////////
 
+        /////// --> MYSQL CONNECTING ////////
+
+        // check if config skip mysql load
+        if($this->config['skip_database-connect'] !== TRUE)
+        {
+            if(!$db = $this->gc('mysqli_db_helper', 'helpers'))
+                die("Can`t load database helper! Re-install the system");
+
+            // экземпляр остается в поле autoload[helpers] и остается
+            // одним обьектом (не дублируется!)
+            $this->database = $db;  $db = null;
+
+            // make connection with mysql
+            $this->database->addConnection('default', $this->config['database']);
+            $this->database->connect('default');
+
+            if(!$this->database)
+                die('Can`t connect to MySql Database! Check your connection info');
+        }
+
+        /////// MYSQL CONNECTING <-- ////////
+
+        /////// --> SESSION LOADING ////////
+
+            if(!$s = $this->gc('sessions_helper', 'helpers'))
+                die('Can`t load session helper! Re-install the system');
+
+            $this->session = $s; $s = null;
+            $this->session->init(['autoStart' => true]);
+
+
+        /////// SESSION LOADING <-- ////////
+
+        /////// --> PRE-MODULES HOOK ////////
+
+        if($h = $this->gc('hooks_helper', 'helpers'))
+            $h->here('cs__pre-modules_hook');
+
+        /////// PRE-MODULES HOOK <-- ////////
+
         /////// --> MODULES LOADING ////////
 
             if($loader = $this->gc('loader_helper', 'helpers'))
             {
                 // load all modules
                 if($custom_modules = $loader->mod_load_for($this->config['modules']))
-                    $this->autoload['modules'] = array_merge( $this->autoload['modules'],  $custom_modules );   
+                    $this->autoload['modules'] = array_merge($this->autoload['modules'],  $custom_modules);
             }
 
         /////// MODULES LOADING <-- ////////
 
-        /////// --> MYSQL CONNECTING ////////
+        /////// --> POST-MODULES HOOK ////////
 
-            // check if config skip mysql load
-            if($this->config['skip_database-connect'] !== TRUE)
-            {
-                if(!$db = $this->gc('mysqli_db_helper', 'helpers'))
-                    die("Can`t load database helper!");
+        if($h = $this->gc('hooks_helper', 'helpers'))
+            $h->here('cs__post-modules_hook');
 
-                // make connection with mysql
-                $db->addConnection('default', $this->config['database']);
-                $db->connect('default');
+        /////// POST-MODULES HOOK <-- ////////
 
-                if(!$db) die('Can`t connect to MySql Database');
-            }
+        /////// --> TEMPLATE INIT ////////
 
-        /////// MYSQL CONNECTING <-- ////////
+            // trying load the template helper
+            if(!$tmpl = $this->gc('template_helper', 'helpers'))
+                die("Can`t load template helper! Re-install the system");
+
+            // if template not inited in modules,
+            // we init default template from config
+            if($tmpl->joined === FALSE)
+                $tmpl->join($this->config['template']);
+
+        /////// TEMPLATE INIT <-- ////////
 
         /////// --> PRE-TEMPLATE HOOK ////////
             
@@ -138,14 +183,7 @@ class Cubsystem
 
         /////// PRE-TEMPLATE HOOK <-- ////////
 
-        /////// --> TEMPLATE LOADING ////////
-
-            // trying load the template helper
-            if(!$tmpl = $this->gc('template_helper', 'helpers'))
-                die("Can`t load template helper!");
-                
-            // init the helper to selected template
-            $tmpl->join($this->config['template']);
+        /////// --> TEMPLATE RENDER ////////
 
             // check if config skip template load
             if($this->config['skip_template'] !== TRUE)
@@ -154,7 +192,7 @@ class Cubsystem
                     die("Can`t load render template!");
                 
 
-        /////// TEMPLATE LOADING <-- ////////
+        /////// TEMPLATE RENDER <-- ////////
 
         /////// --> POST-TEMPLATE HOOK ////////
             

@@ -16,6 +16,7 @@
 
 class template_helper {
 
+    public  $joined = FALSE;
     public  $path = '';
     public  $info = [];
     public  $meta_data = [];
@@ -31,7 +32,10 @@ class template_helper {
             define("CS__TEMPLATESPATH", CS__BASEPATH . 'templates' . _DS);
 
         $this->path = $fullpath ? $setpath : CS__TEMPLATESPATH . $setpath . _DS;
- 
+
+        // setup as joined
+        $this->joined = TRUE;
+
         // get the information about template
         if(file_exists($f = $this->path . 'info.php'))
         {
@@ -60,14 +64,17 @@ class template_helper {
 
         if(function_exists('onload_template'))
             onload_template($this);
-        
+
+        if($this->html_buffer == '')
+            $this->html_buffer = '<div class="blank">No content</div>';
+
         if($print_buffer)
             print($this->html_buffer);
 
         return $this->html_buffer;
     }
 
-    public function callback_load($data, $callback = false)
+    public function callbackLoad($data, $callback = false)
     {
         $callback = $this->path . 'views' . _DS . $callback . '.php';
         if(!file_exists($f = $callback))
@@ -77,7 +84,7 @@ class template_helper {
         return cs_return_output($f, $data);
     }
 
-    public function generate_meta($data = [])
+    public function generateMeta($data = [])
     {
         global $CS;
         $buffer = "";

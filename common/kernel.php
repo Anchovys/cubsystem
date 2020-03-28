@@ -2,7 +2,7 @@
 
 /*
 | -------------------------------------------------------------------------
-| kernel.php [rev 1.0], Назначение: основные функции системы Cubsystem
+| kernel.php [rev 1.2], Назначение: основные функции системы Cubsystem
 | -------------------------------------------------------------------------
 | В этом файле описаны основные функции, используемые системой
 |
@@ -76,6 +76,32 @@ function cs_path_to_url($path, $absolute = TRUE)
     return $path;
 }
 
+function cs_absolute_url($url)
+{
+    return CS__BASEURL . $url;
+}
+
+function cs_redir($url = '', $absolute = true, $header = '')
+{
+    $url = $absolute ? CS__BASEURL . $url : $url;
+    $url = strip_tags($url);
+    $url = str_replace( array('%0d', '%0a'), '', $url );
+
+    //to-do xss
+
+    $header = intval($header);
+
+    if($header === 301)
+        header('HTTP/1.1 301 Moved Permanently');
+    elseif($header === 302)
+        header('HTTP/1.1 302 Found');
+
+    header("Refresh: 0; url={$url}");
+    header("Location: {$url}");
+
+    die();
+}
+
 function cs_file_ext($file)
 {
 	return strtolower(substr(strrchr($file, '.'), 1));
@@ -93,13 +119,39 @@ function cs_return_output($file, $__data = false)
     return ob_get_clean();
 }
 
+function cs_hash_str($str, $salted = TRUE)
+{
+    global $CS;
+
+    $str = (string)$str;
+    $str .= (string)$CS->config['secret_key'];
+    return md5($str);
+}
+
+function cs_get_random_str($length = 10, $numbers = TRUE, $upper = TRUE, $special = FALSE)
+{
+    $chars = 'abcdefghijklmnopqrstuvwxyz';
+    if ($special == TRUE) $chars .= '$()[]{}#@!;:';
+    if ($numbers == TRUE) $chars .= '0123456789';
+    if ($upper   == TRUE) $chars .= 'ABCDEFGHIJKLMNOPRQSTUVWXYZ';
+
+    $string = "";
+
+    $len = strlen( $chars ) - 1;
+    while (strlen( $string ) < $length) {
+        $string .= $chars[mt_rand( 0, $len )];
+    }
+
+    return $string;
+}
+
 function cs_get_path_files($path = '', $full_path = TRUE, $exts = ['jpg', 'jpeg', 'png', 'gif', 'ico', 'svg'], $minus = TRUE)
 {
 	// if empty or not dir or empty dir
     if (!$path || !is_dir($path) || !$files = directory_map($path, true))
         return [];
 
-    $all_files = []; // totaly result
+    $all_files = []; // totalLy result
 
 	foreach ($files as $file)
 	{
@@ -121,31 +173,42 @@ function cs_get_path_files($path = '', $full_path = TRUE, $exts = ['jpg', 'jpeg'
 
 function cs_load_helpers($path = CS__KERNELPATH . 'helpers' . _DS) 
 {
+    global $CS;
+
     // totally array helpers (objects)
     $helpers = [];
 
-    // get files in directory
-    $files = cs_get_path_files($path, false, ['php']);
-    foreach($files as $file) 
-    {
-        if(!file_exists($fn = $path . $file)) // file not exsists
-            continue;
-        
-        require_once($fn); // connect the file
-            
-        // make classname from filename
-        $helper_name  = str_replace(  '.php', '',  $file);
-        $helper_name  = str_replace(  '-',    '_', $helper_name);
-        $helper_name .= '_helper';
+    $helpers_for_load = is_array($h = $CS->config['helpers-priority']) ? $h : [];
 
-        // check mathes, class exsists
-        if(!preg_match("/^\w+$/i", $helper_name) || !class_exists($helper_name) ||
-           array_key_exists($helper_name, $helpers))
+    // get files in directory
+    $files = cs_get_path_files($path, FALSE, ['php']);
+
+    foreach($files as $value)
+    {
+        $value = pathinfo($value, PATHINFO_FILENAME);
+        $value = str_replace('_helper', '', $value);
+        if(!in_array($value, $helpers_for_load))
+            array_push($helpers_for_load, $value);
+    }
+
+    foreach($helpers_for_load as $helper)
+    {
+        if(!file_exists($fn = $path . $helper . '.php')) // file not exists
+            continue;
+
+        require_once($fn); // connect the file
+
+        $helper .= '_helper';
+
+        // check mathes, class exists
+        if(!preg_match("/^\w+$/i", $helper) || !class_exists($helper) ||
+           array_key_exists($helper, $helpers))
             continue;
         
         // add to array
-        $helpers[$helper_name] = new $helper_name();
+        $helpers[$helper] = new $helper();
     }
+
     return $helpers;
 }
 
@@ -155,7 +218,7 @@ function directory_map($source_dir, $directory_depth = 0, $hidden = FALSE)
 	{
 		$filedata	= array();
 		$new_depth	= $directory_depth - 1;
-		$source_dir	= rtrim($source_dir, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+		$source_dir	= rtrim($source_dir, _DS)._DS;
 
 		while (FALSE !== ($file = readdir($fp)))
 		{
@@ -163,7 +226,7 @@ function directory_map($source_dir, $directory_depth = 0, $hidden = FALSE)
 			if (!trim($file, '.') OR ($hidden == FALSE && $file[0] == '.')) continue;
 
 			if (($directory_depth < 1 OR $new_depth > 0) && @is_dir($source_dir.$file))
-				$filedata[$file] = directory_map($source_dir . $file . DIRECTORY_SEPARATOR, $new_depth, $hidden);
+				$filedata[$file] = directory_map($source_dir . $file . _DS, $new_depth, $hidden);
 			else
 				$filedata[] = $file;
 				// $filedata[] = htmlentities($file, ENT_QUOTES, 'cp1251');
