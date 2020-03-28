@@ -19,6 +19,11 @@ defined('CS__BASEPATH') OR exit('No direct script access allowed');
 
 class hooks_helper {
 
+    function _constructor()
+    {
+        $this->here('cs__hooks_start_hook');
+    }
+
     /**
      * Регистрирует функцию на нужный хук
      * @param $hook - название хука
