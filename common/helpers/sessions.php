@@ -1,6 +1,6 @@
 <?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
 
-class session_helper
+class sessions_helper
 {
     private $prefix = 'cs_';
     private $sessionStarted = false;
@@ -9,7 +9,7 @@ class session_helper
 
     public function init($options = ['lifeTime' => 0, 'autoStart' => TRUE, 'prefix' => 'cs_'])
     {
-        if(!$options || is_array($options))
+        if(!$options || !is_array($options))
             return false;
 
         if(isset($options['autoStart'])) $this->autoStart = (bool)$options['autoStart'];
@@ -103,16 +103,16 @@ class session_helper
      *
      * @return mixed|null → key value, or null if key doesn't exists
      */
-    public function get($key = '', $secondKey = TRUE)
+    public function get($key = '', $secondKey = FALSE)
     {
-        if(!is_scalar($key)) return null;
+        if(!is_scalar($key)) return NULL;
 
         $name = $this->prefix . $key;
 
         if ($key == '')
         {
             return isset($_SESSION) ? $_SESSION : null;
-        } elseif ($secondKey == TRUE)
+        } elseif ($secondKey === TRUE)
         {
             if (isset($_SESSION[$name][$secondKey]))
                 return $_SESSION[$name][$secondKey];
