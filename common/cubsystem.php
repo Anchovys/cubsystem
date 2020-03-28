@@ -16,11 +16,12 @@ class Cubsystem
         "name"    => "Cubsystem"
     ];
 
-    public $config  = [];
-    public $dynamic = [];
-    public $hooks   = [];
-    public $session = null;
-    public $database = null;
+    public $config      = [];
+    public $dynamic     = [];
+    public $hooks       = [];
+    public $session     = null;
+    public $database    = null;
+    public $template    = null;
 
     public $autoload = [
         'classes' => [],
@@ -166,13 +167,13 @@ class Cubsystem
         /////// --> TEMPLATE INIT ////////
 
             // trying load the template helper
-            if(!$tmpl = $this->gc('template_helper', 'helpers'))
+            if(!$this->template = $this->gc('template_helper', 'helpers'))
                 die("Can`t load template helper! Re-install the system");
 
-            // if template not inited in modules,
+            // if template not init in modules,
             // we init default template from config
-            if($tmpl->joined === FALSE)
-                $tmpl->join($this->config['template']);
+            if($this->template->joined === FALSE)
+                $this->template->join($this->config['template']);
 
         /////// TEMPLATE INIT <-- ////////
 
@@ -188,7 +189,7 @@ class Cubsystem
             // check if config skip template load
             if($this->config['skip_template'] !== TRUE)
                 // print formatted page
-                if(!$tmpl->render())
+                if(!$this->template->render())
                     die("Can`t load render template!");
                 
 

@@ -24,7 +24,8 @@ class template_helper {
     [
         'minify-html' => TRUE,
     ];
-    public  $html_buffer;
+    public  $body_buffer;
+    public  $head_buffer;
 
     public function join($setpath, $fullpath = FALSE) 
     {
@@ -65,13 +66,19 @@ class template_helper {
         if(function_exists('onload_template'))
             onload_template($this);
 
-        if($this->html_buffer == '')
-            $this->html_buffer = '<div class="blank">No content</div>';
+        if($this->body_buffer == '')
+            $this->body_buffer = '<div class="blank">No content</div>';
 
         if($print_buffer)
-            print($this->html_buffer);
+            print($this->body_buffer);
 
-        return $this->html_buffer;
+        global $CS;
+
+        // minify html
+        if($this->settings['minify-html'] && $minify = $CS->gc('html_minify_helper', 'helpers'))
+            $this->body_buffer = $minify->minify($this->body_buffer);
+
+        return $this->body_buffer;
     }
 
     public function callbackLoad($data, $callback = false)
@@ -86,31 +93,26 @@ class template_helper {
 
     public function generateMeta($data = [])
     {
-        global $CS;
-        $buffer = "";
-
-        $buffer .= "<meta name=\"generator\" content=\"CubSystem CMS\">";
-        $buffer .= "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">";
-        $buffer .= "<meta property=\"og:url\" content=\"{CS__BASEURL}\">";
-        $buffer .= cs_autoload_css($this->path . 'assets' . _DS . 'css' . _DS);
-        $buffer .= cs_autoload_js($this->path . 'assets' . _DS . 'js' . _DS);
+        $this->head_buffer .= "<meta name=\"generator\" content=\"CubSystem CMS\">";
+        $this->head_buffer .= "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">";
+        $this->head_buffer .= "<meta property=\"og:url\" content=\"{CS__BASEURL}\">";
+        $this->head_buffer .= cs_autoload_css($this->path . 'assets' . _DS . 'css' . _DS);
+        $this->head_buffer .= cs_autoload_js($this->path . 'assets' . _DS . 'js' . _DS);
 
         if(is_array($data))
             foreach ($data as $key => $value)
                 switch ($key)
                 {
                     case 'title':
-                        $buffer .= "<title>{$value}</title>";
-                        $buffer .= "<meta property='og:title' content=\"{$value}\">";
+                        $this->head_buffer .= "<title>{$value}</title>";
+                        $this->head_buffer .= "<meta property='og:title' content=\"{$value}\">";
                     break;
 
                     case 'description':
-                        $buffer .= "<meta name=\"description\" content=\"{$value}\">";
-                        $buffer .= "<meta property=\"og:description\" content=\"{$value}\">";
+                        $this->head_buffer .= "<meta name=\"description\" content=\"{$value}\">";
+                        $this->head_buffer .= "<meta property=\"og:description\" content=\"{$value}\">";
                     break;
                 }
-
-        return $buffer;
     }
 }
 ?>

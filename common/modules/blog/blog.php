@@ -46,14 +46,14 @@ class blog_module extends cs_module
         switch($segments[0])
         {
             case 'login':
-                $this->template->html_buffer .= $this->template->callbackLoad([], 'loginform_view');
+                $this->template->body_buffer .= $this->template->callbackLoad([], 'loginform_view');
                 $this->template->meta_data = [
                     'title' => "Authorization",
                     'description' => "You can auth with you login/password"
                 ];
                 break;
             case 'register':
-                $this->template->html_buffer .= $this->template->callbackLoad([], 'registerform_view');
+                $this->template->body_buffer .= $this->template->callbackLoad([], 'registerform_view');
                 $this->template->meta_data = [
                     'title' => "Registration",
                     'description' => "You can register on website"
@@ -62,12 +62,12 @@ class blog_module extends cs_module
 
             case 'page': // first segment = page
                 $page = $this->getPagesBy("link", $page_tag = $segments[1], 'full-page_view');
-                $this->template->html_buffer .= (!$page) ? $this->page404('short-page_view') : $page;
+                $this->template->body_buffer .= (!$page) ? $this->page404('short-page_view') : $page;
                 break;
 
             case 'tag': // first segment = tag
                 $page = $this->getPagesBy("tag", $page_tag = $segments[1], 'short-page_view', FALSE);
-                $this->template->html_buffer .= (!$page) ? $this->page404('short-page_view') : $page;
+                $this->template->body_buffer .= (!$page) ? $this->page404('short-page_view') : $page;
                 $this->template->meta_data = [
                     'title' => "Tag: {$page_tag}",
                     'description' => "Here you can see all page with tag: {$page_tag}"
@@ -77,7 +77,7 @@ class blog_module extends cs_module
             case '':
             case 'home': // first segment = home or empty
                 $page = $this->getPagesBy(false, false, 'short-page_view', FALSE);
-                $this->template->html_buffer .= (!$page) ? $this->page404('short-page_view') : $page;
+                $this->template->body_buffer .= (!$page) ? $this->page404('short-page_view') : $page;
                 $this->template->meta_data = [
                     'title' => "Home Page",
                     'description' => "Welcome to our home page!"

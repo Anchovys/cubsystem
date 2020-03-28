@@ -12,16 +12,21 @@
 @
 */
 
-global $CS;
+function onload_template()
+{
+    global $CS;
 
-$data =
-    [
-        'content'=> $this->html_buffer,
-        'meta' => $this->generateMeta($this->meta_data)
+    // generate HEAD section (meta, js scripts, css, etc .. )
+    $CS->template->generateMeta($CS->template->meta_data);
+
+
+    // can use in main view
+    $data = [
+        'body'      => $CS->template->body_buffer,
+        'head'      => $CS->template->head_buffer
     ];
 
-$this->html_buffer = $this->callbackLoad($data , 'main_view');
-
-if($this->settings['minify-html'] && $minify = $CS->gc('html_minify_helper', 'helpers'))
-    $this->html_buffer = $minify->minify($this->html_buffer);
+    // generate totally buffer, with put data in main view
+    $CS->template->body_buffer = $CS->template->callbackLoad($data, 'main_view');
+}
 ?>

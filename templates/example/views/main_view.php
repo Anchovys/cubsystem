@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <?=$__data['meta']?>
+    <?=$__data['head']?>
 </head>
 <body>
     <div class="container">
@@ -14,7 +14,7 @@
     <div class="container mm__main_container" style="margin-top:50px">
         <div class="row mm__main_row">
             <div class="col-md-12 col-lg-8 col-sm-12 mm__main_pagebar">
-                <?=$__data['content']?>
+                <?=$__data['body']?>
             </div>
             <div class="col-md-12 col-lg-4 col-sm-12 mm__main_sidebar">
                 <div class="mm__sidebar">
