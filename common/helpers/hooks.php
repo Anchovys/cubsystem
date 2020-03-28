@@ -96,7 +96,8 @@ class hooks_helper {
         }
 
         // формируем имя
-        $hook_name = $func . spl_object_hash($class);
+        $hook_name = $func;
+        if(is_object($class)) $hook_name .= spl_object_hash($class);
 
         //добавим в хуки
         $CS->hooks[$hook][$hook_name] = [$func, $priority, $class, $data];
