@@ -31,9 +31,6 @@ class auth_module extends cs_module
         require_once($this->fullpath . 'objects' . _DS . 'user.php');
 
         $this->currentUser = $this->getCurrentUser();
-
-        pr($this->currentUser);
-
         if($h = $CS->gc('hooks_helper', 'helpers'))
             $h->register('cs__post-modules_hook', 'authHandler', $this);
     }
@@ -43,12 +40,8 @@ class auth_module extends cs_module
         global $CS;
         $segments = cs_get_segments();
 
-        if($segments[0] !== 'authorize-shell' || !isset($segments[1]))
-            return;
-
         // nothing to do
-        if(!isset($_POST))
-            return;
+        if($segments[0] !== 'authorize-shell' || !isset($segments[1]) || !isset($_POST))
 
         $action = $segments[1];
 
