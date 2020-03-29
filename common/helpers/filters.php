@@ -64,15 +64,16 @@ function xss_clean($data)
  *          xss             - очистка от XSS
  *          sl              - экранирование кавычек слешами
  *          strip_tags      - удалить все тэги
- *          specialchars    - преобразовать в html-спецсимволы
+ *          special_chars   - преобразовать в html-спецсимволы
  *          not_url         - удалить все признаки url
  *          to_lower        - преобразовать к нижнему регистру
  *          to_upper        - преобразовать к верхнему регистру
  *          path            - очищает все 'опасные' символы в пути
  *          quotes          - очищает кавычки из строки
- *          apistring       - безопасная строка, в которой используется только
+ *          special_string  - безопасная строка, в которой используется только
  *                            ОДНО СЛОВО из букв латинского алфавата с нижним регистром
- *          multispaces     - заменяет многочисленные пробелы одним символом
+ *          multi_spaces     - заменяет многочисленные пробелы одним символом
+ *          md5             - проверить является ли строка md5 хешем в случае ошибки, выведется пустой символ
  *
  *          base            - пресет. включает самые стандартные режимы
  *          username        - пресет. обрабатывает никнейм
@@ -99,11 +100,10 @@ function cs_filter ($str, $mode = "base")
 
     foreach ($mode as $rule)
     {
-
         //обозначим пресеты отдельным switch
         switch ($rule) {
             case 'base':
-                $str = cs_filter( $str, 'trim;xss;strip_tags;specialchars' );
+                $str = cs_filter( $str, 'trim;xss;strip_tags;special_chars' );
                 break;
 
             case 'username':
@@ -114,6 +114,12 @@ function cs_filter ($str, $mode = "base")
             case 'password':
                 $str = cs_filter( $str, 'base;string;spaces' );
                 if ( strlen( $str ) < 8 ) $str = '';
+                break;
+
+            case 'special_string':
+                $str = cs_filter( $str, 'base;string;spaces' );
+                $str = preg_replace( '/[^a-zA-Z0-9]/', '', $str );
+                $str = substr($str, 0, 64);
                 break;
         }
 
@@ -171,7 +177,7 @@ function cs_filter ($str, $mode = "base")
                 $str = strip_tags( $str );
                 break;
 
-            case 'specialchars':
+            case 'special_chars':
                 $str = htmlspecialchars( $str );
                 break;
 
@@ -195,17 +201,15 @@ function cs_filter ($str, $mode = "base")
                 $str = preg_replace( ['\'', '"', '`'], '', $str );
                 break;
 
-            case 'multispaces':
+            case 'multi_spaces':
                 $str = preg_replace( '!\s+!', ' ', $str );
                 break;
 
-            /*
-            case 'apistring':
-                $str = preg_replace( '!\s+!', ' ', $str );
-                $str = preg_replace( '/[^a-zA-Z0-9]/', '', $str );
-                $str = preg_replace( '/\s+/', '_', $str );
+            case 'md5':
+                $str = (!preg_match('/^[a-f0-9]{32}$/', $str )) ? '' : $str;
                 break;
 
+                /*
             case 'chars':
                 $str = preg_replace("/[^\w]+/i", "", $str);
             break;
