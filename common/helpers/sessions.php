@@ -42,8 +42,11 @@ class sessions_helper
         if ($this->sessionStarted === TRUE)
             return false;
 
-        session_set_cookie_params($this->lifeTime);
-        session_start();
+        if(empty($_SESSION))
+        {
+            session_set_cookie_params($this->lifeTime);
+            session_start();
+        }
 
         return $this->sessionStarted = TRUE;
     }
