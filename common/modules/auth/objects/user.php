@@ -2,7 +2,7 @@
 
 /*
 | -------------------------------------------------------------------------
-| user.php [rev 1.1], Назначение: класс пользователя
+| user.php [rev 1.2], Назначение: класс пользователя
 | -------------------------------------------------------------------------
 | В этом файле описан класс пользователя
 | А также, содержатся функции для работы с базой данных
@@ -101,17 +101,17 @@ class cs_user
             die('[auth] Can`t connect to database');
 
         // check user not exits in table
-        if(self::getByNickname($this->name) !== NULL)
+        if(self::getByUsername($this->name) !== NULL)
             return NULL;
 
         // generate random salt
-        $salt = cs_get_random_str(16);
+        $this->salt = cs_get_random_str(16);
 
         $data = [
             'name'      => $this->name,
             'faction'   => $this->faction,
             'password'  => $this->makePasswordHash($this->password),
-            'salt'      => $salt
+            'salt'      => $this->salt
         ];
 
         // function returned current user id

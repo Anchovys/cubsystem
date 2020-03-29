@@ -2,7 +2,7 @@
 
 /*
 | -------------------------------------------------------------------------
-| auth.php [rev 1.1], Назначение: система авторизации для пользователей
+| auth.php [rev 1.2], Назначение: система авторизации для пользователей
 | -------------------------------------------------------------------------
 | В этом файле описаны основные функциональности для работы
 | с авторизацией пользователей
@@ -18,13 +18,14 @@
 class auth_module extends cs_module
 {
     private $currentUser = NULL;
+    private $errors =      [];
 
     function __construct()
     {
         global $CS;
         $this->name = "Auth";
         $this->description = "A simple authorization system.";
-        $this->version = "1";
+        $this->version = "2";
         $this->fullpath = CS__MODULESPATH . 'auth' . _DS;
 
         // require default objects
@@ -53,9 +54,9 @@ class auth_module extends cs_module
             $password = cs_filter($_POST['password']);
 
             if(!$username && !$password)
-                return;
+                $this->setError('no-data', TRUE);
 
-            die($this->auth($username, $password) ? "ok" : "fail");
+            $this->sentResponse($this->auth($username, $password));
 
         } elseif($action === 'register')
         {
@@ -63,13 +64,13 @@ class auth_module extends cs_module
             $password = cs_filter($_POST['password']);
 
             if(!$username && !$password)
-                return;
+                $this->setError('no-data', TRUE);
 
-            die($this->register($username, $password) ? "ok" : "fail");
+            $this->sentResponse($this->register($username, $password));
         }
         elseif($action == 'logout')
         {
-            die($this->purgeSession() ? "ok" : "fail");
+            $this->sentResponse($this->purgeSession());
 
             //    cs_redir(base64_decode($_GET['next']), false);
         }
@@ -88,9 +89,6 @@ class auth_module extends cs_module
 
     private function auth($username, $password, $email = '')
     {
-        if($this->currentUser !== NULL) // already have session
-            return FALSE;
-
         // filter by username
         $username = cs_filter($username, 'username');
 
@@ -100,16 +98,13 @@ class auth_module extends cs_module
         $user = cs_user::getByUsername($username);
 
         if($user === NULL || !$user->checkPassword($password))
-            return FALSE;
+            $this->setError('incorrect');
 
         return $this->makeSession($user->id);
     }
 
     private function register($username, $password, $email = '')
     {
-        if($this->currentUser !== NULL) // already have session
-            return FALSE;
-
         $user = new cs_user (
             [
                 'name'      =>  $username,
@@ -120,7 +115,7 @@ class auth_module extends cs_module
         $user = $user->insert();
 
         if($user === NULL)
-            return FALSE;
+            $this->setError('failed-registration');
 
         return $this->makeSession($user->id);
     }
@@ -128,12 +123,12 @@ class auth_module extends cs_module
     private function purgeSession()
     {
         if($this->currentUser === NULL) // already dont have session
-            return FALSE;
+            return $this->setError('no-login');
 
         global $CS;
         $session = $CS->session;
         if(!$session)
-            return FALSE;
+            $this->setError();
 
         return $session->purge('auth_uid') &&
                $session->purge('auth_uua') &&
@@ -143,11 +138,14 @@ class auth_module extends cs_module
 
     private function makeSession($id)
     {
+        if($this->currentUser !== NULL) // already have session
+            return $this->setError('already-login');
+
         global $CS;
 
         $session = $CS->session;
         if(!$session || !$id)
-            return FALSE;
+            $this->setError();
 
         $id = intval($id);
 
@@ -164,7 +162,7 @@ class auth_module extends cs_module
         $session    = $CS->session;
 
         if(!$db || !$session)
-            return NULL;
+            $this->setError();
 
         $u_id = $session->get('auth_uid');
         $u_id = cs_filter($u_id, 'int');
@@ -182,6 +180,27 @@ class auth_module extends cs_module
             return cs_user::getById($u_id);
         }
         return NULL;
+    }
+
+    private function setError($error = 'system', $die = TRUE)
+    {
+        $this->errors[] = cs_filter($error, 'string;spaces');
+
+        if($die === TRUE)
+            die($this->sentResponse(FALSE));
+        else return FALSE;
+    }
+
+    private function sentResponse($status = FALSE)
+    {
+        return json_encode([
+            'status' => $status ? 1 : 0,
+            'errors' =>
+                [
+                    'count' => count($this->errors),
+                    'list'  => $this->errors,
+                ]
+        ]);
     }
 }
 ?>
