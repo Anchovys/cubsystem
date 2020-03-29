@@ -23,7 +23,8 @@ function onload_template()
     // can use in main view
     $data = [
         'body'      => $CS->template->body_buffer,
-        'head'      => $CS->template->head_buffer
+        'head'      => $CS->template->head_buffer,
+        'sidebar'   => $CS->template->sidebar_buffer,
     ];
 
     // generate totally buffer, with put data in main view

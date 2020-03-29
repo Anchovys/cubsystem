@@ -2,7 +2,7 @@
 
 /*
 | -------------------------------------------------------------------------
-| auth.php [rev 1.0], Назначение: система авторизации для пользователей
+| auth.php [rev 1.1], Назначение: система авторизации для пользователей
 | -------------------------------------------------------------------------
 | В этом файле описаны основные функциональности для работы
 | с авторизацией пользователей
@@ -17,7 +17,7 @@
 
 class auth_module extends cs_module
 {
-    public $currentUser = NULL;
+    private $currentUser = NULL;
 
     function __construct()
     {
@@ -30,32 +30,40 @@ class auth_module extends cs_module
         // require default objects
         require_once($this->fullpath . 'objects' . _DS . 'user.php');
 
+        // detect current logged user by session
         $this->currentUser = $this->getCurrentUser();
+
         if($h = $CS->gc('hooks_helper', 'helpers'))
             $h->register('cs__post-modules_hook', 'authHandler', $this);
     }
 
     public function authHandler()
     {
-        global $CS;
         $segments = cs_get_segments();
 
         // nothing to do
-        if($segments[0] !== 'authorize-shell' || !isset($segments[1]) || !isset($_POST))
+        if($segments[0] !== 'authorize-shell' || !isset($segments[1]))
+            return;
 
-        $action = $segments[1];
+        $action = cs_filter($segments[1], 'special_string');
 
-        if($action == 'login')
+        if($action === 'login')
         {
             $username = cs_filter($_POST['username']);
             $password = cs_filter($_POST['password']);
+
+            if(!$username && !$password)
+                return;
 
             die($this->auth($username, $password) ? "ok" : "fail");
 
-        } elseif($action == 'register')
+        } elseif($action === 'register')
         {
             $username = cs_filter($_POST['username']);
             $password = cs_filter($_POST['password']);
+
+            if(!$username && !$password)
+                return;
 
             die($this->register($username, $password) ? "ok" : "fail");
         }
@@ -68,6 +76,16 @@ class auth_module extends cs_module
         else return;
     }
 
+    public function getLoggedUser()
+    {
+        return $this->currentUser;
+    }
+
+    public function loggedIn()
+    {
+        return $this->currentUser !== FALSE;
+    }
+
     private function auth($username, $password, $email = '')
     {
         if($this->currentUser !== NULL) // already have session
@@ -76,12 +94,12 @@ class auth_module extends cs_module
         // filter by username
         $username = cs_filter($username, 'username');
 
-        $user = cs_user::getByNickname($username);
+        // filter by password
+        $password = cs_filter($password, 'password');
 
-        if($user === NULL)
-            return FALSE;
+        $user = cs_user::getByUsername($username);
 
-        if(!$user->checkPassword($password))
+        if($user === NULL || !$user->checkPassword($password))
             return FALSE;
 
         return $this->makeSession($user->id);
@@ -96,7 +114,7 @@ class auth_module extends cs_module
             [
                 'name'      =>  $username,
                 'password'  =>  $password,
-                'faction'   =>  1
+                'faction'   =>  0
             ]
         );
         $user = $user->insert();
@@ -117,9 +135,9 @@ class auth_module extends cs_module
         if(!$session)
             return FALSE;
 
-        return $session->push('auth_uid') &&
-               $session->push('auth_uua') &&
-               $session->push('auth_uip');
+        return $session->purge('auth_uid') &&
+               $session->purge('auth_uua') &&
+               $session->purge('auth_uip');
     }
 
 
@@ -138,27 +156,32 @@ class auth_module extends cs_module
                $session->push('auth_uip', cs_hash_str($_SERVER['REMOTE_ADDR']));
     }
 
-    private function getCurrentUser()
+    private function getCurrentUser() // get current logged user from session
     {
         global $CS;
 
-        $db = $CS->database;
-        $session = $CS->session;
+        $db         = $CS->database;
+        $session    = $CS->session;
 
         if(!$db || !$session)
             return NULL;
 
-        $u_id = (int)$session->get('auth_uid');
-        $u_ua = $session->get('auth_uua');
-        $u_ip = $session->get('auth_uip');
+        $u_id = $session->get('auth_uid');
+        $u_id = cs_filter($u_id, 'int');
 
-        // проверяем userAgent
-        if( $u_ua === null || $u_ua !== cs_hash_str($_SERVER['HTTP_USER_AGENT']) ||
-            $u_ip === null || $u_ip !== cs_hash_str($_SERVER['REMOTE_ADDR']))
+        $u_ua = $session->get('auth_uua');
+        $u_ua = cs_filter($u_ua, 'base;string;md5');
+
+        $u_ip = $session->get('auth_uip');
+        $u_ip = cs_filter($u_ip, 'base;string;md5');
+
+        // проверяем userAgent, IP-адрес клиента
+        if( $u_ua !== NULL && $u_ua && $u_ua === cs_hash_str($_SERVER['HTTP_USER_AGENT']) &&
+            $u_ip !== NULL && $u_ip && $u_ip === cs_hash_str($_SERVER['REMOTE_ADDR']))
         {
-            return NULL;
+            return cs_user::getById($u_id);
         }
-        return cs_user::getById($u_id);
+        return NULL;
     }
 }
 ?>

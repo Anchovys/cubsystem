@@ -2,7 +2,7 @@
 
 /*
 | -------------------------------------------------------------------------
-| user.php, Назначение: класс пользователя
+| user.php [rev 1.1], Назначение: класс пользователя
 | -------------------------------------------------------------------------
 | В этом файле описан класс пользователя
 | А также, содержатся функции для работы с базой данных
@@ -18,15 +18,15 @@
 
 class cs_user
 {
-    public  $id          = NULL;
-    public  $name        = NULL;
-    public  $faction     = 0;
-    private $password    = NULL;
-    private $salt        = NULL;
+    public $id          = NULL;
+    public $name        = NULL;
+    private $faction    = 0;
+    private $password   = NULL;
+    private $salt       = NULL;
 
     function __construct($data = [])
     {
-        if(is_array($data))
+        if (is_array($data))
         {
             // all basic data
             if (isset($data['id']))         $this->id = (int)$data['id'];
@@ -39,14 +39,14 @@ class cs_user
 
     public static function getById($id = FALSE)
     {
-        $id = (int)$id;
+        $id = cs_filter($id, 'int');
         return ($id) ? self::getBy($id, 'id') : NULL;
     }
 
-    public static function getByNickname($nickname = FALSE)
+    public static function getByUsername($username = FALSE)
     {
-        $nickname = (string)$nickname;
-        return ($nickname) ? self::getBy($nickname, 'name') : NULL;
+        $username = cs_filter($username, 'username');
+        return ($username) ? self::getBy($username, 'name') : NULL;
     }
 
     /*
@@ -58,24 +58,39 @@ class cs_user
 
     private static function getBy($property = '', $selector = '')
     {
-        if(!$selector || !is_string($selector) || !$property)
+        if (!$selector || !is_string($selector) || !$property)
             return NULL;
 
         global $CS;
-        if(!$db = $CS->database->getInstance())
+        if (!$db = $CS->database->getInstance())
             die('[auth] Can`t connect to database');
 
         $db->where($selector, $property);
 
-        if($data = $db->getOne('users'))
+        if ($data = $db->getOne('users'))
             return new cs_user($data);
 
         return NULL;
     }
 
+    private function makePasswordHash($password)
+    {
+        return cs_hash_str($password . $this->salt, TRUE);
+    }
+
     public function checkPassword($password)
     {
-        return cs_hash_str($password . $this->salt, TRUE) === $this->password;
+        return $this->makePasswordHash($password) === $this->password;
+    }
+
+    public function isAdmin($id = FALSE)
+    {
+        return $this->getFaction() === 1;
+    }
+
+    public function getFaction()
+    {
+        return $this->faction;
     }
 
     public function insert()
@@ -95,7 +110,7 @@ class cs_user
         $data = [
             'name'      => $this->name,
             'faction'   => $this->faction,
-            'password'  => cs_hash_str($this->password .  $salt, TRUE),
+            'password'  => $this->makePasswordHash($this->password),
             'salt'      => $salt
         ];
 
@@ -105,6 +120,5 @@ class cs_user
         // get user from database
         return is_int($id) ? self::getById($id) : NULL;
     }
-
 }
 ?>

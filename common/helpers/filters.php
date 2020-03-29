@@ -113,7 +113,7 @@ function cs_filter ($str, $mode = "base")
 
             case 'password':
                 $str = cs_filter( $str, 'base;string;spaces' );
-                if ( strlen( $str ) < 8 ) $str = '';
+                if ( strlen( $str ) < 5 ) $str = '';
                 break;
 
             case 'special_string':
