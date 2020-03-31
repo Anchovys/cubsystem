@@ -49,8 +49,6 @@ class loader_helper {
         if(!$name = trim($name))
             return false;
 
-        global $CS;
-
         if(preg_match("/^\w+$/i", $name) && 
            file_exists($f = CS__MODULESPATH . $name . _DS . $name . '.php'))
         {

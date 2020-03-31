@@ -172,7 +172,7 @@ class Cubsystem
 
             // if template not init in modules,
             // we init default template from config
-            if($this->template->joined === FALSE)
+            if($this->template->joined === FALSE && $this->config['template'])
                 $this->template->join($this->config['template']);
 
         /////// TEMPLATE INIT <-- ////////

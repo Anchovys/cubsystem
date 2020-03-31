@@ -1,26 +1,7 @@
 <?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
 
 global $CS;
-$CS->template->head_buffer .= '
-<script>
-    function send() {
-        
-        var form = document.getElementById("registerForm");
-        var request = new XMLHttpRequest();
-        
-        request.open("POST", "' . cs_absolute_url('authorize-shell/register') . '");
-            
-        request.onreadystatechange = function()
-        {
-            if(this.readyState === 4 && this.status === 200)
-            {
-                alert(this.responseText);
-            }
-        };
-        
-        request.send(new FormData(form));
-    }
-</script>';
+$CS->template->setMeta(['script'=>'loginform_auth_AJAX.js']);
 
 ?>
 <div class="mm__page">
@@ -38,7 +19,7 @@ $CS->template->head_buffer .= '
     </div>
     <div class="mm__page_content">
         <article id="content">
-            <form id = "registerForm" onsubmit="send(); return false;">
+            <form id = "registerForm" onsubmit="send(<?=cs_absolute_url('authorize-shell/login')?>); return false;">
                 <label for="login">
                     <input type="text" name="username" placeholder="Введите свой логин" value="admin">
                 </label>

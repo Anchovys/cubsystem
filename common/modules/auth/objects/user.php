@@ -83,9 +83,9 @@ class cs_user
         return $this->makePasswordHash($password) === $this->password;
     }
 
-    public function isAdmin($id = FALSE)
+    public function isAdmin()
     {
-        return $this->getFaction() === 1;
+        return $this->faction === 1;
     }
 
     public function getFaction()

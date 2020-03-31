@@ -22,10 +22,15 @@ class template_helper {
     public  $meta_data = [];
     private  $settings =
     [
-        'minify-html' => TRUE,
+        'minify-html'           => TRUE,
+        'autoload_css'          => TRUE,
+        'autoload_css_path'     => FALSE,
+        'autoload_js'           => TRUE,
+        'autoload_js_path'      => FALSE
     ];
-    public  $body_buffer;
-    public  $head_buffer;
+
+    private $buffers = [];
+
 
     public function join($setpath, $fullpath = FALSE) 
     {
@@ -56,29 +61,62 @@ class template_helper {
         }
     }
 
+    public function setBuffer($name, $data, $append = FALSE)
+    {
+        if(array_key_exists($name, $this->buffers) && $append === TRUE)
+            $this->buffers[$name] .= $data;
+        else $this->buffers[$name] = $data;
+    }
+
+    public function getBuffer($name, $print = FALSE)
+    {
+        if(array_key_exists($name, $this->buffers))
+        {
+            if($print)
+                print($this->buffers[$name]);
+
+            return $this->buffers[$name];
+        }
+        return '';
+    }
+
     public function render($print_buffer = TRUE)
     {
+        global $CS;
         if(!file_exists($f = $this->path . 'index.php'))
             return FALSE;
+
+        $this->setBuffer('head', "<meta name=\"generator\" content=\"CubSystem CMS\">", TRUE);
+        $this->setBuffer('head', "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">", TRUE);
+        $this->setBuffer('head', "<meta property=\"og:url\" content=\"{$CS->dynamic['url-address']}\">", TRUE);
+
+        if($this->settings['autoload_css'])
+        {
+            $path_css = $this->settings['autoload_css_path'] ?  $this->settings['autoload_css_path'] :
+                $this->path . 'assets' . _DS . 'css' . _DS . 'autoload' . _DS;
+            $this->setBuffer('head', cs_autoload_css($path_css), TRUE);
+        }
+
+        if($this->settings['autoload_js'])
+        {
+            $path_js = $this->settings['autoload_js_path'] ?  $this->settings['autoload_js_path'] :
+                $this->path . 'assets' . _DS . 'js' . _DS . 'autoload' . _DS;
+            $this->setBuffer('head', cs_autoload_js($path_js), TRUE);
+        }
 
         require_once($f);
 
         if(function_exists('onload_template'))
             onload_template($this);
 
-        if($this->body_buffer == '')
-            $this->body_buffer = '<div class="blank">No content</div>';
-
-        if($print_buffer)
-            print($this->body_buffer);
-
-        global $CS;
+        if($this->getBuffer('body') == '')
+            $this->setBuffer('buffer', '<div class="blank">No content</div>', TRUE);
 
         // minify html
         if($this->settings['minify-html'] && $minify = $CS->gc('html_minify_helper', 'helpers'))
-            $this->body_buffer = $minify->minify($this->body_buffer);
+            $this->setBuffer('body', $minify->minify($this->getBuffer('body')), FALSE);
 
-        return $this->body_buffer;
+        return $this->getBuffer('body', $print_buffer);
     }
 
     public function callbackLoad($data, $callback = false)
@@ -91,26 +129,32 @@ class template_helper {
         return cs_return_output($f, $data);
     }
 
-    public function generateMeta($data = [])
+    public function setMeta($data = [])
     {
-        $this->head_buffer .= "<meta name=\"generator\" content=\"CubSystem CMS\">";
-        $this->head_buffer .= "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">";
-        $this->head_buffer .= "<meta property=\"og:url\" content=\"{CS__BASEURL}\">";
-        $this->head_buffer .= cs_autoload_css($this->path . 'assets' . _DS . 'css' . _DS);
-        $this->head_buffer .= cs_autoload_js($this->path . 'assets' . _DS . 'js' . _DS);
-
         if(is_array($data))
             foreach ($data as $key => $value)
                 switch ($key)
                 {
                     case 'title':
-                        $this->head_buffer .= "<title>{$value}</title>";
-                        $this->head_buffer .= "<meta property='og:title' content=\"{$value}\">";
+                        $this->setBuffer('head', "<title>{$value}</title>", TRUE);
+                        $this->setBuffer('head', "<meta property='og:title' content=\"{$value}\">", TRUE);
                     break;
 
                     case 'description':
-                        $this->head_buffer .= "<meta name=\"description\" content=\"{$value}\">";
-                        $this->head_buffer .= "<meta property=\"og:description\" content=\"{$value}\">";
+                        $this->setBuffer('head', "<meta name=\"description\" content=\"{$value}\">", TRUE);
+                        $this->setBuffer('head', "<meta property=\"og:description\" content=\"{$value}\">", TRUE);
+                    break;
+
+                    case 'stylesheet':
+                        $path = $this->path . 'assets' . _DS . 'css' . _DS . 'manual' . _DS;
+                        $url = cs_path_to_url($path);
+                        $this->setBuffer('head', "<link rel=\"stylesheet\" href=\"{$url}{$value}\">", TRUE);
+                    break;
+
+                    case 'script':
+                        $path = $this->path . 'assets' . _DS . 'js' . _DS . 'manual' . _DS;
+                        $url = cs_path_to_url($path);
+                        $this->setBuffer('head', "<script src=\"{$url}{$value}\"></script>", TRUE);
                     break;
                 }
     }
