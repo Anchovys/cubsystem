@@ -35,15 +35,38 @@ class auth_module extends cs_module
         $this->currentUser = $this->getCurrentUser();
 
         if($h = $CS->gc('hooks_helper', 'helpers'))
-            $h->register('cs__post-modules_hook', 'authHandler', $this);
+            $h->register('cs__pre-template_hook', 'view', $this);
     }
 
-    public function authHandler()
+    public function view()
     {
+        global $CS;
         $segments = cs_get_segments();
 
+        switch(isset($segments[0]) ? $segments[0] : '') {
+            case 'login':
+                $CS->template->setBuffer('body', $CS->template->callbackLoad([], 'loginform_view'), FALSE);
+                $CS->template->setMeta([
+                    'title' => "Authorization",
+                    'description' => "You can auth with you login/password"
+                ]);
+                break;
+            case 'register':
+                $CS->template->setBuffer('body', $CS->template->callbackLoad([], 'registerform_view'), FALSE);
+                $CS->template->setMeta([
+                    'title' => "Registration",
+                    'description' => "You can register on website"
+                ]);
+                break;
+        }
+
+
+        ///////////////////////////////////////////////////////////////
+        ///// Обработка оболочки. Сюда должен приходить AJAX/POST /////
+        ///////////////////////////////////////////////////////////////
+
         // nothing to do
-        if($segments[0] !== 'authorize-shell' || !isset($segments[1]))
+        if(!isset($segments[1]) || $segments[0] !== 'authorize-shell')
             return;
 
         $action = cs_filter($segments[1], 'special_string');
@@ -69,11 +92,8 @@ class auth_module extends cs_module
             $this->sentResponse($this->register($username, $password));
         }
         elseif($action == 'logout')
-        {
             $this->sentResponse($this->purgeSession());
 
-            //    cs_redir(base64_decode($_GET['next']), false);
-        }
         else return;
     }
 

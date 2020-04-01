@@ -20,7 +20,7 @@ class loader_helper {
      * Подгружает все модули в массиве
      * @param $list - массив имен файлов, в папке modules
      * 
-     * @return No
+     * @return mixed
     */
     public function mod_load_for ($list = [])
     {
@@ -31,7 +31,7 @@ class loader_helper {
         foreach($list as $item) 
         {
             $obj = $this->mod_load($item, []);
-            $mods[$obj[0]] = $obj[1];
+            if($obj) $mods[$obj[0]] = $obj[1];
         }
 
         return $mods;

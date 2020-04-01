@@ -38,31 +38,16 @@ class blog_module extends cs_module
         global $CS;
         $segments = cs_get_segments();
 
-        switch($segments[0])
+        switch(isset($segments[0]) ? $segments[0] : '')
         {
-            case 'login':
-                $CS->template->setBuffer('body', $CS->template->callbackLoad([], 'loginform_view'), FALSE);
-                $CS->template->setMeta([
-                    'title' => "Authorization",
-                    'description' => "You can auth with you login/password"
-                ]);
-                break;
-            case 'register':
-                $CS->template->setBuffer('body', $CS->template->callbackLoad([], 'registerform_view'), FALSE);
-                $CS->template->setMeta([
-                    'title' => "Registration",
-                    'description' => "You can register on website"
-                ]);
-                break;
-
             case 'page': // first segment = page
                 $page = $this->getPagesBy("link", $page_tag = $segments[1], 'full-page_view');
-                $CS->template->setBuffer('body', (!$page) ? $this->page404('short-page_view') : $page, FALSE);
+                $CS->template->setBuffer('body', (!$page) ? $this->page404() : $page, FALSE);
                 break;
 
             case 'tag': // first segment = tag
                 $page = $this->getPagesBy("tag", $page_tag = $segments[1], 'short-page_view', FALSE);
-                $CS->template->setBuffer('body', (!$page) ? $this->page404('short-page_view') : $page, FALSE);
+                $CS->template->setBuffer('body', (!$page) ? $this->page404() : $page, FALSE);
                 $CS->template->setMeta([
                     'title' => "Tag: {$page_tag}",
                     'description' => "Here you can see all page with tag: {$page_tag}"
@@ -72,7 +57,7 @@ class blog_module extends cs_module
             case '':
             case 'home': // first segment = home or empty
                 $page = $this->getPagesBy(FALSE, FALSE, 'short-page_view', FALSE);
-                $CS->template->setBuffer('body', (!$page) ? $this->page404('short-page_view') : $page, FALSE);
+                $CS->template->setBuffer('body', (!$page) ? $this->page404() : $page, FALSE);
                 $CS->template->setMeta([
                     'title' => "Home Page",
                     'description' => "Welcome to our home page!"
@@ -87,7 +72,7 @@ class blog_module extends cs_module
         $content = '';
         $pages = cs_page::getListBy($by, $data);
 
-        if($pages['count'] > 0)
+        if(isset($pages['count']) && $pages['count'] > 0)
         {
             foreach($pages['result'] as $page_data)
             {
@@ -100,14 +85,10 @@ class blog_module extends cs_module
         else return false;
     }
 
-    public function page404($view_name = 'short-page_view')
+    public function page404($view_name = '404-page_view')
     {
         global $CS;
         $data = [
-            'comments'      => 0,
-            'author'        => "",
-            'views'         => 0,
-            'link'          => "",
             'title'         => "Страница не найдена!",
             'context'       => "404 Страница не найдена!"
         ];

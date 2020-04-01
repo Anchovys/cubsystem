@@ -51,6 +51,7 @@ function cs_autoload_css($dir = CS__BASEPATH . 'css/', $print_output = FALSE)
 
 function cs_get_segments()
 {
+    if(!isset($_GET['m'])) return [];
     $url = trim($_GET['m']);
     $url = str_replace(['.', '~', '\\'],  '_', $url); 
     $url = explode('#', $url)[0];
@@ -63,7 +64,7 @@ function cs_make_htaccess()
 {
 	$htaccess = file_get_contents(CS__KERNELPATH . 'dist' . _DS . 'htaccess-distr.txt');
 	$htaccess = str_replace('{path}', isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/', $htaccess);
-	file_put_contents(CS__BASEPATH . '.htaccess', $htaccess);
+	file_put_contents(CS__BASEPATH . '.htaccess', $htaccess) or die('Can`t make .htaccess file. Please, create this file or configure directory rules!');
 }
 
 function cs_path_to_url($path, $absolute = TRUE) 

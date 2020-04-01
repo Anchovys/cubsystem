@@ -1,7 +1,7 @@
 <?php defined('CS__BASEPATH') OR exit('No direct script access allowed');?>
 <div class="mm__page">
     <div class="mm__page_title">
-        <a class="mm__page_title_link" href="page/<?=$__data['page']->link?>">
+        <a class="mm__page_title_link" href="<?=cs_absolute_url('page/' . $__data['page']->link)?>">
             <h1 class="mm__page_title_label">
                 <?=$__data['page']->title?>
             </h1>
