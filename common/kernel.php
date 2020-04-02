@@ -14,6 +14,11 @@
 @
 */
 
+/**
+ * @param string $dir
+ * @param bool $print_output
+ * @return string
+ */
 function cs_autoload_js($dir = CS__BASEPATH . 'js', $print_output = FALSE)
 {
     $files = cs_get_path_files($dir, true, ['js']);
@@ -32,6 +37,11 @@ function cs_autoload_js($dir = CS__BASEPATH . 'js', $print_output = FALSE)
     return $output_html;
 }
 
+/**
+ * @param string $dir
+ * @param bool $print_output
+ * @return string
+ */
 function cs_autoload_css($dir = CS__BASEPATH . 'css/', $print_output = FALSE)
 {
     $files = cs_get_path_files($dir, true, ['css']);
@@ -49,48 +59,19 @@ function cs_autoload_css($dir = CS__BASEPATH . 'css/', $print_output = FALSE)
     return $output_html;
 }
 
-function cs_get_segments()
-{
-    if(!isset($_GET['m'])) return [];
-    $url = trim($_GET['m']);
-    $url = str_replace(['.', '~', '\\'],  '_', $url); 
-    $url = explode('#', $url)[0];
-    $url = explode('?', $url)[0]; 
-    
-    return explode('/', $url);
-}
-
-function cs_make_htaccess()
-{
-	$htaccess = file_get_contents(CS__KERNELPATH . 'dist' . _DS . 'htaccess-distr.txt');
-	$htaccess = str_replace('{path}', isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/', $htaccess);
-	file_put_contents(CS__BASEPATH . '.htaccess', $htaccess) or die('Can`t make .htaccess file. Please, create this file or configure directory rules!');
-}
-
-function cs_path_to_url($path, $absolute = TRUE) 
-{
-    $path = $absolute ? str_replace(CS__BASEPATH, '', $path) : $path;
-    $path = str_replace(['\\'],  '/', $path); 
-    //$path = str_replace(['.', '~'],  '_', $path); 
-    $path = CS__BASEURL . $path;
-
-    return $path;
-}
-
-function cs_absolute_url($url)
-{
-    return CS__BASEURL . $url;
-}
-
+/**
+ * @param string $url
+ * @param bool $absolute
+ * @param string $header
+ */
 function cs_redir($url = '', $absolute = true, $header = '')
 {
     $url = $absolute ? CS__BASEURL . $url : $url;
+    $url = cs_filter($url, 'base');
     $url = strip_tags($url);
     $url = str_replace( array('%0d', '%0a'), '', $url );
 
-    //to-do xss
-
-    $header = intval($header);
+    $header = cs_filter($header, 'int');
 
     if($header === 301)
         header('HTTP/1.1 301 Moved Permanently');
@@ -103,19 +84,46 @@ function cs_redir($url = '', $absolute = true, $header = '')
     die();
 }
 
-function cs_file_ext($file)
-{
-	return strtolower(substr(strrchr($file, '.'), 1));
-}
-
-function cs_return_output($file, $__data = false)
+/**
+ * Функция для подключения файла
+ * @param $file - полный путь к файлу
+ * @param string $__data - любая переменная, доступная изнутри файла
+ * @param bool $include  - подключать файл с помощью include,
+ *                         либо с помощью file_get_contents, + eval
+ * @return false|string
+ */
+function cs_return_output($file, $__data = '', $custom = FALSE)
 {
     global $CS;
 
     ob_start();
 
     if(file_exists($file))
-        include($file);
+    {
+        if($custom == FALSE)
+        {
+            include($file);
+        }
+        else {
+            // получим код из файла
+            $code = file_get_contents($file);
+
+            // если в custom, например, функция
+            if(is_callable($custom))
+            {
+                // вызов функции
+                $res = $custom($code);
+
+                // вернула string, заменим целиком
+                if(is_string($res))
+                    $code = $res;
+            }
+
+            // выполним код
+            eval($code);
+
+        }
+    }
 
     return ob_get_clean();
 }
@@ -125,7 +133,7 @@ function cs_hash_str($str, $salted = TRUE)
     global $CS;
 
     $str = (string)$str;
-    $str .= (string)$CS->config['secret_key'];
+    $str .= $salted !== FALSE ? (string)$CS->config['secret_key'] : '';
     return md5($str);
 }
 
@@ -146,32 +154,6 @@ function cs_get_random_str($length = 10, $numbers = TRUE, $upper = TRUE, $specia
     return $string;
 }
 
-function cs_get_path_files($path = '', $full_path = TRUE, $exts = ['jpg', 'jpeg', 'png', 'gif', 'ico', 'svg'], $minus = TRUE)
-{
-	// if empty or not dir or empty dir
-    if (!$path || !is_dir($path) || !$files = directory_map($path, true))
-        return [];
-
-    $all_files = []; // totalLy result
-
-	foreach ($files as $file)
-	{
-        if (!is_file($path . $file)) // not a file
-            continue;
-        
-		if (in_array(cs_file_ext($file), $exts)) // check a extension of file
-		{
-			if ($minus && strpos($file, '_') === 0) // check if starts with '_'
-			    continue;
-			
-			// add file with full path (if need)
-			$all_files[] = $full_path ? $path . $file : $file;
-		}
-	}
-
-	return $all_files;
-}
-
 function cs_load_helpers($path = CS__KERNELPATH . 'helpers' . _DS) 
 {
     global $CS;
@@ -181,15 +163,19 @@ function cs_load_helpers($path = CS__KERNELPATH . 'helpers' . _DS)
 
     $helpers_for_load = is_array($h = $CS->config['helpers-priority']) ? $h : [];
 
-    // get files in directory
-    $files = cs_get_path_files($path, FALSE, ['php']);
-
-    foreach($files as $value)
+    // allow to search helpers
+    if($CS->config['helpers-search'] === TRUE)
     {
-        $value = pathinfo($value, PATHINFO_FILENAME);
-        $value = str_replace('_helper', '', $value);
-        if(!in_array($value, $helpers_for_load))
-            array_push($helpers_for_load, $value);
+        // get files in directory
+        $files = cs_get_path_files($path, FALSE, ['php']);
+
+        foreach($files as $value)
+        {
+            $value = pathinfo($value, PATHINFO_FILENAME);
+            $value = str_replace('_helper', '', $value);
+            if(!in_array($value, $helpers_for_load))
+                array_push($helpers_for_load, $value);
+        }
     }
 
     foreach($helpers_for_load as $helper)
@@ -215,28 +201,68 @@ function cs_load_helpers($path = CS__KERNELPATH . 'helpers' . _DS)
 
 function directory_map($source_dir, $directory_depth = 0, $hidden = FALSE)
 {
-	if ($fp = @opendir($source_dir))
-	{
-		$filedata	= array();
-		$new_depth	= $directory_depth - 1;
-		$source_dir	= rtrim($source_dir, _DS)._DS;
+    if ($fp = @opendir($source_dir))
+    {
+        $filedata	= array();
+        $new_depth	= $directory_depth - 1;
+        $source_dir	= rtrim($source_dir, _DS)._DS;
 
-		while (FALSE !== ($file = readdir($fp)))
-		{
-			// Remove '.', '..', and hidden files [optional]
-			if (!trim($file, '.') OR ($hidden == FALSE && $file[0] == '.')) continue;
+        while (FALSE !== ($file = readdir($fp)))
+        {
+            // Remove '.', '..', and hidden files [optional]
+            if (!trim($file, '.') OR ($hidden == FALSE && $file[0] == '.')) continue;
 
-			if (($directory_depth < 1 OR $new_depth > 0) && @is_dir($source_dir.$file))
-				$filedata[$file] = directory_map($source_dir . $file . _DS, $new_depth, $hidden);
-			else
-				$filedata[] = $file;
-				// $filedata[] = htmlentities($file, ENT_QUOTES, 'cp1251');
-		}
+            if (($directory_depth < 1 OR $new_depth > 0) && @is_dir($source_dir.$file))
+                $filedata[$file] = directory_map($source_dir . $file . _DS, $new_depth, $hidden);
+            else
+                $filedata[] = $file;
+            // $filedata[] = htmlentities($file, ENT_QUOTES, 'cp1251');
+        }
 
-		closedir($fp);
-		return $filedata;
-	}
+        closedir($fp);
+        return $filedata;
+    }
 
-	return FALSE;
+    return FALSE;
 }
+
+function cs_get_path_files($path = '', $full_path = TRUE, $exts = ['jpg', 'jpeg', 'png', 'gif', 'ico', 'svg'], $minus = TRUE)
+{
+    // if empty or not dir or empty dir
+    if (!$path || !is_dir($path) || !$files = directory_map($path, true))
+        return [];
+
+    $all_files = []; // totalLy result
+
+    foreach ($files as $file)
+    {
+        if (!is_file($path . $file)) // not a file
+            continue;
+
+        if (in_array(cs_file_ext($file), $exts)) // check a extension of file
+        {
+            if ($minus && strpos($file, '_') === 0) // check if starts with '_'
+                continue;
+
+            // add file with full path (if need)
+            $all_files[] = $full_path ? $path . $file : $file;
+        }
+    }
+
+    return $all_files;
+}
+
+function cs_file_ext($file)
+{
+    return strtolower(substr(strrchr($file, '.'), 1));
+}
+
+function cs_make_htaccess()
+{
+    $htaccess = file_get_contents(CS__KERNELPATH . 'dist' . _DS . 'htaccess-distr.txt');
+    $htaccess = str_replace('{path}', isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/', $htaccess);
+    file_put_contents(CS__BASEPATH . '.htaccess', $htaccess) or die('Can`t make .htaccess file. Please, create this file or configure directory rules!');
+}
+
+
 ?>

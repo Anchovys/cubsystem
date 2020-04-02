@@ -16,13 +16,16 @@ function onload_template()
 {
     global $CS;
 
-    // can use in main view
-    $data = [
-        'body'      => $CS->template->getBuffer('body'),
-        'head'      => $CS->template->getBuffer('head'),
-    ];
+    // template
+    $template = $CS->template;
+
+    // get view file path
+    $main_view_path = $template->getOption('main_view');
+
+    // call main_view File
+    $html = $template->callbackLoad($template, $main_view_path);
 
     // generate totally buffer, with put data in main view
-    $CS->template->setBuffer('body', $CS->template->callbackLoad($data, 'main_view'), FALSE);
+    $template->setBuffer('body', $html, FALSE);
 }
 ?>

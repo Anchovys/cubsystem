@@ -20,17 +20,36 @@ class template_helper {
     public  $path = '';
     public  $info = [];
     public  $meta_data = [];
-    private  $settings =
+    private $options =
     [
         'minify-html'           => TRUE,
         'autoload_css'          => TRUE,
         'autoload_css_path'     => FALSE,
         'autoload_js'           => TRUE,
-        'autoload_js_path'      => FALSE
+        'autoload_js_path'      => FALSE,
+        'main_view'             => 'main_view',
+        'tmpl_prepare'          => TRUE,
     ];
 
     private $buffers = [];
 
+    public function getOption($key = '')
+    {
+        return array_key_exists($key, $this->options)
+            ? $this->options[$key] : FALSE;
+    }
+
+    /**
+     * Простой шаблонизатор
+     * Можно использовать сторонний хелпер, но пока так
+     * @param string $code - код который нужно выполнить
+     * @return string
+     */
+    private function tmplPrepare($code = '')
+    {
+        $code = '?>' . str_replace(['{{', '}}', '{%', '%}'], ['<?=', '?>', '<?php', '?>'], $code);
+        return $code;
+    }
 
     public function join($setpath, $fullpath = FALSE) 
     {
@@ -57,7 +76,7 @@ class template_helper {
             require_once($f);
 
             if(isset($template_settings) && is_array($template_settings))
-                $this->settings = array_merge($this->settings, $template_settings);
+                $this->options = array_merge($this->options, $template_settings);
         }
     }
 
@@ -90,16 +109,16 @@ class template_helper {
         $this->setBuffer('head', "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">", TRUE);
         $this->setBuffer('head', "<meta property=\"og:url\" content=\"{$CS->dynamic['url-address']}\">", TRUE);
 
-        if($this->settings['autoload_css'])
+        if($this->options['autoload_css'])
         {
-            $path_css = $this->settings['autoload_css_path'] ?  $this->settings['autoload_css_path'] :
+            $path_css = $this->options['autoload_css_path'] ?  $this->options['autoload_css_path'] :
                 $this->path . 'assets' . _DS . 'css' . _DS . 'autoload' . _DS;
             $this->setBuffer('head', cs_autoload_css($path_css), TRUE);
         }
 
-        if($this->settings['autoload_js'])
+        if($this->options['autoload_js'])
         {
-            $path_js = $this->settings['autoload_js_path'] ?  $this->settings['autoload_js_path'] :
+            $path_js = $this->options['autoload_js_path'] ?  $this->options['autoload_js_path'] :
                 $this->path . 'assets' . _DS . 'js' . _DS . 'autoload' . _DS;
             $this->setBuffer('head', cs_autoload_js($path_js), TRUE);
         }
@@ -113,20 +132,21 @@ class template_helper {
             $this->setBuffer('buffer', '<div class="blank">No content</div>', TRUE);
 
         // minify html
-        if($this->settings['minify-html'] && $minify = $CS->gc('html_minify_helper', 'helpers'))
+        if($this->options['minify-html'] && $minify = $CS->gc('html_minify_helper', 'helpers'))
             $this->setBuffer('body', $minify->minify($this->getBuffer('body')), FALSE);
 
         return $this->getBuffer('body', $print_buffer);
     }
 
-    public function callbackLoad($data, $callback = false)
+    public function callbackLoad($data, $callback = FALSE)
     {
         $callback = $this->path . 'views' . _DS . $callback . '.php';
         if(!file_exists($f = $callback))
             die("[blog] Can`t load template callback file : {$callback}");
 
         // return as buffer output
-        return cs_return_output($f, $data);
+        return !$this->options['tmpl_prepare'] ? cs_return_output($f, $data) :
+            cs_return_output($f, $data, function ($args) { return $this->tmplPrepare($args); });
     }
 
     public function setMeta($data = [])

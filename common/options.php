@@ -49,13 +49,17 @@ define("CS__CFG",
     // lot of helpers for load firstly
     'helpers-priority' =>
     [
-        'debugging',    //first
-        'filters',      //second
-        'sessions',     // ...
+        'debugging',    // first
+        'filters',      // second
+        'url',          // ... etc
+        'sessions',
         'mysqli_db',
         'hooks',
         'loader'
     ],
+
+    // искать хелперы в папке и подгружать их автоматически?
+    'helpers-search' => TRUE,
 
     // array of modules for load on system load
     'modules'   =>

@@ -39,14 +39,9 @@ class Cubsystem
         $base_url .= str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
         if(!defined('CS__BASEURL')) define('CS__BASEURL', $base_url);
 
-        // get url segments
-        $segments = cs_get_segments();
-        if(!defined('CS__SEGMENTS')) define('CS__SEGMENTS', $segments);
-
         // для унификации
         if(defined('CS__CFG')) $this->config = CS__CFG;
         $this->dynamic['url-address']  = CS__BASEURL;
-        $this->dynamic['url-segments'] = $segments;
     }
 
     public static function getInstance() // for singleton

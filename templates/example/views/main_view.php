@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <?=$__data['head']?>
+    {{$__data->getBuffer('head')}}
 </head>
 <body>
     <div class="container">
@@ -14,7 +14,7 @@
     <div class="container mm__main_container" style="margin-top:50px">
         <div class="row mm__main_row">
             <div class="col-md-12 col-lg-8 col-sm-12 mm__main_pagebar">
-                <?=$__data['body']?>
+                {{$__data->getBuffer('body')}}
             </div>
             <div class="col-md-12 col-lg-4 col-sm-12 mm__main_sidebar">
                 <div class="mm__sidebar">
@@ -37,9 +37,9 @@
             </div>
             <div class="col-12">
                 <div class="mm__footer">
-                    Cubsystem cms <?=$CS->info['version']?>, Copy, 2020
+                    Cubsystem cms {{$CS->info['version']}}, Copy, 2020
                     <br>
-                    Page generated at: <?=$CS->working_time()?>
+                    Page generated at: {{$CS->working_time()}}
                 </div>
             </div>
         </div>

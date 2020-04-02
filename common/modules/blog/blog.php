@@ -36,7 +36,7 @@ class blog_module extends cs_module
     public function view()
     {
         global $CS;
-        $segments = cs_get_segments();
+        $segments = cs_get_segment();
 
         switch(isset($segments[0]) ? $segments[0] : '')
         {
