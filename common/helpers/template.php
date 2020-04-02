@@ -1,8 +1,7 @@
 <?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
-
 /*
 | -------------------------------------------------------------------------
-| template.php, Назначение: управление шаблоном сайта
+| template.php [rev 1.1], Назначение: управление шаблоном сайта
 | -------------------------------------------------------------------------
 |
 | Хелпер может управлять также, и шаблоном админ-панели
@@ -138,15 +137,24 @@ class template_helper {
         return $this->getBuffer('body', $print_buffer);
     }
 
-    public function callbackLoad($data, $callback = FALSE)
+    public function callbackLoad($data, $callback = FALSE, $appendBuffer = FALSE)
     {
         $callback = $this->path . 'views' . _DS . $callback . '.php';
         if(!file_exists($f = $callback))
             die("[blog] Can`t load template callback file : {$callback}");
 
+
+        $buffer = !$this->options['tmpl_prepare'] ? cs_return_output($f, $data) :
+            cs_return_output($f, $data, function ($args)
+            { /* Вызов шаблонизатора здесь */
+                return $this->tmplPrepare($args);
+            });
+
+        if($appendBuffer !== FALSE && is_string($appendBuffer))
+            $this->setBuffer($appendBuffer, $buffer, TRUE);
+
         // return as buffer output
-        return !$this->options['tmpl_prepare'] ? cs_return_output($f, $data) :
-            cs_return_output($f, $data, function ($args) { return $this->tmplPrepare($args); });
+        return $buffer;
     }
 
     public function setMeta($data = [])

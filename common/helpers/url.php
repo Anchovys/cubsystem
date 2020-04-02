@@ -1,4 +1,17 @@
-<?php
+<?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
+/*
+| -------------------------------------------------------------------------
+| url.php [rev 1.0], Назначение: хелпер для работы с Url
+| -------------------------------------------------------------------------
+|
+| Хелпер может получать и всячески взаимодействовать с Url
+|
+@
+@   Cubsystem CMS, (с) 2020
+@   Author: Anchovy
+@   GitHub: //github.com/Anchovys/cubsystem
+@
+*/
 
 function cs_absolute_url($url)
 {

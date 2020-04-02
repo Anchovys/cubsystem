@@ -1,4 +1,4 @@
-function send(url) {
+function sendRequest(url) {
 
     var form = document.getElementById("loginForm");
     var request = new XMLHttpRequest();

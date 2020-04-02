@@ -65,7 +65,7 @@ define("CS__CFG",
     'modules'   =>
     [
         'auth',
-        'adminpanel',
+        'admin',
         'blog'
     ],
 

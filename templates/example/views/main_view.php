@@ -6,12 +6,20 @@
     {{$__data->getBuffer('head')}}
 </head>
 <body>
-    <div class="container">
+    <div class="container mm__top_container">
         <div class="row">
-            <div class="col-12"></div>
+            <div class="col-12">
+                <div class="mm__horizontal_menu">
+                    <ul>
+                        <li><a href="" class="mm_menu_item">Lorem</a></li>
+                        <li><a href="" class="mm_menu_item">Ipsum</a></li>
+                        <li><a href="" class="mm_menu_item">Dolor</a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="container mm__main_container" style="margin-top:50px">
+    <div class="container mm__middle_container">
         <div class="row mm__main_row">
             <div class="col-md-12 col-lg-8 col-sm-12 mm__main_pagebar">
                 {{$__data->getBuffer('body')}}
@@ -24,25 +32,32 @@
                                 Меню
                             </div>
                             <div class="mm__widget_content">
-                                <ul class="mm__vertical_menu">
-                                    <li><a href="" class="mm_menu_item">Lorem ipsum dolor</a></li>
-                                    <li><a href="" class="mm_menu_item">Lorem ipsum dolor</a></li>
-                                    <li><a href="" class="mm_menu_item">Lorem ipsum dolor</a></li>
-                                    <li><a href="" class="mm_menu_item">Lorem ipsum dolor</a></li>
-                                </ul>
+                                <div class="mm__vertical_menu">
+                                    <ul>
+                                        <li><a href="" class="mm_menu_item">Lorem ipsum dolor</a></li>
+                                        <li><a href="" class="mm_menu_item">Lorem ipsum dolor</a></li>
+                                        <li><a href="" class="mm_menu_item">Lorem ipsum dolor</a></li>
+                                        <li><a href="" class="mm_menu_item">Lorem ipsum dolor</a></li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-12">
-                <div class="mm__footer">
-                    Cubsystem cms {{$CS->info['version']}}, Copy, 2020
-                    <br>
-                    Page generated at: {{$CS->working_time()}}
+        </div>
+        <div class="container mm__bottom_container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="mm__footer">
+                        Cubsystem cms {{$CS->info['version']}}, Copy, 2020
+                        <br>
+                        Page generated at: {{$CS->working_time()}}
+                    </div>
                 </div>
             </div>
         </div>
+
     </div>
 </body>
 </html>

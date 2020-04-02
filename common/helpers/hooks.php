@@ -1,6 +1,4 @@
-<?php
-defined('CS__BASEPATH') OR exit('No direct script access allowed');
-
+<?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
 /*
 | -------------------------------------------------------------------------
 | hooks.php [rev 1.1], Назначение: внедрение функциональности хуков

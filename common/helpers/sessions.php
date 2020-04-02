@@ -1,5 +1,17 @@
 <?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
-
+/*
+| -------------------------------------------------------------------------
+| sessions.php [rev 1.0], Назначение: управление PHP сессиями
+| -------------------------------------------------------------------------
+|
+| Хелпер позволяет удобно управлять сессиями
+|
+@
+@   Cubsystem CMS, (с) 2020
+@   Author: Anchovy
+@   GitHub: //github.com/Anchovys/cubsystem
+@
+*/
 class sessions_helper
 {
     private $prefix = 'cs_';

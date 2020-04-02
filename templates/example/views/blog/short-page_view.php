@@ -9,15 +9,9 @@
     </div>
     <div class="mm__page_info">
         <ul class="mm__page_info_list">
-            <li>Автор:
-                {{$__data['page']->author}}
-            </li>
-            <li>Просмотров:
-                {{$__data['page']->views}}
-            </li>
-            <li>Комментариев:
-                {{$__data['page']->comments}}
-            </li>
+            <li>Автор: {{$__data['page']->author}}</li>
+            <li>Просмотров: {{$__data['page']->views}}</li>
+            <li>Комментариев: {{$__data['page']->comments}}</li>
         </ul>
     </div>
     <div class="mm__page_content">

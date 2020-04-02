@@ -43,31 +43,35 @@ class auth_module extends cs_module
         global $CS;
         $segments = cs_get_segment();
 
+        if(isset($segments[1]) && $segments[0] === 'authorize-shell')
+        {
+            $this->authHandler($segments);
+            die();
+        }
+
         switch(isset($segments[0]) ? $segments[0] : '') {
             case 'login':
-                $CS->template->setBuffer('body', $CS->template->callbackLoad([], 'loginform_view'), FALSE);
+                $CS->template->setBuffer('body', $CS->template->callbackLoad([], 'auth/loginform_view'), FALSE);
                 $CS->template->setMeta([
                     'title' => "Authorization",
                     'description' => "You can auth with you login/password"
                 ]);
                 break;
             case 'register':
-                $CS->template->setBuffer('body', $CS->template->callbackLoad([], 'registerform_view'), FALSE);
+                $CS->template->setBuffer('body', $CS->template->callbackLoad([], 'auth/registerform_view'), FALSE);
                 $CS->template->setMeta([
                     'title' => "Registration",
                     'description' => "You can register on website"
                 ]);
                 break;
         }
+    }
 
-
+    private function authHandler($segments)
+    {
         ///////////////////////////////////////////////////////////////
         ///// Обработка оболочки. Сюда должен приходить AJAX/POST /////
         ///////////////////////////////////////////////////////////////
-
-        // nothing to do
-        if(!isset($segments[1]) || $segments[0] !== 'authorize-shell')
-            return;
 
         $action = cs_filter($segments[1], 'special_string');
 

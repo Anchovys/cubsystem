@@ -105,6 +105,12 @@ function cs_return_output($file, $__data = '', $custom = FALSE)
             include($file);
         }
         else {
+
+            /* ***********   ***********   ***********   ***********   ***********
+                кастомный случай, например для реализации шаблонизаторов,
+                или других функций, обрабатывающих исходные коды шаблонов
+            *  ***********   ***********   ***********   ***********   ********** */
+
             // получим код из файла
             $code = file_get_contents($file);
 
@@ -180,23 +186,34 @@ function cs_load_helpers($path = CS__KERNELPATH . 'helpers' . _DS)
 
     foreach($helpers_for_load as $helper)
     {
-        if(!file_exists($fn = $path . $helper . '.php')) // file not exists
+        if(array_key_exists($helper, $helpers))
             continue;
 
-        require_once($fn); // connect the file
+        $helper_suffix = '_helper';
 
-        $helper .= '_helper';
-
-        // check mathes, class exists
-        if(!preg_match("/^\w+$/i", $helper) || !class_exists($helper) ||
-           array_key_exists($helper, $helpers))
-            continue;
-        
-        // add to array
-        $helpers[$helper] = new $helper();
+        $helpers[$helper . $helper_suffix] = cs_load_one_helper($helper, $path, $helper_suffix);
     }
 
     return $helpers;
+}
+
+function cs_load_one_helper($helper, $path = CS__KERNELPATH . 'helpers' . _DS, $suffix = '_helper')
+{
+    global $CS;
+
+    if(!file_exists($fn = $path . $helper . '.php')) // file not exists
+        return NULL;
+
+    require_once($fn); // connect the file
+
+    $helper .= $suffix;
+
+    // check mathes, class exists
+    if(!preg_match("/^\w+$/i", $helper) || !class_exists($helper) ||
+        array_key_exists($helper, $CS->autoload['helpers']))
+        return NULL;
+
+    return new $helper();
 }
 
 function directory_map($source_dir, $directory_depth = 0, $hidden = FALSE)
@@ -263,6 +280,4 @@ function cs_make_htaccess()
     $htaccess = str_replace('{path}', isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/', $htaccess);
     file_put_contents(CS__BASEPATH . '.htaccess', $htaccess) or die('Can`t make .htaccess file. Please, create this file or configure directory rules!');
 }
-
-
 ?>

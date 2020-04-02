@@ -99,5 +99,32 @@ class cs_page
             'result' =>  $result            
         ];
     }
+
+    public function insert()
+    {
+        global $CS;
+
+        if(!$db = $CS->database->getInstance())
+            die('[auth] Can`t connect to database');
+
+        //if(self::getListBy('link', $this->link)['count'] !== 0)
+        //   return NULL;
+
+        $data = [
+            'title'     => $this->title,
+            'tag'       => $this->tag,
+            'comments'  => 0,
+            'views'     => 0,
+            'author'    => $this->author,
+            'link'      => $this->link,
+            'context'   => $this->context
+        ];
+
+        // function returned current user id
+        $id = $db->insert('pages', $data);
+
+        // get user from database
+        return is_int($id) ? self::getById($id) : NULL;
+    }
 }
 ?>

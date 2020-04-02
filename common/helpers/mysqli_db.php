@@ -35,7 +35,7 @@ class mysqli_db_helper
     /**
      * Static instance of self
      *
-     * @var MysqliDb
+     * @var mysqli_db_helper
      */
     protected static $_instance;
 

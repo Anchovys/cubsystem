@@ -41,12 +41,12 @@ class blog_module extends cs_module
         switch(isset($segments[0]) ? $segments[0] : '')
         {
             case 'page': // first segment = page
-                $page = $this->getPagesBy("link", $page_tag = $segments[1], 'full-page_view');
+                $page = $this->getPagesBy("link", $page_tag = $segments[1], 'blog/full-page_view');
                 $CS->template->setBuffer('body', (!$page) ? $this->page404() : $page, FALSE);
                 break;
 
             case 'tag': // first segment = tag
-                $page = $this->getPagesBy("tag", $page_tag = $segments[1], 'short-page_view', FALSE);
+                $page = $this->getPagesBy("tag", $page_tag = $segments[1], 'blog/short-page_view', FALSE);
                 $CS->template->setBuffer('body', (!$page) ? $this->page404() : $page, FALSE);
                 $CS->template->setMeta([
                     'title' => "Tag: {$page_tag}",
@@ -56,7 +56,7 @@ class blog_module extends cs_module
 
             case '':
             case 'home': // first segment = home or empty
-                $page = $this->getPagesBy(FALSE, FALSE, 'short-page_view', FALSE);
+                $page = $this->getPagesBy(FALSE, FALSE, 'blog/short-page_view', FALSE);
                 $CS->template->setBuffer('body', (!$page) ? $this->page404() : $page, FALSE);
                 $CS->template->setMeta([
                     'title' => "Home Page",
@@ -66,7 +66,7 @@ class blog_module extends cs_module
         }
     }
 
-    public function getPagesBy($by, $data, $view_name = 'short-page_view', $set_meta = TRUE)
+    public function getPagesBy($by, $data, $view_name = 'blog/short-page_view', $set_meta = TRUE)
     {
         global $CS;
         $content = '';
@@ -85,7 +85,7 @@ class blog_module extends cs_module
         else return false;
     }
 
-    public function page404($view_name = '404-page_view')
+    public function page404($view_name = 'blog/404-page_view')
     {
         global $CS;
         $data = [
