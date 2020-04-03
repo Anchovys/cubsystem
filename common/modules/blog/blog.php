@@ -1,8 +1,7 @@
 <?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
-
 /*
 | -------------------------------------------------------------------------
-| blog.php [rev 1.0], Назначение: поддержка статей (блога)
+| blog.php [rev 1.2], Назначение: поддержка статей (блога)
 | -------------------------------------------------------------------------
 | В этом файле описана базовая функциональность для блога
 | работа со статьями, базой данных
@@ -22,22 +21,24 @@ class blog_module extends cs_module
         global $CS;
         $this->name = "Blog";
         $this->description = "A simple blog realization.";
-        $this->version = "1";
-        $this->fullpath = CS__MODULESPATH . 'blog' . _DS;
+        $this->version = "2";
+        $this->fullpath = CS_MODULESCPATH . 'blog' . _DS;
 
-        //require_once($this->fullpath . 'category.php');
+        require_once($this->fullpath . 'objects' . _DS . 'category.php');
         require_once($this->fullpath . 'objects' . _DS . 'page.php');
 
         if($h = $CS->gc('hooks_helper', 'helpers'))
         {
             // make hook into render
             $h->register('cs__pre-template_hook', 'view', $this);
-            $h->register('cs__adminpanel_switchurl', 'view_admin', $this);
-            $h->register('cs__adminpanel_handler', 'view_adminHandler', $this);
+
+            // admin hooks
+            $h->register('cs__admin-view', 'admin_view',  $this);
+            $h->register('cs__admin-ajax', 'admin_ajax',  $this);
         }
     }
 
-    public function view_admin()
+    public function admin_view()
     {
         global $CS;
         $segments = cs_get_segment();
@@ -48,11 +49,13 @@ class blog_module extends cs_module
         if($segments[1] === 'addpage')
         {
             $CS->template->callbackLoad('', 'blog/addpage_view', 'body');
+        } else if($segments[1] === 'addcat')
+        {
+            $CS->template->callbackLoad('', 'blog/addcat_view', 'body');
         }
-
     }
 
-    public function view_adminHandler()
+    public function admin_ajax()
     {
         global $CS;
         $segments = cs_get_segment();
@@ -62,8 +65,8 @@ class blog_module extends cs_module
 
         if($segments[2] === 'add_page')
         {
-            if(!isset($_POST['title'])    || !isset($_POST['tag']) ||
-                !isset($_POST['content']) || !isset($_POST['author']))
+            if(!isset($_POST['title'])    || !isset($_POST['tag']) || !isset($_POST['cat']) ||
+               !isset($_POST['content'])  || !isset($_POST['author']))
             {
                 return;
             }
@@ -73,14 +76,30 @@ class blog_module extends cs_module
                 'context'   => cs_filter($_POST['content'], 'multi_spaces;trim'),
                 'author'    => cs_filter($_POST['author']),
                 'link'      => cs_get_random_str(3),
-                'tag'       => cs_filter($_POST['tag'])
+                'tag'       => cs_filter($_POST['tag']),
+                'cat'       => cs_filter($_POST['cat'])
             ];
 
             $page = new cs_page($data);
             $obj = $page->insert();
             die($obj === NULL ? 'fail' : 'success');
-        }
+        } else if($segments[2] === 'add_cat')
+        {
+            if(!isset($_POST['name']) || !isset($_POST['link']) || !isset($_POST['descr']))
+            {
+                return;
+            }
 
+            $data = [
+                'name'           => cs_filter($_POST['name']),
+                'link'           => cs_filter($_POST['link']),
+                'description'    => cs_filter($_POST['descr'])
+            ];
+
+            $cat = new cs_cat($data);
+            $obj = $cat->insert();
+            die($obj === NULL ? 'fail' : 'success');
+        }
     }
 
     public function view()
@@ -125,9 +144,8 @@ class blog_module extends cs_module
         if(isset($pages['count']) && $pages['count'] > 0)
         {
             $pages['result'] = array_reverse($pages['result']);
-            foreach($pages['result'] as $page_data)
+            foreach($pages['result'] as $page)
             {
-                $page = new cs_page($page_data);
                 $content .= $CS->template->callbackLoad(['page' => $page], $view_name);
                 if($set_meta) $CS->template->setMeta($page->meta);
             }

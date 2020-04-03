@@ -1,5 +1,4 @@
 <?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
-
 /*
 | -------------------------------------------------------------------------
 | options.php [rev 1.1], Назначение: управление конфигурацией Cubsystem
@@ -55,11 +54,12 @@ define("CS__CFG",
         'sessions',
         'mysqli_db',
         'hooks',
-        'loader'
+        'loader',
+        'template'
     ],
 
     // искать хелперы в папке и подгружать их автоматически?
-    'helpers-search' => TRUE,
+    'helpers-search' => FALSE,
 
     // array of modules for load on system load
     'modules'   =>

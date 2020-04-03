@@ -1,8 +1,7 @@
 <?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
-
 /*
 | -------------------------------------------------------------------------
-| kernel.php [rev 1.2], Назначение: основные функции системы Cubsystem
+| functions.php [rev 1.2], Назначение: основные функции системы Cubsystem
 | -------------------------------------------------------------------------
 | В этом файле описаны основные функции, используемые системой
 |
@@ -88,8 +87,8 @@ function cs_redir($url = '', $absolute = true, $header = '')
  * Функция для подключения файла
  * @param $file - полный путь к файлу
  * @param string $__data - любая переменная, доступная изнутри файла
- * @param bool $include  - подключать файл с помощью include,
- *                         либо с помощью file_get_contents, + eval
+ * @param bool $custom  -  любая функция,
+ *                         через которую может пропускаться буфер
  * @return false|string
  */
 function cs_return_output($file, $__data = '', $custom = FALSE)
@@ -160,7 +159,7 @@ function cs_get_random_str($length = 10, $numbers = TRUE, $upper = TRUE, $specia
     return $string;
 }
 
-function cs_load_helpers($path = CS__KERNELPATH . 'helpers' . _DS) 
+function cs_load_helpers($path = CS_COMMONPATH . 'helpers' . _DS)
 {
     global $CS;
 
@@ -197,7 +196,7 @@ function cs_load_helpers($path = CS__KERNELPATH . 'helpers' . _DS)
     return $helpers;
 }
 
-function cs_load_one_helper($helper, $path = CS__KERNELPATH . 'helpers' . _DS, $suffix = '_helper')
+function cs_load_one_helper($helper, $path = CS_COMMONPATH . 'helpers' . _DS, $suffix = '_helper')
 {
     global $CS;
 
@@ -276,7 +275,7 @@ function cs_file_ext($file)
 
 function cs_make_htaccess()
 {
-    $htaccess = file_get_contents(CS__KERNELPATH . 'dist' . _DS . 'htaccess-distr.txt');
+    $htaccess = file_get_contents(CS_COMMONPATH . 'dist' . _DS . 'htaccess-distr.txt');
     $htaccess = str_replace('{path}', isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/', $htaccess);
     file_put_contents(CS__BASEPATH . '.htaccess', $htaccess) or die('Can`t make .htaccess file. Please, create this file or configure directory rules!');
 }

@@ -14,7 +14,7 @@
                         <li><a href="{{cs_absolute_url('admin')}}" class="mm_menu_item">Admin</a></li>
                         <li><a href="" class="mm_menu_item">Lorem</a></li>
                         <li><a href="" class="mm_menu_item">Ipsum</a></li>
-                        <li><a href="{{cs_absolute_url('logout')}}" class="mm_menu_item">Logout</a></li>
+                        <li><a href="{{cs_absolute_url('ajax/logout')}}" class="mm_menu_item">Logout</a></li>
                     </ul>
                 </div>
             </div>
@@ -51,7 +51,8 @@
                     <div class="mm__footer">
                         Cubsystem cms {{$CS->info['version']}}, Copy, 2020
                         <br>
-                        Page generated at: {{$CS->working_time()}}
+                        Time: {{$CS->workingTime()}}
+                        Memory: {{$CS->memoryUsage()}}
                     </div>
                 </div>
             </div>

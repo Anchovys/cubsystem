@@ -13,22 +13,23 @@
 @
 */
 
-class template_helper {
+class template_helper
+{
 
-    public  $joined = FALSE;
-    public  $path = '';
-    public  $info = [];
-    public  $meta_data = [];
+    public $joined = FALSE;
+    public $path = '';
+    public $info = [];
+    public $meta_data = [];
     private $options =
-    [
-        'minify-html'           => TRUE,
-        'autoload_css'          => TRUE,
-        'autoload_css_path'     => FALSE,
-        'autoload_js'           => TRUE,
-        'autoload_js_path'      => FALSE,
-        'main_view'             => 'main_view',
-        'tmpl_prepare'          => TRUE,
-    ];
+        [
+            'minify-html' => TRUE,
+            'autoload_css' => TRUE,
+            'autoload_css_path' => FALSE,
+            'autoload_js' => TRUE,
+            'autoload_js_path' => FALSE,
+            'main_view' => 'main_view',
+            'tmpl_prepare' => TRUE,
+        ];
 
     private $buffers = [];
 
@@ -50,9 +51,9 @@ class template_helper {
         return $code;
     }
 
-    public function join($setpath, $fullpath = FALSE) 
+    public function join($setpath, $fullpath = FALSE)
     {
-        if(!defined('CS__TEMPLATESPATH'))
+        if (!defined('CS__TEMPLATESPATH'))
             define("CS__TEMPLATESPATH", CS__BASEPATH . 'templates' . _DS);
 
         $this->path = $fullpath ? $setpath : CS__TEMPLATESPATH . $setpath . _DS;
@@ -61,43 +62,45 @@ class template_helper {
         $this->joined = TRUE;
 
         // get the information about template
-        if(file_exists($f = $this->path . 'info.php'))
-        {
+        if (file_exists($f = $this->path . 'info.php')) {
             require_once($f);
 
-            if(isset($template_info) && is_array($template_info))
+            if (isset($template_info) && is_array($template_info))
                 $this->info = $template_info;
         }
 
         // get the advanced template settings
-        if(file_exists($f = $this->path . 'options.php'))
-        {
+        if (file_exists($f = $this->path . 'options.php')) {
             require_once($f);
 
-            if(isset($template_settings) && is_array($template_settings))
+            if (isset($template_settings) && is_array($template_settings))
                 $this->options = array_merge($this->options, $template_settings);
         }
     }
 
     public function setBuffer($name, $data, $append = FALSE)
     {
-        if(array_key_exists($name, $this->buffers) && $append === TRUE)
+        if (array_key_exists($name, $this->buffers) && $append === TRUE)
             $this->buffers[$name] .= $data;
         else $this->buffers[$name] = $data;
     }
 
-    public function showBuffer($name, $print = FALSE)
+    public function showBuffer($name, $print = FALSE, $purge = FALSE)
     {
-        if(array_key_exists($name, $this->buffers))
-        {
-            if($print)
-                print($this->buffers[$name]);
+        if (array_key_exists($name, $this->buffers)) {
 
-            return $this->buffers[$name];
+            $b = $this->buffers[$name];
+
+            if($purge)
+                $this->buffers[$name] = '';
+
+            if ($print)
+                print($b);
+
+            return $b;
         }
         return '';
     }
-
     public function render($print_buffer = TRUE)
     {
         global $CS;
@@ -135,7 +138,7 @@ class template_helper {
         if($this->options['minify-html'] && $minify = $CS->gc('html_minify_helper', 'helpers'))
             $this->setBuffer('body', $minify->minify($this->getBuffer('body')), FALSE);
 
-        return $this->showBuffer('body', $print_buffer);
+        return $this->showBuffer('body', $print_buffer, TRUE);
     }
 
     public function callbackLoad($data, $callback = FALSE, $appendBuffer = FALSE)

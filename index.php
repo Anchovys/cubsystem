@@ -1,21 +1,18 @@
 <?php
 define('_DS', DIRECTORY_SEPARATOR);
 define('CS__BASEPATH', dirname(realpath(__FILE__)) . _DS);
-define('CS__KERNELPATH', CS__BASEPATH   . 'common' . _DS);
-define('CS__MODULESPATH', CS__KERNELPATH   . 'modules' . _DS);
 
-if(file_exists($f = CS__KERNELPATH . 'options.php'))
+define('CS_COMMONPATH',    CS__BASEPATH  . 'common'  . _DS);
+define('CS_HELPERSPATH',   CS_COMMONPATH . 'helpers' . _DS);
+define('CS_MODULESCPATH',  CS_COMMONPATH . 'modules' . _DS);
+define('CS_OPTIONSPATH',   CS_COMMONPATH . 'options' . _DS);
+
+define('CS_COREPATH',      CS_COMMONPATH . 'core'    . _DS);
+define('CS_COREINCPATH',   CS_COREPATH   . 'inc'     . _DS);
+define('CS_CORELIBPATH',   CS_COREPATH   . 'lib'     . _DS);
+
+// ядро системы
+if(file_exists($f = CS_COREPATH . 'join.php'))
     require_once($f);
 
-
-if(file_exists($f = CS__KERNELPATH . 'kernel.php'))
-    require_once($f);
-
-
-if(file_exists($f = CS__KERNELPATH . 'cubsystem.php'))
-    require_once($f);
-
-
-if(!isset($CS) && $CS = Cubsystem::getInstance())
-    $CS->init();
 ?>

@@ -1,0 +1,6 @@
+CREATE TABLE `cubsystem`.`categories` (
+    `id`            INT         NOT NULL AUTO_INCREMENT,
+    `name`          TINYTEXT    NOT NULL,
+    `link`          TINYTEXT    NOT NULL,
+    `description`   TINYTEXT    NOT NULL,
+PRIMARY KEY (`id`)) ENGINE = InnoDB;

@@ -21,28 +21,22 @@
 <div class="mm__page">
     <div class="mm__page_title">
         <h1 class="mm__page_title_link mm__page_title_label">
-            Добавьте новую запись
+            Добавьте новую категорию
         </h1>
     </div>
     <div class="mm__page_info">
     </div>
     <div class="mm__page_content">
         <article id="content">
-            <form id="addForm" onsubmit="sendRequest('<?= cs_absolute_url('admin/admin-ajax/add_page') ?>'); return false;">
+            <form id="addForm" onsubmit="sendRequest('<?= cs_absolute_url('admin/admin-ajax/add_cat') ?>'); return false;">
                 <label>
-                    <input type="text" name="title" placeholder="Article title">
+                    <input type="text" name="name" placeholder="Category name">
                 </label><hr>
                 <label>
-                    <input type="text" name="author" placeholder="Article author">
+                    <input type="text" name="link" placeholder="Category link">
                 </label><hr>
                 <label>
-                    <input type="text" name="tag" placeholder="Article tag">
-                </label><hr>
-                <label>
-                    <input type="text" name="cat" placeholder="Article categories ID`s, by delimiter: ',' example(1,4,6,8,3)">
-                </label><hr>
-                <label>
-                    <textarea name="content" rows="30" placeholder="Page text (html, BBcode support)"></textarea>
+                    <textarea name="descr" rows="30" placeholder="Category description"></textarea>
                 </label><hr>
                 <button name="send">Add</button>
             </form>

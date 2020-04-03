@@ -10,7 +10,7 @@
                     </tr>
                     <tr>
                         <td style="width: 40%;">Template loaded</td>
-                        <td style="width: 60%;">-</td>
+                        <td style="width: 60%;"> - </td>
                     </tr>
                     <tr>
                         <td style="width: 40%;">Helpers loaded</td>

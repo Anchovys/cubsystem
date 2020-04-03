@@ -55,7 +55,8 @@
                     <div class="mm__footer">
                         Cubsystem cms {{$CS->info['version']}}, Copy, 2020
                         <br>
-                        Page generated at: {{$CS->working_time()}}
+                        Time: {{$CS->workingTime()}}
+                        Memory: {{$CS->memoryUsage()}}
                     </div>
                 </div>
             </div>

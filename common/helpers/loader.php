@@ -49,7 +49,7 @@ class loader_helper {
             return false;
 
         if(preg_match("/^\w+$/i", $name) && 
-           file_exists($f = CS__MODULESPATH . $name . _DS . $name . '.php'))
+           file_exists($f = CS_MODULESCPATH . $name . _DS . $name . '.php'))
         {
             include_once($f);
 

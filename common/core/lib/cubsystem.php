@@ -12,7 +12,7 @@ class Cubsystem
 {
     private static $instance = null;
     public $info = [
-        "version" => "0.05",
+        "version" => "0.06",
         "name"    => "Cubsystem"
     ];
 
@@ -67,10 +67,16 @@ class Cubsystem
         } else return !array_key_exists($classname, $seek_array) ? FALSE : $seek_array[$classname];
     }
 
-    public function working_time($suff = ' sec.')
+    public function workingTime($suff = ' sec.')
     {
-        $diff = microtime(TRUE) - $this->dynamic['time_pre'];
+        $diff = round(microtime(TRUE) - $this->dynamic['time_pre'], 3);
         return $diff . $suff;
+    }
+
+    public function memoryUsage()
+    {
+        $size = memory_get_usage(true);
+        return round($size / 1024) . ' kb' ;
     }
 
     public function init()
@@ -111,7 +117,7 @@ class Cubsystem
 
             // экземпляр остается в поле autoload[helpers] и остается
             // одним обьектом (не дублируется!)
-            $this->database = $db;  $db = null;
+            $this->database = mysqli_db_helper::getInstance();
 
             // make connection with mysql
             $this->database->addConnection('default', $this->config['database']);

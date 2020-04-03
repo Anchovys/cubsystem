@@ -5,8 +5,8 @@
 | -------------------------------------------------------------------------
 | В этом файле описана базовая функциональность для админ-панели
 | Админ-панель имеет два хука
-| cs__adminpanel_switchurl (для управления непосредственно админ-панелью) и
-| cs__adminpanel_handler (для обработки каких-то действий)
+| cs__admin_view (для управления непосредственно админ-панелью) и
+| cs__admin_handler (для обработки каких-то действий)
 | Разные модули могут брать управление с этих хуков
 |
 |
@@ -27,7 +27,7 @@ class admin_module extends cs_module
         $this->name = "Admin";
         $this->description = "A simple adminpanel.";
         $this->version = "1";
-        $this->fullpath = CS__MODULESPATH . 'admin' . _DS;
+        $this->fullpath = CS_MODULESCPATH . 'admin' . _DS;
 
         // connect the options
         if(file_exists($f = $this->fullpath . 'options.php'))
@@ -51,14 +51,14 @@ class admin_module extends cs_module
         if(!isset($segments[0] ) || $segments[0] !== 'admin' || !$this->checkUser())
             return;
 
-        if(isset($segments[1]) && $segments[1] === "admin-handler")
+        if(isset($segments[1]) && $segments[1] === "admin-ajax")
         {
             // ничего не обработалось из стандартных правил
             if(!$this->adminHandler($segments))
             {
                 // HOOK on
                 if ($h = $CS->gc('hooks_helper', 'helpers'))
-                    $h->here('cs__adminpanel_handler');
+                    $h->here('cs__admin-ajax');
             }
             die();
         }
@@ -69,7 +69,7 @@ class admin_module extends cs_module
 
         // HOOK ON load admin
         if ($h = $CS->gc('hooks_helper', 'helpers'))
-            $h->here('cs__adminpanel_switchurl');
+            $h->here('cs__admin-view');
 
         switch(isset($segments[1]) ? $segments[1] : '')
         {
@@ -91,7 +91,9 @@ class admin_module extends cs_module
     {
         global $CS;
 
-        $auth = $CS->gc('auth_module', 'modules');
+        if(!$auth = $CS->gc('auth_module', 'modules'))
+            die('Need auth module');
+
         $user = $auth->getLoggedUser();
 
         return $user !== NULL && $user->isAdmin();

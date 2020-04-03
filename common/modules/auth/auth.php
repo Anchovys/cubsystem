@@ -1,5 +1,4 @@
 <?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
-
 /*
 | -------------------------------------------------------------------------
 | auth.php [rev 1.2], Назначение: система авторизации для пользователей
@@ -26,7 +25,7 @@ class auth_module extends cs_module
         $this->name = "Auth";
         $this->description = "A simple authorization system.";
         $this->version = "2";
-        $this->fullpath = CS__MODULESPATH . 'auth' . _DS;
+        $this->fullpath = CS_MODULESCPATH . 'auth' . _DS;
 
         // require default objects
         require_once($this->fullpath . 'objects' . _DS . 'user.php');
@@ -43,7 +42,7 @@ class auth_module extends cs_module
         global $CS;
         $segments = cs_get_segment();
 
-        if(isset($segments[1]) && $segments[0] === 'authorize-shell')
+        if(isset($segments[1]) && $segments[0] === 'ajax')
         {
             $this->authHandler($segments);
             die();
