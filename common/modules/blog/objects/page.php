@@ -21,6 +21,7 @@ class cs_page
     public $title       = NULL;
     public $tag         = NULL;
     public $cat         = NULL;
+    public $cat_ids     = NULL;
     public $context     = NULL;
     public $comments    = NULL;
     public $author      = NULL;
@@ -44,8 +45,11 @@ class cs_page
             if (isset($data['cat'])) {
                 $ids = explode(',', $data['cat']);
                 $category_data = cs_cat::getByIds($ids);
-                $this->cat     = $category_data !== NULL && $category_data['count'] !== 0 ?
-                    $category_data['result'] : NULL;
+                if($category_data !== NULL && $category_data && $category_data['count'] !== 0)
+                {
+                    $this->cat_ids = $ids;
+                    $this->cat = $category_data['result'];
+                }
             }
 
 
@@ -99,6 +103,32 @@ class cs_page
             ];
     }
 
+    public static function getByCategory($id)
+    {
+        $totally = [];
+        $pages = self::getListBy(FALSE, FALSE);
+
+        if($pages['count'] === 0)
+            return [];
+
+        $pages = $pages['result'];
+
+        foreach ($pages as $page)
+        {
+            if(!is_array($page->cat_ids))
+                continue;
+
+            if(in_array($id, $page->cat_ids))
+                $totally[] = $page;
+        }
+
+        return
+            [
+                'count'   => count($totally),
+                'result' =>  $totally
+            ];
+    }
+
     public static function getListBy($by = FALSE, $value = FALSE)
     {
         global $CS;
@@ -137,7 +167,7 @@ class cs_page
         $data = [
             'title'     => $this->title,
             'tag'       => $this->tag,
-            'cat'       => implode(',', $this->cat),
+            'cat'       => is_array($this->cat_ids) ? implode(',', $this->cat_ids) : '',
             'comments'  => 0,
             'views'     => 0,
             'author'    => $this->author,

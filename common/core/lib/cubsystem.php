@@ -34,7 +34,7 @@ class Cubsystem
         // for statistics
         $this->dynamic['time_pre'] = microtime(TRUE);
 
-        if(!defined('CS__BASEURL')) define('CS__BASEURL', csBaseUrl());
+        if(!defined('CS__BASEURL')) define('CS__BASEURL', cs_base_url());
         if(defined('CS__CFG')) $this->config = CS__CFG;
         $this->dynamic['url-address']  = CS__BASEURL;
     }
@@ -81,7 +81,7 @@ class Cubsystem
             // make htaccess if not exists
             if(!file_exists( CS__BASEPATH . '.htaccess')) 
             {
-                csMakeHtaccess();
+                cs_mk_htaccess();
                 exit('Reload the page');
             }
 
@@ -90,14 +90,14 @@ class Cubsystem
         /////// --> INSTALL CHECK ////////
 
             if(!$this->config || $this->config['installed'] === FALSE) 
-                die("System not installed! <a href='". csAbsoluteUrl('install') ."'>Install now!</a>");
+                die("System not installed! <a href='". cs_abs_url('install') ."'>Install now!</a>");
 
         /////// INSTALL CHECK <-- ////////
 
         /////// --> HELPERS LOADING ////////
 
             // load all helpers
-            if($custom_helpers = csLoadHelpers())
+            if($custom_helpers = cs_load_helpers())
                 $this->autoload['helpers'] = array_merge( $this->autoload['helpers'],  $custom_helpers );
 
         /////// HELPERS LOADING <-- ////////

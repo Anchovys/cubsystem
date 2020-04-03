@@ -7,13 +7,13 @@
  */
 function csAutoloadJs($dir = CS__BASEPATH . 'js', $print_output = FALSE)
 {
-    $files = csGetPathFiles($dir, true, ['js']);
+    $files = cs_in_path_files($dir, true, ['js']);
     $output_html = '';
 
 
     foreach($files as $file)
     {
-        $file = csPathToUrl($file, TRUE);
+        $file = cs_path_to_url($file, TRUE);
         $output_html .= '<script src="' . $file . '"></script>';
     }
 
@@ -30,12 +30,12 @@ function csAutoloadJs($dir = CS__BASEPATH . 'js', $print_output = FALSE)
  */
 function csAutoloadCss($dir = CS__BASEPATH . 'css/', $print_output = FALSE)
 {
-    $files = csGetPathFiles($dir, true, ['css']);
+    $files = cs_in_path_files($dir, true, ['css']);
     $output_html = '';
 
     foreach($files as $file)
     {
-        $file = csPathToUrl($file, true);
+        $file = cs_path_to_url($file, true);
         $output_html .= '<link rel="stylesheet" href="' . $file . '">';
     }
 

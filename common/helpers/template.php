@@ -179,13 +179,13 @@ class template_helper
 
                     case 'stylesheet':
                         $path = $this->path . 'assets' . _DS . 'css' . _DS . 'manual' . _DS;
-                        $url = csPathToUrl($path);
+                        $url = cs_path_to_url($path);
                         $this->setBuffer('head', "<link rel=\"stylesheet\" href=\"{$url}{$value}\">", TRUE);
                     break;
 
                     case 'script':
                         $path = $this->path . 'assets' . _DS . 'js' . _DS . 'manual' . _DS;
-                        $url = csPathToUrl($path);
+                        $url = cs_path_to_url($path);
                         $this->setBuffer('head', "<script src=\"{$url}{$value}\"></script>", TRUE);
                     break;
                 }

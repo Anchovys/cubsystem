@@ -13,12 +13,12 @@
 @
 */
 
-function csAbsoluteUrl($url = '')
+function cs_abs_url($url = '')
 {
     return CS__BASEURL . $url;
 }
 
-function csPathToUrl($path, $absolute = TRUE)
+function cs_path_to_url($path, $absolute = TRUE)
 {
     $path = $absolute ? str_replace(CS__BASEPATH, '', $path) : $path;
     $path = str_replace(['\\'],  '/', $path);
@@ -28,11 +28,19 @@ function csPathToUrl($path, $absolute = TRUE)
     return $path;
 }
 
-function csGetSegment($id = FALSE)
+function cs_base_url()
+{
+    // http-address
+    $base_url  = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
+    $base_url .= str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
+    return $base_url;
+}
+
+function cs_get_segment($id = FALSE)
 {
     if(!isset($_GET['m'])) return [];
 
-    $url = csFilter($_GET['m'], 'base');
+    $url = cs_filter($_GET['m'], 'base');
     $url = str_replace(['.', '~', '\\'],  '_', $url);
     $url = explode('#', $url)[0];
     $url = explode('?', $url)[0];
@@ -48,14 +56,14 @@ function csGetSegment($id = FALSE)
  * @param bool $absolute
  * @param string $header
  */
-function csRedir($url = '', $absolute = true, $header = '')
+function cs_redir($url = '', $absolute = true, $header = '')
 {
     $url = $absolute ? CS__BASEURL . $url : $url;
-    $url = csFilter($url, 'base');
+    $url = cs_filter($url, 'base');
     $url = strip_tags($url);
     $url = str_replace( array('%0d', '%0a'), '', $url );
 
-    $header = csFilter($header, 'int');
+    $header = cs_filter($header, 'int');
 
     if($header === 301)
         header('HTTP/1.1 301 Moved Permanently');
@@ -66,12 +74,4 @@ function csRedir($url = '', $absolute = true, $header = '')
     header("Location: {$url}");
 
     die();
-}
-
-function csBaseUrl()
-{
-    // http-address
-    $base_url  = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
-    $base_url .= str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
-    return $base_url;
 }

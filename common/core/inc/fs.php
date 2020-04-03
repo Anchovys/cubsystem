@@ -27,7 +27,7 @@ function directory_map($source_dir, $directory_depth = 0, $hidden = FALSE)
     return FALSE;
 }
 
-function csGetPathFiles($path = '', $full_path = TRUE, $exts = ['jpg', 'jpeg', 'png', 'gif', 'ico', 'svg'], $minus = TRUE)
+function cs_in_path_files($path = '', $full_path = TRUE, $exts = ['jpg', 'jpeg', 'png', 'gif', 'ico', 'svg'], $minus = TRUE)
 {
     // if empty or not dir or empty dir
     if (!$path || !is_dir($path) || !$files = directory_map($path, true))
@@ -40,7 +40,7 @@ function csGetPathFiles($path = '', $full_path = TRUE, $exts = ['jpg', 'jpeg', '
         if (!is_file($path . $file)) // not a file
             continue;
 
-        if (in_array(csFileExt($file), $exts)) // check a extension of file
+        if (in_array(cs_file_ext($file), $exts)) // check a extension of file
         {
             if ($minus && strpos($file, '_') === 0) // check if starts with '_'
                 continue;
@@ -53,11 +53,11 @@ function csGetPathFiles($path = '', $full_path = TRUE, $exts = ['jpg', 'jpeg', '
     return $all_files;
 }
 
-function csFileExt($file)
+function cs_file_ext($file)
 {
     return strtolower(substr(strrchr($file, '.'), 1));
 }
-function csMakeHtaccess()
+function cs_mk_htaccess()
 {
     $htaccess = file_get_contents(CS_COMMONPATH . 'dist' . _DS . 'htaccess-distr.txt');
     $htaccess = str_replace('{path}', isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/', $htaccess);

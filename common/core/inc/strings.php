@@ -1,6 +1,6 @@
 <?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
 
-function csHashStr($str, $salted = TRUE)
+function cs_hash_str($str, $salted = TRUE)
 {
     global $CS;
 
@@ -9,7 +9,7 @@ function csHashStr($str, $salted = TRUE)
     return md5($str);
 }
 
-function csGetRndStr($length = 10, $numbers = TRUE, $upper = TRUE, $special = FALSE)
+function cs_rnd_str($length = 10, $numbers = TRUE, $upper = TRUE, $special = FALSE)
 {
     $chars = 'abcdefghijklmnopqrstuvwxyz';
     if ($special == TRUE) $chars .= '$()[]{}#@!;:';

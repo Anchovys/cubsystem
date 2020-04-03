@@ -80,7 +80,7 @@ function xss_clean($data)
  *          password        - пресет. обрабатывает пароль
  * @return Var
  */
-function csFilter ($str, $mode = "base")
+function cs_filter ($str, $mode = "base")
 {
 
     if ( !$str ) return $str;
@@ -103,21 +103,21 @@ function csFilter ($str, $mode = "base")
         //обозначим пресеты отдельным switch
         switch ($rule) {
             case 'base':
-                $str = csFilter( $str, 'trim;xss;strip_tags;special_chars' );
+                $str = cs_filter( $str, 'trim;xss;strip_tags;special_chars' );
                 break;
 
             case 'username':
-                $str = csFilter( $str, 'base;string;spaces' );
+                $str = cs_filter( $str, 'base;string;spaces' );
                 if ( strlen( $str ) < 3 ) $str = '';
                 break;
 
             case 'password':
-                $str = csFilter( $str, 'base;string;spaces' );
+                $str = cs_filter( $str, 'base;string;spaces' );
                 if ( strlen( $str ) < 5 ) $str = '';
                 break;
 
             case 'special_string':
-                $str = csFilter( $str, 'base;string;spaces' );
+                $str = cs_filter( $str, 'base;string;spaces' );
                 $str = preg_replace( '/[^a-zA-Z0-9]/', '', $str );
                 $str = substr($str, 0, 64);
                 break;

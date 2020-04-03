@@ -41,7 +41,7 @@ class blog_module extends cs_module
     public function admin_view()
     {
         global $CS;
-        $segments = csGetSegment();
+        $segments = cs_get_segment();
 
         if(!isset($segments[1]))
             return;
@@ -55,7 +55,7 @@ class blog_module extends cs_module
     public function admin_ajax()
     {
         global $CS;
-        $segments = csGetSegment();
+        $segments = cs_get_segment();
 
         if(!isset($segments[2]))
             return;
@@ -69,12 +69,12 @@ class blog_module extends cs_module
             }
 
             $data = [
-                'title'     => csFilter($_POST['title']),
-                'context'   => csFilter($_POST['content'], 'multi_spaces;trim'),
-                'author'    => csFilter($_POST['author']),
-                'link'      => csGetRndStr(3),
-                'tag'       => csFilter($_POST['tag']),
-                'cat'       => csFilter($_POST['cat'])
+                'title'     => cs_filter($_POST['title']),
+                'context'   => cs_filter($_POST['content'], 'multi_spaces;trim'),
+                'author'    => cs_filter($_POST['author']),
+                'link'      => cs_rnd_str(3),
+                'tag'       => cs_filter($_POST['tag']),
+                'cat'       => cs_filter($_POST['cat'])
             ];
 
             $page = new cs_page($data);
@@ -88,9 +88,9 @@ class blog_module extends cs_module
             }
 
             $data = [
-                'name'           => csFilter($_POST['name']),
-                'link'           => csFilter($_POST['link']),
-                'description'    => csFilter($_POST['descr'])
+                'name'           => cs_filter($_POST['name']),
+                'link'           => cs_filter($_POST['link']),
+                'description'    => cs_filter($_POST['descr'])
             ];
 
             $cat = new cs_cat($data);
@@ -102,7 +102,7 @@ class blog_module extends cs_module
     public function view()
     {
         global $CS;
-        $segments = csGetSegment();
+        $segments = cs_get_segment();
 
         switch(isset($segments[0]) ? $segments[0] : '')
         {
@@ -119,10 +119,18 @@ class blog_module extends cs_module
                     'description' => "Here you can see all page with tag: {$page_tag}"
                 ]);
                 break;
+            case 'cat': // first segment = cat
+                $page = $this->displayPages(cs_page::getByCategory($page_cat = $segments[1]), 'blog/short-page_view', FALSE);
+                $CS->template->setBuffer('body', (!$page) ? $this->page404() : $page, FALSE);
+                $CS->template->setMeta([
+                    'title' => "Tag: {$page_cat}",
+                    'description' => "Here you can see all page with tag: {$page_cat}"
+                ]);
+                break;
 
             case '':
             case 'home': // first segment = home or empty
-                $page = $this->getPagesBy(FALSE, FALSE, 'blog/short-page_view', FALSE);
+                $page = $this->displayPages(cs_page::getListBy(FALSE,FALSE), 'blog/short-page_view', FALSE);
                 $CS->template->setBuffer('body', (!$page) ? $this->page404() : $page, FALSE);
                 $CS->template->setMeta([
                     'title' => "Home Page",
@@ -132,12 +140,10 @@ class blog_module extends cs_module
         }
     }
 
-    public function getPagesBy($by, $data, $view_name = 'blog/short-page_view', $set_meta = TRUE)
+    public function displayPages($pages, $view_name = 'blog/short-page_view', $set_meta = TRUE)
     {
         global $CS;
         $content = '';
-        $pages = cs_page::getListBy($by, $data);
-
         if(isset($pages['count']) && $pages['count'] > 0)
         {
             $pages['result'] = array_reverse($pages['result']);

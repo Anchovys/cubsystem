@@ -1,7 +1,7 @@
 <?php defined('CS__BASEPATH') OR exit('No direct script access allowed');?>
 <div class="mm__page">
     <div class="mm__page_title">
-        <a class="mm__page_title_link" href="{{csAbsoluteUrl('page/' . $__data['page']->link)}}">
+        <a class="mm__page_title_link" href="{{cs_abs_url('page/' . $__data['page']->link)}}">
             <h1 class="mm__page_title_label">
                 {{$__data['page']->title}}
             </h1>
@@ -15,7 +15,7 @@
         </ul>
         <ul class="mm__page_info_list">
             <li>Категория: {% if($__data['page']->cat === NULL) print 'нет'; else foreach($__data['page']->cat as $cat)
-                print ('<a href="'.csAbsoluteUrl('cat/' . $cat->link).'">' . $cat->name . '</a> '); %}
+                print ('<a href="'.cs_abs_url('cat/' . $cat->id).'">' . $cat->name . '</a> '); %}
              </li>
         </ul>
     </div>

@@ -1,6 +1,6 @@
 <?php  defined('CS__BASEPATH') OR exit('No direct script access allowed');
 
-function csLoadHelpers($path = CS_COMMONPATH . 'helpers' . _DS)
+function cs_load_helpers($path = CS_COMMONPATH . 'helpers' . _DS)
 {
     global $CS;
 
@@ -10,10 +10,10 @@ function csLoadHelpers($path = CS_COMMONPATH . 'helpers' . _DS)
     $helpers_for_load = is_array($h = $CS->config['helpers-priority']) ? $h : [];
 
     // allow to search helpers
-    if($CS->config['helpers-search'] === TRUE)
+    if($CS->config['helpers-search'] === TRUE || $path !== FALSE)
     {
         // get files in directory
-        $files = csGetPathFiles($path, FALSE, ['php']);
+        $files = cs_in_path_files($path, FALSE, ['php']);
 
         foreach($files as $value)
         {
@@ -31,13 +31,13 @@ function csLoadHelpers($path = CS_COMMONPATH . 'helpers' . _DS)
 
         $helper_suffix = '_helper';
 
-        $helpers[$helper . $helper_suffix] = csLoadOneHelper($helper, $path, $helper_suffix);
+        $helpers[$helper . $helper_suffix] = cs_load_one_helper($helper, $path, $helper_suffix);
     }
 
     return $helpers;
 }
 
-function csLoadOneHelper($helper, $path = CS_COMMONPATH . 'helpers' . _DS, $suffix = '_helper')
+function cs_load_one_helper($helper, $path = CS_COMMONPATH . 'helpers' . _DS, $suffix = '_helper')
 {
     global $CS;
 
