@@ -61,21 +61,39 @@ class cs_page
 
     public static function getById($id = FALSE)
     {
+        $id = cs_filter($id, 'int');
+        if(!$id) return NULL;
+        return self::getBy($id, 'id');
+    }
+
+    public static function getByLink($link = FALSE)
+    {
+        $link = cs_filter($link, 'base');
+        if(!$link || !is_string($link)) return NULL;
+        return self::getBy($link, 'link');
+    }
+
+    private static function getBy($sel = FALSE, $by = 'id')
+    {
         global $CS;
 
-        if(!$id) return NULL;
-
-        $id = intval($id);
+        if(!$by || !$sel) return NULL;
 
         if(!$db = $CS->database->getInstance())
-                die('[blog] Can`t connect to database');
+            die('[blog] Can`t connect to database');
 
-        $db->where('id', $id);
-        
-        if($data = $db->getOne('pages'))
-            return new cs_page($data);
+        $db->where($by, $sel);
 
-        return NULL;
+        if(!$data = $db->getOne('pages'))
+            return NULL;
+
+        return
+            [
+                'count'   => 1,
+                'result' =>  new cs_page($data)
+            ];
+
+
     }
 
     public static function getByIds($ids = [])
@@ -103,7 +121,7 @@ class cs_page
             ];
     }
 
-    public static function getByCategory($id)
+    public static function getByCategoryId($id)
     {
         $totally = [];
         $pages = self::getListBy(FALSE, FALSE);
@@ -129,18 +147,25 @@ class cs_page
             ];
     }
 
-    public static function getListBy($by = FALSE, $value = FALSE)
+    public static function getListByTag($tag = FALSE)
+    {
+        $tag = cs_filter($tag, 'base');
+        if(!$tag || !is_string($tag)) return NULL;
+        return self::getListBy($tag, 'tag');
+    }
+
+    public static function getListBy($sel = FALSE, $by = 'id')
     {
         global $CS;
 
         if(!$db = $CS->gc('mysqli_db_helper', 'helpers')->getInstance())
             die('[blog] Can`t connect to database');
 
-        if($by && is_string($by) && $value)
-            $db->where($by, $value);
+        if($by && is_string($by) && $sel)
+            $db->where($by, $sel);
         
         if(!$objects = $db->get('pages'))
-            return FALSE;
+            return NULL;
 
         $result = [];
         foreach ($objects as $item)

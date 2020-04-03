@@ -1,7 +1,7 @@
 <?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
 /*
 | -------------------------------------------------------------------------
-| blog.php [rev 1.3], Назначение: поддержка статей (блога)
+| blog.php [rev 1.4], Назначение: поддержка статей (блога)
 | -------------------------------------------------------------------------
 | В этом файле описана базовая функциональность для блога
 | работа со статьями, базой данных
@@ -21,7 +21,7 @@ class blog_module extends cs_module
         global $CS;
         $this->name = "Blog";
         $this->description = "A simple blog realization.";
-        $this->version = "3";
+        $this->version = "4";
         $this->fullpath = CS_MODULESCPATH . 'blog' . _DS;
 
         require_once($this->fullpath . 'objects' . _DS . 'category.php');
@@ -107,12 +107,12 @@ class blog_module extends cs_module
         switch(isset($segments[0]) ? $segments[0] : '')
         {
             case 'page': // first segment = page
-                $page = $this->getPagesBy("link", $page_tag = $segments[1], 'blog/full-page_view');
+                $page = $this->displayPages(cs_page::getByLink($page_link = $segments[1]), 'blog/full-page_view');
                 $CS->template->setBuffer('body', (!$page) ? $this->page404() : $page, FALSE);
                 break;
 
             case 'tag': // first segment = tag
-                $page = $this->getPagesBy("tag", $page_tag = $segments[1], 'blog/short-page_view', FALSE);
+                $page = $this->displayPages(cs_page::getListByTag($page_tag = $segments[1]), 'blog/short-page_view', FALSE);
                 $CS->template->setBuffer('body', (!$page) ? $this->page404() : $page, FALSE);
                 $CS->template->setMeta([
                     'title' => "Tag: {$page_tag}",
@@ -120,11 +120,12 @@ class blog_module extends cs_module
                 ]);
                 break;
             case 'cat': // first segment = cat
-                $page = $this->displayPages(cs_page::getByCategory($page_cat = $segments[1]), 'blog/short-page_view', FALSE);
+                $category = cs_cat::getByLink($cat_link = $segments[1]);
+                $page = $this->displayPages(cs_page::getByCategoryId($category->id), 'blog/short-page_view', FALSE);
                 $CS->template->setBuffer('body', (!$page) ? $this->page404() : $page, FALSE);
                 $CS->template->setMeta([
-                    'title' => "Tag: {$page_cat}",
-                    'description' => "Here you can see all page with tag: {$page_cat}"
+                    'title' => "Cat: {$category->name}",
+                    'description' => "Here you can see all page with cat: {$category->name}"
                 ]);
                 break;
 
@@ -140,11 +141,16 @@ class blog_module extends cs_module
         }
     }
 
-    public function displayPages($pages, $view_name = 'blog/short-page_view', $set_meta = TRUE)
+    private function displayPages($pages, $view_name = 'blog/short-page_view', $set_meta = TRUE)
     {
         global $CS;
         $content = '';
-        if(isset($pages['count']) && $pages['count'] > 0)
+
+        if(!isset($pages['count']) || $pages['count'] === 0)
+        {
+            return false;
+        }
+        elseif($pages['count'] > 1)
         {
             $pages['result'] = array_reverse($pages['result']);
             foreach($pages['result'] as $page)
@@ -152,9 +158,15 @@ class blog_module extends cs_module
                 $content .= $CS->template->callbackLoad(['page' => $page], $view_name);
                 if($set_meta) $CS->template->setMeta($page->meta);
             }
-            return $content;
         }
-        else return false;
+        elseif ($pages['count'] == 1)
+        {
+            $page = $pages['result'];
+            $content = $CS->template->callbackLoad(['page' => $page], $view_name);
+            if($set_meta) $CS->template->setMeta($page->meta);
+        }
+
+        return $content;
     }
 
     public function page404($view_name = 'blog/404-page_view')

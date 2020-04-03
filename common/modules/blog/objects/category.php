@@ -21,16 +21,28 @@ class cs_cat
 
     public static function getById($id = FALSE)
     {
+        $id = cs_filter($id, 'int');
+        if(!$id) return NULL;
+        return self::getBy($id, 'id');
+    }
+
+    public static function getByLink($link = FALSE)
+    {
+        $link = cs_filter($link, 'base');
+        if(!$link || !is_string($link)) return NULL;
+        return self::getBy($link, 'link');
+    }
+
+    private static function getBy($sel = FALSE, $by = 'id')
+    {
         global $CS;
 
-        if(!$id) return NULL;
-
-        $id = intval($id);
+        if(!$by || !$sel) return NULL;
 
         if(!$db = $CS->database->getInstance())
             die('[blog] Can`t connect to database');
 
-        $db->where('id', $id);
+        $db->where($by, $sel);
 
         if($data = $db->getOne('categories'))
             return new cs_cat($data);
