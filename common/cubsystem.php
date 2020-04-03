@@ -8,15 +8,15 @@ class cs_module
     public $fullpath       = null;
 }
 
-class Cubsystem 
+class Cubsystem
 {
     private static $instance = null;
     public $info = [
-        "version" => "0.04",
+        "version" => "0.05",
         "name"    => "Cubsystem"
     ];
 
-    public $config      = [];
+    public $config       = [];
     public $dynamic     = [];
     public $hooks       = [];
     public $session     = null;
@@ -67,10 +67,10 @@ class Cubsystem
         } else return !array_key_exists($classname, $seek_array) ? FALSE : $seek_array[$classname];
     }
 
-    public function working_time()
+    public function working_time($suff = ' sec.')
     {
         $diff = microtime(TRUE) - $this->dynamic['time_pre'];
-        return $diff . 'sec.';
+        return $diff . $suff;
     }
 
     public function init()

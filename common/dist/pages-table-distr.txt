@@ -7,5 +7,4 @@ CREATE TABLE `cubsystem`.`pages` (
     `author`    TEXT    NOT NULL,
     `tag`       TEXT    NOT NULL,
     `comments`  INT     NOT NULL,
-    PRIMARY KEY (`id`)) 
-    ENGINE = InnoDB;
+PRIMARY KEY (`id`)) ENGINE = InnoDB;

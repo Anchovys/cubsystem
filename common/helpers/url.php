@@ -13,7 +13,7 @@
 @
 */
 
-function cs_absolute_url($url)
+function cs_absolute_url($url = '')
 {
     return CS__BASEURL . $url;
 }

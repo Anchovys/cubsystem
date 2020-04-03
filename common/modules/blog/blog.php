@@ -28,9 +28,59 @@ class blog_module extends cs_module
         //require_once($this->fullpath . 'category.php');
         require_once($this->fullpath . 'objects' . _DS . 'page.php');
 
-        // make hook into render
         if($h = $CS->gc('hooks_helper', 'helpers'))
+        {
+            // make hook into render
             $h->register('cs__pre-template_hook', 'view', $this);
+            $h->register('cs__adminpanel_switchurl', 'view_admin', $this);
+            $h->register('cs__adminpanel_handler', 'view_adminHandler', $this);
+        }
+    }
+
+    public function view_admin()
+    {
+        global $CS;
+        $segments = cs_get_segment();
+
+        if(!isset($segments[1]))
+            return;
+
+        if($segments[1] === 'addpage')
+        {
+            $CS->template->callbackLoad('', 'blog/addpage_view', 'body');
+        }
+
+    }
+
+    public function view_adminHandler()
+    {
+        global $CS;
+        $segments = cs_get_segment();
+
+        if(!isset($segments[2]))
+            return;
+
+        if($segments[2] === 'add_page')
+        {
+            if(!isset($_POST['title'])    || !isset($_POST['tag']) ||
+                !isset($_POST['content']) || !isset($_POST['author']))
+            {
+                return;
+            }
+
+            $data = [
+                'title'     => cs_filter($_POST['title']),
+                'context'   => cs_filter($_POST['content'], 'multi_spaces;trim'),
+                'author'    => cs_filter($_POST['author']),
+                'link'      => cs_get_random_str(3),
+                'tag'       => cs_filter($_POST['tag'])
+            ];
+
+            $page = new cs_page($data);
+            $obj = $page->insert();
+            die($obj === NULL ? 'fail' : 'success');
+        }
+
     }
 
     public function view()
@@ -74,6 +124,7 @@ class blog_module extends cs_module
 
         if(isset($pages['count']) && $pages['count'] > 0)
         {
+            $pages['result'] = array_reverse($pages['result']);
             foreach($pages['result'] as $page_data)
             {
                 $page = new cs_page($page_data);

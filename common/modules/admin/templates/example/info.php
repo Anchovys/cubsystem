@@ -14,10 +14,10 @@
 
 $template_info =
 [
-    'name'          => 'Example',
+    'name'          => 'Example for admin',
     'version'       => '1',
     'cs_revs'       => ['0.05'],
-    'description'   => 'A example template',
+    'description'   => 'A admin panel template',
     'author'        => 'Anchovy'
 ];
 

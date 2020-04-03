@@ -18,7 +18,7 @@ $CS->template->setMeta(['script'=>'loginform_auth_AJAX.js']);
     </div>
     <div class="mm__page_content">
         <article id="content">
-            <form id="loginForm" onsubmit="sendRequest('<?= cs_absolute_url('authorize-shell/register') ?>'); return false;">
+            <form id="loginForm" onsubmit="sendRequest('<?= cs_absolute_url('authorize-shell/login') ?>'); return false;">
                 <label for="login">
                     <input type="text" name="username" placeholder="Введите свой логин" value="admin">
                 </label>

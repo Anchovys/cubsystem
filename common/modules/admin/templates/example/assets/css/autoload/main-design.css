@@ -1,0 +1,168 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+/*
+	MM page
+*/
+
+.mm__page
+{
+    padding: 10px;
+    padding-top: 0px;
+}
+
+.mm__page_content
+{
+    padding: 10px;
+    border-bottom: 1px solid;
+}
+
+.mm__page_info
+{
+    padding: 10px;
+}
+
+.mm__page_title, .mm__other_pages, .mm__comments
+{
+	text-align: center;
+    padding: 10px;
+    background: darkblue;
+}
+
+.mm__page_title, .mm__other_pages, .mm__comments, .mm__page_title_link
+{
+    color: white;
+    text-decoration: none;
+}
+
+ul.mm__page_info_list
+{
+	list-style: none;
+}
+
+ul.mm__page_info_list li
+{
+    display: inline-block;
+    margin-left: 5px;
+}
+
+ul.mm__page_info_list > li:before
+{
+    margin-right: 0.5em;
+    content: '◦';
+}
+
+/*
+	MM main container
+*/
+
+.mm__top_container, .mm__middle_container, .mm__bottom_container
+{
+    margin-top:25px;
+}
+
+/*
+	MM footer
+*/
+
+.mm__footer
+{
+    text-align: center;
+    padding: 15px;
+    background: darkblue;
+    color: #fff;
+}
+
+/*
+	MM widget sidebar
+*/
+
+.mm__widget
+{
+    padding: 10px;
+    padding-top: 0px;
+}
+
+.mm__widget_header
+{
+	text-align: center;
+    padding: 10px;
+    background: darkblue;
+    color: #fff;
+}
+
+.mm__widget_content
+{
+    padding: 10px;
+}
+
+.mm__vertical_menu ul a.mm_menu_item
+{
+    margin-left: 10px;
+    padding: 2px 5px;
+    display: block;
+}
+
+/*
+    MM horizontal menu
+*/
+
+.mm__horizontal_menu>ul
+{
+    overflow: hidden;
+    background: darkblue;
+}
+
+.mm__horizontal_menu>ul>li
+{
+    float: left;
+}
+
+.mm__horizontal_menu>ul a.mm_menu_item
+{
+    display: inline-block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}

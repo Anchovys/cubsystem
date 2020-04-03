@@ -52,7 +52,7 @@ class template_helper {
 
     public function join($setpath, $fullpath = FALSE) 
     {
-        if(!defined('CS__TEMPLATE_DIR'))
+        if(!defined('CS__TEMPLATESPATH'))
             define("CS__TEMPLATESPATH", CS__BASEPATH . 'templates' . _DS);
 
         $this->path = $fullpath ? $setpath : CS__TEMPLATESPATH . $setpath . _DS;
@@ -70,7 +70,7 @@ class template_helper {
         }
 
         // get the advanced template settings
-        if(file_exists($f = $this->path . 'settings.php'))
+        if(file_exists($f = $this->path . 'options.php'))
         {
             require_once($f);
 
@@ -86,7 +86,7 @@ class template_helper {
         else $this->buffers[$name] = $data;
     }
 
-    public function getBuffer($name, $print = FALSE)
+    public function showBuffer($name, $print = FALSE)
     {
         if(array_key_exists($name, $this->buffers))
         {
@@ -104,6 +104,7 @@ class template_helper {
         if(!file_exists($f = $this->path . 'index.php'))
             return FALSE;
 
+        $this->setBuffer('head', "<meta charset=\"UTF-8\">", TRUE);
         $this->setBuffer('head', "<meta name=\"generator\" content=\"CubSystem CMS\">", TRUE);
         $this->setBuffer('head', "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">", TRUE);
         $this->setBuffer('head', "<meta property=\"og:url\" content=\"{$CS->dynamic['url-address']}\">", TRUE);
@@ -127,14 +128,14 @@ class template_helper {
         if(function_exists('onload_template'))
             onload_template($this);
 
-        if($this->getBuffer('body') == '')
+        if($this->showBuffer('body') == '')
             $this->setBuffer('buffer', '<div class="blank">No content</div>', TRUE);
 
         // minify html
         if($this->options['minify-html'] && $minify = $CS->gc('html_minify_helper', 'helpers'))
             $this->setBuffer('body', $minify->minify($this->getBuffer('body')), FALSE);
 
-        return $this->getBuffer('body', $print_buffer);
+        return $this->showBuffer('body', $print_buffer);
     }
 
     public function callbackLoad($data, $callback = FALSE, $appendBuffer = FALSE)
