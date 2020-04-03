@@ -10,11 +10,11 @@
             <div class="col-12">
                 <div class="mm__horizontal_menu">
                     <ul>
-                        <li><a href="{{cs_absolute_url()}}" class="mm_menu_item">Site view</a></li>
-                        <li><a href="{{cs_absolute_url('admin')}}" class="mm_menu_item">Admin</a></li>
+                        <li><a href="{{csAbsoluteUrl()}}" class="mm_menu_item">Site view</a></li>
+                        <li><a href="{{csAbsoluteUrl('admin')}}" class="mm_menu_item">Admin</a></li>
                         <li><a href="" class="mm_menu_item">Lorem</a></li>
                         <li><a href="" class="mm_menu_item">Ipsum</a></li>
-                        <li><a href="{{cs_absolute_url('ajax/logout')}}" class="mm_menu_item">Logout</a></li>
+                        <li><a href="{{csAbsoluteUrl('ajax/logout')}}" class="mm_menu_item">Logout</a></li>
                     </ul>
                 </div>
             </div>
@@ -35,8 +35,8 @@
                             <div class="mm__widget_content">
                                 <div class="mm__vertical_menu">
                                     <ul>
-                                        <li><a href="{{cs_absolute_url('admin/addpage')}}" class="mm_menu_item">Add page</a></li>
-                                        <li><a href="{{cs_absolute_url('admin/pages')}}" class="mm_menu_item">View pages</a></li>
+                                        <li><a href="{{csAbsoluteUrl('admin/addpage')}}" class="mm_menu_item">Add page</a></li>
+                                        <li><a href="{{csAbsoluteUrl('admin/pages')}}" class="mm_menu_item">View pages</a></li>
                                     </ul>
                                 </div>
                             </div>

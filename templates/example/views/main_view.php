@@ -10,10 +10,10 @@
             <div class="col-12">
                 <div class="mm__horizontal_menu">
                     <ul>
-                        <li><a href="{{cs_absolute_url()}}" class="mm_menu_item">Home</a></li>
-                        <li><a href="{{cs_absolute_url('login')}}" class="mm_menu_item">Login</a></li>
-                        <li><a href="{{cs_absolute_url('register')}}" class="mm_menu_item">Register</a></li>
-                        <li><a href="{{cs_absolute_url('admin')}}" class="mm_menu_item">Admin panel</a></li>
+                        <li><a href="{{csAbsoluteUrl()}}" class="mm_menu_item">Home</a></li>
+                        <li><a href="{{csAbsoluteUrl('login')}}" class="mm_menu_item">Login</a></li>
+                        <li><a href="{{csAbsoluteUrl('register')}}" class="mm_menu_item">Register</a></li>
+                        <li><a href="{{csAbsoluteUrl('admin')}}" class="mm_menu_item">Admin panel</a></li>
                         <li><a href="" class="mm_menu_item">Lorem</a></li>
                         <li><a href="" class="mm_menu_item">Ipsum</a></li>
                         <li><a href="" class="mm_menu_item">Dolor</a></li>

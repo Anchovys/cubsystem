@@ -28,7 +28,7 @@
     </div>
     <div class="mm__page_content">
         <article id="content">
-            <form id="addForm" onsubmit="sendRequest('<?= cs_absolute_url('admin/admin-ajax/add_cat') ?>'); return false;">
+            <form id="addForm" onsubmit="sendRequest('<?= csAbsoluteUrl('admin/admin-ajax/add_cat') ?>'); return false;">
                 <label>
                     <input type="text" name="name" placeholder="Category name">
                 </label><hr>

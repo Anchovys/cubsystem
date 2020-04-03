@@ -45,7 +45,7 @@ class admin_module extends cs_module
     public function view()
     {
         global $CS;
-        $segments = cs_get_segment();
+        $segments = csGetSegment();
 
         // nothing to do
         if(!isset($segments[0] ) || $segments[0] !== 'admin' || !$this->checkUser())

@@ -116,14 +116,14 @@ class template_helper
         {
             $path_css = $this->options['autoload_css_path'] ?  $this->options['autoload_css_path'] :
                 $this->path . 'assets' . _DS . 'css' . _DS . 'autoload' . _DS;
-            $this->setBuffer('head', cs_autoload_css($path_css), TRUE);
+            $this->setBuffer('head', csAutoloadCss($path_css), TRUE);
         }
 
         if($this->options['autoload_js'])
         {
             $path_js = $this->options['autoload_js_path'] ?  $this->options['autoload_js_path'] :
                 $this->path . 'assets' . _DS . 'js' . _DS . 'autoload' . _DS;
-            $this->setBuffer('head', cs_autoload_js($path_js), TRUE);
+            $this->setBuffer('head', csAutoloadJs($path_js), TRUE);
         }
 
         require_once($f);
@@ -148,8 +148,8 @@ class template_helper
             die("[blog] Can`t load template callback file : {$callback}");
 
 
-        $buffer = !$this->options['tmpl_prepare'] ? cs_return_output($f, $data) :
-            cs_return_output($f, $data, function ($args)
+        $buffer = !$this->options['tmpl_prepare'] ? csReturnOutput($f, $data) :
+            csReturnOutput($f, $data, function ($args)
             { /* Вызов шаблонизатора здесь */
                 return $this->tmplPrepare($args);
             });
@@ -179,13 +179,13 @@ class template_helper
 
                     case 'stylesheet':
                         $path = $this->path . 'assets' . _DS . 'css' . _DS . 'manual' . _DS;
-                        $url = cs_path_to_url($path);
+                        $url = csPathToUrl($path);
                         $this->setBuffer('head', "<link rel=\"stylesheet\" href=\"{$url}{$value}\">", TRUE);
                     break;
 
                     case 'script':
                         $path = $this->path . 'assets' . _DS . 'js' . _DS . 'manual' . _DS;
-                        $url = cs_path_to_url($path);
+                        $url = csPathToUrl($path);
                         $this->setBuffer('head', "<script src=\"{$url}{$value}\"></script>", TRUE);
                     break;
                 }

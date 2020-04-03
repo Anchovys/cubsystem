@@ -39,13 +39,13 @@ class cs_user
 
     public static function getById($id = FALSE)
     {
-        $id = cs_filter($id, 'int');
+        $id = csFilter($id, 'int');
         return ($id) ? self::getBy($id, 'id') : NULL;
     }
 
     public static function getByUsername($username = FALSE)
     {
-        $username = cs_filter($username, 'username');
+        $username = csFilter($username, 'username');
         return ($username) ? self::getBy($username, 'name') : NULL;
     }
 
@@ -75,7 +75,7 @@ class cs_user
 
     private function makePasswordHash($password)
     {
-        return cs_hash_str($password . $this->salt, TRUE);
+        return csHashStr($password . $this->salt, TRUE);
     }
 
     public function checkPassword($password)
@@ -105,7 +105,7 @@ class cs_user
             return NULL;
 
         // generate random salt
-        $this->salt = cs_get_random_str(16);
+        $this->salt = csGetRndStr(16);
 
         $data = [
             'name'      => $this->name,

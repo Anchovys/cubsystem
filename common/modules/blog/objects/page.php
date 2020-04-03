@@ -42,8 +42,10 @@ class cs_page
             if (isset($data['link']))       $this->link     = (string)$data['link'];
             if (isset($data['context']))    $this->context  = (string)$data['context'];
             if (isset($data['cat'])) {
-                $category_data = cs_cat::getByIds(explode(',', $data['cat']));
-                $this->cat     = $category_data['count'] !== 0 ? $category_data['result'] : NULL;
+                $ids = explode(',', $data['cat']);
+                $category_data = cs_cat::getByIds($ids);
+                $this->cat     = $category_data !== NULL && $category_data['count'] !== 0 ?
+                    $category_data['result'] : NULL;
             }
 
 
@@ -70,6 +72,31 @@ class cs_page
             return new cs_page($data);
 
         return NULL;
+    }
+
+    public static function getByIds($ids = [])
+    {
+        global $CS;
+
+        if(!$ids || !is_array($ids)) return NULL;
+
+        if(!$db = $CS->database->getInstance())
+            die('[blog] Can`t connect to database');
+
+        $db->where('id', $ids);
+
+        if(!$objects = $db->get('pages'))
+            return FALSE;
+
+        $result = [];
+        foreach ($objects as $item)
+            $result[] = new cs_page($item);
+
+        return
+            [
+                'count'   => count($result),
+                'result' =>  $result
+            ];
     }
 
     public static function getListBy($by = FALSE, $value = FALSE)
@@ -118,7 +145,7 @@ class cs_page
             'context'   => $this->context
         ];
 
-        // function returned current user id
+        // function returned current page id
         $id = $db->insert('pages', $data);
 
         // get user from database

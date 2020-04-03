@@ -1,7 +1,7 @@
 <?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
 /*
 | -------------------------------------------------------------------------
-| blog.php [rev 1.2], Назначение: поддержка статей (блога)
+| blog.php [rev 1.3], Назначение: поддержка статей (блога)
 | -------------------------------------------------------------------------
 | В этом файле описана базовая функциональность для блога
 | работа со статьями, базой данных
@@ -21,7 +21,7 @@ class blog_module extends cs_module
         global $CS;
         $this->name = "Blog";
         $this->description = "A simple blog realization.";
-        $this->version = "2";
+        $this->version = "3";
         $this->fullpath = CS_MODULESCPATH . 'blog' . _DS;
 
         require_once($this->fullpath . 'objects' . _DS . 'category.php');
@@ -41,24 +41,21 @@ class blog_module extends cs_module
     public function admin_view()
     {
         global $CS;
-        $segments = cs_get_segment();
+        $segments = csGetSegment();
 
         if(!isset($segments[1]))
             return;
 
         if($segments[1] === 'addpage')
-        {
             $CS->template->callbackLoad('', 'blog/addpage_view', 'body');
-        } else if($segments[1] === 'addcat')
-        {
+        else if($segments[1] === 'addcat')
             $CS->template->callbackLoad('', 'blog/addcat_view', 'body');
-        }
     }
 
     public function admin_ajax()
     {
         global $CS;
-        $segments = cs_get_segment();
+        $segments = csGetSegment();
 
         if(!isset($segments[2]))
             return;
@@ -72,12 +69,12 @@ class blog_module extends cs_module
             }
 
             $data = [
-                'title'     => cs_filter($_POST['title']),
-                'context'   => cs_filter($_POST['content'], 'multi_spaces;trim'),
-                'author'    => cs_filter($_POST['author']),
-                'link'      => cs_get_random_str(3),
-                'tag'       => cs_filter($_POST['tag']),
-                'cat'       => cs_filter($_POST['cat'])
+                'title'     => csFilter($_POST['title']),
+                'context'   => csFilter($_POST['content'], 'multi_spaces;trim'),
+                'author'    => csFilter($_POST['author']),
+                'link'      => csGetRndStr(3),
+                'tag'       => csFilter($_POST['tag']),
+                'cat'       => csFilter($_POST['cat'])
             ];
 
             $page = new cs_page($data);
@@ -91,9 +88,9 @@ class blog_module extends cs_module
             }
 
             $data = [
-                'name'           => cs_filter($_POST['name']),
-                'link'           => cs_filter($_POST['link']),
-                'description'    => cs_filter($_POST['descr'])
+                'name'           => csFilter($_POST['name']),
+                'link'           => csFilter($_POST['link']),
+                'description'    => csFilter($_POST['descr'])
             ];
 
             $cat = new cs_cat($data);
@@ -105,7 +102,7 @@ class blog_module extends cs_module
     public function view()
     {
         global $CS;
-        $segments = cs_get_segment();
+        $segments = csGetSegment();
 
         switch(isset($segments[0]) ? $segments[0] : '')
         {

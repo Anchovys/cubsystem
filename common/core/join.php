@@ -1,13 +1,16 @@
 <?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
 
-if(file_exists($f = CS_OPTIONSPATH . 'options.php'))
-    require_once($f);
+require_once(CS_OPTIONSPATH . 'options.php');
 
-if(file_exists($f = CS_COREINCPATH . 'functions.php'))
-    require_once($f);
+require_once(CS_COREINCPATH . 'debugging.php');
+require_once(CS_COREINCPATH . 'strings.php');
+require_once(CS_COREINCPATH . 'filter.php');
+require_once(CS_COREINCPATH . 'url.php');
+require_once(CS_COREINCPATH . 'fs.php');
+require_once(CS_COREINCPATH . 'helpers.php');
+require_once(CS_COREINCPATH . 'template.php');
 
-if(file_exists($f = CS_CORELIBPATH . 'cubsystem.php'))
-    require_once($f);
+require_once(CS_CORELIBPATH . 'cubsystem.php');
 
 global $CS;
 if(!isset($CS) && $CS = Cubsystem::getInstance())

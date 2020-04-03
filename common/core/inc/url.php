@@ -13,12 +13,12 @@
 @
 */
 
-function cs_absolute_url($url = '')
+function csAbsoluteUrl($url = '')
 {
     return CS__BASEURL . $url;
 }
 
-function cs_path_to_url($path, $absolute = TRUE)
+function csPathToUrl($path, $absolute = TRUE)
 {
     $path = $absolute ? str_replace(CS__BASEPATH, '', $path) : $path;
     $path = str_replace(['\\'],  '/', $path);
@@ -28,11 +28,11 @@ function cs_path_to_url($path, $absolute = TRUE)
     return $path;
 }
 
-function cs_get_segment($id = FALSE)
+function csGetSegment($id = FALSE)
 {
     if(!isset($_GET['m'])) return [];
 
-    $url = cs_filter($_GET['m'], 'base');
+    $url = csFilter($_GET['m'], 'base');
     $url = str_replace(['.', '~', '\\'],  '_', $url);
     $url = explode('#', $url)[0];
     $url = explode('?', $url)[0];
@@ -43,3 +43,35 @@ function cs_get_segment($id = FALSE)
         $segments[$id];
 }
 
+/**
+ * @param string $url
+ * @param bool $absolute
+ * @param string $header
+ */
+function csRedir($url = '', $absolute = true, $header = '')
+{
+    $url = $absolute ? CS__BASEURL . $url : $url;
+    $url = csFilter($url, 'base');
+    $url = strip_tags($url);
+    $url = str_replace( array('%0d', '%0a'), '', $url );
+
+    $header = csFilter($header, 'int');
+
+    if($header === 301)
+        header('HTTP/1.1 301 Moved Permanently');
+    elseif($header === 302)
+        header('HTTP/1.1 302 Found');
+
+    header("Refresh: 0; url={$url}");
+    header("Location: {$url}");
+
+    die();
+}
+
+function csBaseUrl()
+{
+    // http-address
+    $base_url  = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
+    $base_url .= str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
+    return $base_url;
+}

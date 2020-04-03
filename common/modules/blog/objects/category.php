@@ -42,7 +42,7 @@ class cs_cat
     {
         global $CS;
 
-        if(!$ids) return NULL;
+        if(!$ids || !is_array($ids)) return NULL;
 
         if(!$db = $CS->database->getInstance())
             die('[blog] Can`t connect to database');

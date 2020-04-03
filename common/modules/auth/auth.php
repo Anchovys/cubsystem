@@ -40,7 +40,7 @@ class auth_module extends cs_module
     public function view()
     {
         global $CS;
-        $segments = cs_get_segment();
+        $segments = csGetSegment();
 
         if(isset($segments[1]) && $segments[0] === 'ajax')
         {
@@ -72,12 +72,12 @@ class auth_module extends cs_module
         ///// Обработка оболочки. Сюда должен приходить AJAX/POST /////
         ///////////////////////////////////////////////////////////////
 
-        $action = cs_filter($segments[1], 'special_string');
+        $action = csFilter($segments[1], 'special_string');
 
         if($action === 'login')
         {
-            $username = cs_filter($_POST['username']);
-            $password = cs_filter($_POST['password']);
+            $username = csFilter($_POST['username']);
+            $password = csFilter($_POST['password']);
 
             if(!$username && !$password)
                 $this->setError('no-data', TRUE);
@@ -86,8 +86,8 @@ class auth_module extends cs_module
 
         } elseif($action === 'register')
         {
-            $username = cs_filter($_POST['username']);
-            $password = cs_filter($_POST['password']);
+            $username = csFilter($_POST['username']);
+            $password = csFilter($_POST['password']);
 
             if(!$username && !$password)
                 $this->setError('no-data', TRUE);
@@ -113,10 +113,10 @@ class auth_module extends cs_module
     private function auth($username, $password, $email = '')
     {
         // filter by username
-        $username = cs_filter($username, 'username');
+        $username = csFilter($username, 'username');
 
         // filter by password
-        $password = cs_filter($password, 'password');
+        $password = csFilter($password, 'password');
 
         $user = cs_user::getByUsername($username);
 
@@ -173,8 +173,8 @@ class auth_module extends cs_module
         $id = intval($id);
 
         return $session->push('auth_uid', $id) &&
-               $session->push('auth_uua', cs_hash_str($_SERVER['HTTP_USER_AGENT'])) &&
-               $session->push('auth_uip', cs_hash_str($_SERVER['REMOTE_ADDR']));
+               $session->push('auth_uua', csHashStr($_SERVER['HTTP_USER_AGENT'])) &&
+               $session->push('auth_uip', csHashStr($_SERVER['REMOTE_ADDR']));
     }
 
     private function getCurrentUser() // get current logged user from session
@@ -188,17 +188,17 @@ class auth_module extends cs_module
             $this->setError();
 
         $u_id = $session->get('auth_uid');
-        $u_id = cs_filter($u_id, 'int');
+        $u_id = csFilter($u_id, 'int');
 
         $u_ua = $session->get('auth_uua');
-        $u_ua = cs_filter($u_ua, 'base;string;md5');
+        $u_ua = csFilter($u_ua, 'base;string;md5');
 
         $u_ip = $session->get('auth_uip');
-        $u_ip = cs_filter($u_ip, 'base;string;md5');
+        $u_ip = csFilter($u_ip, 'base;string;md5');
 
         // проверяем userAgent, IP-адрес клиента
-        if( $u_ua !== NULL && $u_ua && $u_ua === cs_hash_str($_SERVER['HTTP_USER_AGENT']) &&
-            $u_ip !== NULL && $u_ip && $u_ip === cs_hash_str($_SERVER['REMOTE_ADDR']))
+        if( $u_ua !== NULL && $u_ua && $u_ua === csHashStr($_SERVER['HTTP_USER_AGENT']) &&
+            $u_ip !== NULL && $u_ip && $u_ip === csHashStr($_SERVER['REMOTE_ADDR']))
         {
             return cs_user::getById($u_id);
         }
@@ -207,7 +207,7 @@ class auth_module extends cs_module
 
     private function setError($error = 'system', $die = TRUE)
     {
-        $this->errors[] = cs_filter($error, 'string;spaces');
+        $this->errors[] = csFilter($error, 'string;spaces');
 
         if($die === TRUE)
             die($this->sentResponse(FALSE));
