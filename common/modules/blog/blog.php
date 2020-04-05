@@ -153,7 +153,7 @@ class blog_module extends cs_module
         }
         elseif($pages['count'] > 1)
         {
-            $total_pages = array_reverse($pages['result']);
+            $total_pages = $pages['result'];
 
             foreach($total_pages as $page)
             {

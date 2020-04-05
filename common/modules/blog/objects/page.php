@@ -160,8 +160,7 @@ class cs_page
         {
             $db->pageLimit = $pagination->getLimit();
             $objects = $db->arraybuilder()->paginate("pages", $pagination->getCurrentPage());
-
-            $pagination->setTotal($db->totalPages);
+            $pagination->setTotal($db->totalCount);
 
             if(!$objects)
                 return NULL;
@@ -225,9 +224,7 @@ class cs_page
         {
             $db->pageLimit = $pagination->getLimit();
             $objects = $db->arraybuilder()->paginate("pages", $pagination->getCurrentPage());
-
-            $pagination->setTotal($db->totalPages);
-
+            $pagination->setTotal($db->totalCount);
             if(!$objects)
                 return NULL;
         }

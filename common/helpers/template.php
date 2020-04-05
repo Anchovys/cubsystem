@@ -69,6 +69,7 @@ class template_helper
             'main_view' => 'main_view',
             'tmpl_prepare' => TRUE,
             'pagination' => [
+                'enable' => true,
                 'limit'  => 10,
                 'index'  => 'next'
             ],
@@ -77,25 +78,20 @@ class template_helper
         // get the advanced template settings
         if (file_exists($f = $this->path . 'options.php')) {
             require_once($f);
-
-            if (isset($template_settings) && is_array($template_settings))
-                $this->options = array_merge($this->options, $template_settings);
         }
 
-        if($this->options['pagination'] !== FALSE)
+        if($this->options['pagination']['enable'] === TRUE)
         {
             include_once (CS_HELPERSPATH . 'template' . _DS . 'pagination.php');
 
             $this->pagination = new cs_pagination();
 
-            if(isset($this->options['pagination']['limit']))
-                $this->pagination->setLimit((int)$this->options['pagination']['limit']);
-
             if(isset($this->options['pagination']['max_links']))
                 $this->pagination->setMaxLinks((int)$this->options['pagination']['max_links']);
-
             if(isset($this->options['pagination']['index']))
                 $this->pagination->setIndex($this->options['pagination']['index']);
+            if(isset($this->options['pagination']['limit']))
+                $this->pagination->setLimit((int)$this->options['pagination']['limit']);
         }
     }
 
