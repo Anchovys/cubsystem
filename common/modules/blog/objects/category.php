@@ -7,33 +7,37 @@ class cs_cat
     public $link        = NULL;
     public $description = NULL;
 
-    function __construct($data = [])
+    function __construct($data = [], $needle = FALSE)
     {
         if(is_array($data))
         {
             // all basic data
-            if (isset($data['id']))             $this->id           = (int)$data['id'];
-            if (isset($data['name']))           $this->name         = (string)$data['name'];
-            if (isset($data['link']))           $this->link         = (string)$data['link'];
-            if (isset($data['description']))    $this->description  = (string)$data['description'];
+            if (isset($data['id']) && (!$needle || in_array('id', $needle)))
+                $this->id = (int)$data['id'];
+            if (isset($data['name']) && (!$needle || in_array('name', $needle)))
+                $this->name = (string)$data['name'];
+            if (isset($data['link']) && (!$needle || in_array('link', $needle)))
+                $this->link = (string)$data['link'];
+            if (isset($data['description']) && (!$needle || in_array('description', $needle)))
+                $this->description = (string)$data['description'];
         }
     }
 
-    public static function getById($id = FALSE)
+    public static function getById($id = FALSE, $needle = FALSE)
     {
         $id = cs_filter($id, 'int');
         if(!$id) return NULL;
-        return self::getBy($id, 'id');
+        return self::getBy($id, 'id', $needle);
     }
 
-    public static function getByLink($link = FALSE)
+    public static function getByLink($link = FALSE, $needle = FALSE)
     {
         $link = cs_filter($link, 'base');
         if(!$link || !is_string($link)) return NULL;
-        return self::getBy($link, 'link');
+        return self::getBy($link, 'link', $needle);
     }
 
-    private static function getBy($sel = FALSE, $by = 'id')
+    private static function getBy($sel = FALSE, $by = 'id', $needle = FALSE)
     {
         global $CS;
 
@@ -45,12 +49,12 @@ class cs_cat
         $db->where($by, $sel);
 
         if($data = $db->getOne('categories'))
-            return new cs_cat($data);
+            return new cs_cat($data, $needle);
 
         return NULL;
     }
 
-    public static function getByPageId($id = FALSE)
+    public static function getByPageId($id = FALSE, $needle = FALSE)
     {
         global $CS;
 
@@ -67,12 +71,12 @@ class cs_cat
             $r = [];
             foreach ($p as $item)
                 $r[] = $item['cat_id'];
-            return self::getByIds($r);
+            return self::getByIds($r, $needle);
         }
         else return NULL;
     }
 
-    public static function getByIds($ids = [])
+    public static function getByIds($ids = [], $needle = FALSE)
     {
         global $CS;
 
@@ -88,13 +92,13 @@ class cs_cat
 
         $result = [];
         foreach ($objects as $item)
-            $result[] = new cs_cat($item);
+            $result[] = new cs_cat($item, $needle);
 
         return
-            [
-                'count'   => count($result),
-                'result'  => $result
-            ];
+        [
+            'count'   => count($result),
+            'result'  => $result
+        ];
     }
 
     public function insert()

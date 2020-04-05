@@ -1,0 +1,5 @@
+CREATE TABLE `cubsystem`.`cat_pages` (
+    `id`        INT         NOT NULL AUTO_INCREMENT,
+    `page_id`   INT         NOT NULL,
+    `cat_id`    INT         NOT NULL,
+PRIMARY KEY (`id`)) ENGINE = InnoDB;

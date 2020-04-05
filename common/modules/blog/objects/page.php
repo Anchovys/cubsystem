@@ -20,7 +20,7 @@ class cs_page
     public $id          = NULL;
     public $title       = NULL;
     public $tag         = NULL;
-    public $cat         = NULL;
+    public $cats        = NULL;
     public $cat_ids     = NULL;
     public $context     = NULL;
     public $comments    = NULL;
@@ -35,39 +35,55 @@ class cs_page
         if(is_array($data))
         {
             // all basic data
-            if (!$needle || in_array('id', $needle))
-            if (isset($data['id']))         $this->id       = (int)$data['id'];
-            if (!$needle || in_array('title', $needle))
-            if (isset($data['title']))      $this->title    = (string)$data['title'];
-            if (!$needle || in_array('tag', $needle))
-            if (isset($data['tag']))        $this->tag      = (string)$data['tag'];
-            if (!$needle || in_array('comments', $needle))
-            if (isset($data['comments']))   $this->comments = (int)$data['comments'];
-            if (!$needle || in_array('views', $needle))
-            if (isset($data['views']))      $this->views    = (int)$data['views'];
-            if (!$needle || in_array('link', $needle))
-            if (isset($data['link']))       $this->link     = (string)$data['link'];
-            if (!$needle || in_array('context', $needle))
-            if (isset($data['context']))    $this->context  = (string)$data['context'];
-            if (!$needle || in_array('author', $needle))
-            if (isset($data['author'])) {
-                $this->author_id   = intval($data['author']);
-                $this->author      = cs_user::getById($this->author_id);
+            if (isset($data['id']) && (!$needle || in_array('id', $needle)))
+                $this->id = (int)$data['id'];
+            if (isset($data['title']) && (!$needle || in_array('title', $needle)))
+                $this->title = (string)$data['title'];
+            if (isset($data['tag']) && (!$needle || in_array('tag', $needle)))
+                $this->tag = (string)$data['tag'];
+            if (isset($data['comments']) && (!$needle || in_array('comments', $needle)))
+                $this->comments = (int)$data['comments'];
+            if (isset($data['views']) && (!$needle || in_array('views', $needle)))
+                $this->views = (int)$data['views'];
+            if (isset($data['link']) && (!$needle || in_array('link', $needle)))
+                $this->link = (string)$data['link'];
+            if (isset($data['context']) && (!$needle || in_array('context', $needle)))
+                $this->context = (string)$data['context'];
+            if (isset($data['author']) && (!$needle || in_array('author', $needle)))
+            {
+                $this->author_id = intval($data['author']);
+                $this->author = cs_user::getById($this->author_id);
             }
-            if (!$needle || in_array('cat', $needle))
-            if (isset($data['cat'])) {
-                $ids = explode(',', $data['cat']);
+
+            /*
+            if (!$needle || in_array('cat_ids', $needle))
+            {
+                $ids = explode(',', $data['cats']);
+                $this->cat_ids = $ids;
+            }
+            if (isset($data['cats']) && (!$needle || in_array('cats', $needle)))
+            {
+                $ids = explode(',', $data['cats']);
                 $category_data = cs_cat::getByIds($ids);
                 if($category_data !== NULL && $category_data && $category_data['count'] !== 0)
                 {
                     $this->cat_ids = $ids;
-                    $this->cat = $category_data['result'];
+                    $this->cats = $category_data['result'];
                 }
-            }
+            }*/
+
             if (!$needle || in_array('cat_ids', $needle))
             {
-                $ids = explode(',', $data['cat']);
+                $ids = [];
+                foreach (cs_cat::getByPageId($this->id, ['id'])['result'] as $item)
+                    $ids[] = $item->id;
+
                 $this->cat_ids = $ids;
+            }
+
+            if ((!$needle || in_array('cats', $needle)))
+            {
+                $this->cats = cs_cat::getByPageId($this->id)['result'];
             }
 
             // meta data
@@ -108,12 +124,10 @@ class cs_page
             return NULL;
 
         return
-            [
-                'count'   => 1,
-                'result' =>  new cs_page($data)
-            ];
-
-
+        [
+            'count'   => 1,
+            'result' =>  new cs_page($data)
+        ];
     }
 
     public static function getByIds($ids = [], $pagination = FALSE, $needle = FALSE)
@@ -147,40 +161,13 @@ class cs_page
             $result[] = new cs_page($item, $needle);
 
         return
-            [
-                'count'   => count($result),
-                'result' =>  $result
-            ];
+        [
+            'count'      =>  count($result),
+            'result'     =>  $result
+        ];
     }
 
     public static function getByCategoryId($id, $pagination = FALSE)
-    {
-        $non = [ 'count'  =>  0, 'result' =>  [] ];
-
-        $totally = [];
-        $pages = self::getListBy(FALSE, FALSE, FALSE, ['id', 'cat_ids']);
-
-        if($pages['count'] === 0)
-            return $non;
-
-        $pages = $pages['result'];
-
-        foreach ($pages as $page)
-        {
-            if(!is_array($page->cat_ids))
-                continue;
-
-            if(in_array($id, $page->cat_ids))
-                $totally[] = $page->id;
-        }
-
-        $totally = cs_page::getByIds($totally, $pagination);
-
-        return $totally;
-    }
-
-    /*
-    public static function getByCategoryId1($id, $pagination = FALSE)
     {
         global $CS;;
 
@@ -201,7 +188,7 @@ class cs_page
 
 
         return self::getByIds($page_ids, $pagination);
-    }*/
+    }
 
     public static function getListByTag($tag = FALSE, $pagination = FALSE, $needle = FALSE)
     {
@@ -260,7 +247,7 @@ class cs_page
         $data = [
             'title'     => $this->title,
             'tag'       => $this->tag,
-            'cat'       => is_array($this->cat_ids) ? implode(',', $this->cat_ids) : '',
+        //  'cat'       => is_array($this->cat_ids) ? implode(',', $this->cat_ids) : '',
             'comments'  => 0,
             'views'     => 0,
             'author'    => $this->author_id,
@@ -274,7 +261,6 @@ class cs_page
         if(!is_int($page_id))
             return NULL;
 
-        /*
         if(is_array($this->cat_ids))
         {
             foreach ($this->cat_ids as $cat_id)
@@ -286,7 +272,7 @@ class cs_page
 
                 $db->insert('cat_pages', $data);
             }
-        }*/
+        }
 
         // get user from database
         return self::getById($page_id);

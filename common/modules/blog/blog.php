@@ -67,21 +67,19 @@ class blog_module extends cs_module
             {
                 return;
             }
-            $obj = null;
-            for($i = 0; $i < 999; $i++)
-            {
-                $data = [
-                    'title'     => cs_filter($_POST['title']),
-                    'context'   => cs_filter($_POST['content'], 'multi_spaces;trim'),
-                    'author'    => cs_filter($_POST['author']),
-                    'link'      => cs_rnd_str(3),
-                    'tag'       => cs_filter($_POST['tag']),
-                    'cat'       => cs_filter($_POST['cat'])
-                ];
 
-                $page = new cs_page($data);
-                $obj = $page->insert();
-            }
+            $data = [
+                'title'     => cs_filter($_POST['title']),
+                'context'   => cs_filter($_POST['content'], 'multi_spaces;trim'),
+                'author'    => cs_filter($_POST['author']),
+                'link'      => cs_rnd_str(3),
+                'tag'       => cs_filter($_POST['tag']),
+                'cat'       => cs_filter($_POST['cat'])
+            ];
+
+            $page = new cs_page($data);
+
+            $obj = $page->insert();
 
             die($obj === NULL ? 'fail' : 'success');
         } else if($segments[2] === 'add_cat')
