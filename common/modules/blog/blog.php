@@ -147,7 +147,6 @@ class blog_module extends cs_module
     {
         global $CS;
         $content = '';
-
         if(!isset($pages['count']) || $pages['count'] === 0)
         {
             return false;
@@ -169,6 +168,10 @@ class blog_module extends cs_module
         elseif ($pages['count'] == 1)
         {
             $page = $pages['result'];
+
+            if(is_array($page))
+                $page = $page[array_key_first($page)];
+
             $content = $CS->template->callbackLoad(['page' => $page], $view_name);
             if($set_meta) $CS->template->setMeta($page->meta);
         }

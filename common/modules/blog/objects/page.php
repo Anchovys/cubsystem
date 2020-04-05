@@ -74,16 +74,27 @@ class cs_page
 
             if (!$needle || in_array('cat_ids', $needle))
             {
-                $ids = [];
-                foreach (cs_cat::getByPageId($this->id, ['id'])['result'] as $item)
-                    $ids[] = $item->id;
+                if($this->id !== NULL)
+                {
+                    $ids = [];
+                    $cats = cs_cat::getByPageId($this->id, ['id']);
+                    if($cats['count'] !== 0)
+                    {
+                        foreach ($cats['result'] as $cat)
+                        {
+                            $ids[] = $cat->id;
+                        }
+                    }
 
-                $this->cat_ids = $ids;
+                    $this->cat_ids = $ids;
+                }
             }
 
             if ((!$needle || in_array('cats', $needle)))
             {
-                $this->cats = cs_cat::getByPageId($this->id)['result'];
+                if($this->id !== NULL) {
+                    $this->cats = cs_cat::getByPageId($this->id)['result'];
+                }
             }
 
             // meta data
