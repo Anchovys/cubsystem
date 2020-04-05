@@ -84,7 +84,7 @@ class template_helper
 
         if($this->options['pagination'] !== FALSE)
         {
-            include (CS_HELPERSPATH . 'template' . _DS . 'pagination.php');
+            include_once (CS_HELPERSPATH . 'template' . _DS . 'pagination.php');
 
             $this->pagination = new cs_pagination();
 
