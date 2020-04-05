@@ -139,7 +139,7 @@ class cs_page
         if(!$db = $CS->database->getInstance())
             die('[blog] Can`t connect to database');
 
-        $db->where('id', $ids);
+        $db->where('id', $ids, 'IN');
 
         if($pagination === FALSE)
         {
@@ -169,7 +169,7 @@ class cs_page
 
     public static function getByCategoryId($id, $pagination = FALSE)
     {
-        global $CS;;
+        global $CS;
 
         if(!$db = $CS->database->getInstance())
             die('[blog] Can`t connect to database');
@@ -185,7 +185,6 @@ class cs_page
         $page_ids = [];
         foreach ($matches as $math)
             $page_ids [] = $math['page_id'];
-
 
         return self::getByIds($page_ids, $pagination);
     }
