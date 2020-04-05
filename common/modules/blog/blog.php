@@ -67,18 +67,22 @@ class blog_module extends cs_module
             {
                 return;
             }
+            $obj = null;
+            for($i = 0; $i < 999; $i++)
+            {
+                $data = [
+                    'title'     => cs_filter($_POST['title']),
+                    'context'   => cs_filter($_POST['content'], 'multi_spaces;trim'),
+                    'author'    => cs_filter($_POST['author']),
+                    'link'      => cs_rnd_str(3),
+                    'tag'       => cs_filter($_POST['tag']),
+                    'cat'       => cs_filter($_POST['cat'])
+                ];
 
-            $data = [
-                'title'     => cs_filter($_POST['title']),
-                'context'   => cs_filter($_POST['content'], 'multi_spaces;trim'),
-                'author'    => cs_filter($_POST['author']),
-                'link'      => cs_rnd_str(3),
-                'tag'       => cs_filter($_POST['tag']),
-                'cat'       => cs_filter($_POST['cat'])
-            ];
+                $page = new cs_page($data);
+                $obj = $page->insert();
+            }
 
-            $page = new cs_page($data);
-            $obj = $page->insert();
             die($obj === NULL ? 'fail' : 'success');
         } else if($segments[2] === 'add_cat')
         {
@@ -112,7 +116,7 @@ class blog_module extends cs_module
                 break;
 
             case 'tag': // first segment = tag
-                $page = $this->displayPages(cs_page::getListByTag($page_tag = $segments[1]), 'blog/short-page_view', FALSE);
+                $page = $this->displayPages(cs_page::getListByTag($page_tag = $segments[1], $CS->template->getPagination()), 'blog/short-page_view', FALSE);
                 $CS->template->setBuffer('body', (!$page) ? $this->page404() : $page, FALSE);
                 $CS->template->setMeta([
                     'title' => "Tag: {$page_tag}",
@@ -121,7 +125,7 @@ class blog_module extends cs_module
                 break;
             case 'cat': // first segment = cat
                 $category = cs_cat::getByLink($cat_link = $segments[1]);
-                $page = $this->displayPages(cs_page::getByCategoryId($category->id), 'blog/short-page_view', FALSE);
+                $page = $this->displayPages(cs_page::getByCategoryId($category->id, $CS->template->getPagination()), 'blog/short-page_view', FALSE);
                 $CS->template->setBuffer('body', (!$page) ? $this->page404() : $page, FALSE);
                 $CS->template->setMeta([
                     'title' => "Cat: {$category->name}",
@@ -131,7 +135,7 @@ class blog_module extends cs_module
 
             case '':
             case 'home': // first segment = home or empty
-                $page = $this->displayPages(cs_page::getListBy(FALSE,FALSE), 'blog/short-page_view', FALSE);
+                $page = $this->displayPages(cs_page::getListBy(FALSE,FALSE, $CS->template->getPagination()), 'blog/short-page_view', FALSE);
                 $CS->template->setBuffer('body', (!$page) ? $this->page404() : $page, FALSE);
                 $CS->template->setMeta([
                     'title' => "Home Page",
@@ -152,12 +156,17 @@ class blog_module extends cs_module
         }
         elseif($pages['count'] > 1)
         {
-            $pages['result'] = array_reverse($pages['result']);
-            foreach($pages['result'] as $page)
+            $total_pages = array_reverse($pages['result']);
+
+            foreach($total_pages as $page)
             {
                 $content .= $CS->template->callbackLoad(['page' => $page], $view_name);
                 if($set_meta) $CS->template->setMeta($page->meta);
             }
+
+            if($p = $CS->template->getPagination())
+                $CS->template->setBuffer('pagination', $p->getHtml());
+
         }
         elseif ($pages['count'] == 1)
         {

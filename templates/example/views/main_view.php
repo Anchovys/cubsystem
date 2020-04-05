@@ -26,6 +26,9 @@
         <div class="row mm__main_row">
             <div class="col-md-12 col-lg-8 col-sm-12 mm__main_pagebar">
                 {{$__data->showBuffer('body')}}
+                <div class="mm__pagination">
+                    {{$__data->showBuffer('pagination')}}
+                </div>
             </div>
             <div class="col-md-12 col-lg-4 col-sm-12 mm__main_sidebar">
                 <div class="mm__sidebar">
@@ -61,7 +64,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 </body>
 </html>

@@ -50,6 +50,28 @@ class cs_cat
         return NULL;
     }
 
+    public static function getByPageId($id = FALSE)
+    {
+        global $CS;
+
+        $id = cs_filter($id, 'int');
+        if(!$id) return NULL;
+
+        if(!$db = $CS->database->getInstance())
+            die('[blog] Can`t connect to database');
+
+        $db->where('page_id', $id);
+
+        if(is_array($p = $db->get('cat_pages')))
+        {
+            $r = [];
+            foreach ($p as $item)
+                $r[] = $item['cat_id'];
+            return self::getByIds($r);
+        }
+        else return NULL;
+    }
+
     public static function getByIds($ids = [])
     {
         global $CS;

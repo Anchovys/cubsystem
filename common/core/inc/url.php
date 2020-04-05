@@ -36,6 +36,14 @@ function cs_base_url()
     return $base_url;
 }
 
+function cs_full_url()
+{
+    // http-address
+    $base_url  = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
+    $full_url  = $base_url . $_SERVER['REQUEST_URI'];
+    return $full_url;
+}
+
 function cs_get_segment($id = FALSE)
 {
     if(!isset($_GET['m'])) return [];
@@ -47,8 +55,11 @@ function cs_get_segment($id = FALSE)
 
     $segments = explode('/', $url);
 
-    return (!is_int($id) || !array_key_exists($id, $segments)) ? $segments :
+    if($id === FALSE)
+        return $segments;
+    else return (!is_int($id) || !array_key_exists($id, $segments)) ? FALSE :
         $segments[$id];
+
 }
 
 /**

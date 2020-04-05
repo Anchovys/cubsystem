@@ -15,23 +15,13 @@
 
 class template_helper
 {
-
-    public $joined = FALSE;
-    public $path = '';
-    public $info = [];
-    public $meta_data = [];
-    private $options =
-        [
-            'minify-html' => TRUE,
-            'autoload_css' => TRUE,
-            'autoload_css_path' => FALSE,
-            'autoload_js' => TRUE,
-            'autoload_js_path' => FALSE,
-            'main_view' => 'main_view',
-            'tmpl_prepare' => TRUE,
-        ];
-
-    private $buffers = [];
+    public  $joined     = FALSE;
+    public  $path       = '';
+    public  $info       = [];
+    public  $meta_data  = [];
+    private $options    = [];
+    private $buffers    = [];
+    private $pagination = NULL;
 
     public function getOption($key = '')
     {
@@ -69,12 +59,43 @@ class template_helper
                 $this->info = $template_info;
         }
 
+        // default options
+        $this->options = [
+            'minify-html' => TRUE,
+            'autoload_css' => TRUE,
+            'autoload_css_path' => FALSE,
+            'autoload_js' => TRUE,
+            'autoload_js_path' => FALSE,
+            'main_view' => 'main_view',
+            'tmpl_prepare' => TRUE,
+            'pagination' => [
+                'limit'  => 10,
+                'index'  => 'next'
+            ],
+        ];
+
         // get the advanced template settings
         if (file_exists($f = $this->path . 'options.php')) {
             require_once($f);
 
             if (isset($template_settings) && is_array($template_settings))
                 $this->options = array_merge($this->options, $template_settings);
+        }
+
+        if($this->options['pagination'] !== FALSE)
+        {
+            include (CS_HELPERSPATH . 'template' . _DS . 'pagination.php');
+
+            $this->pagination = new cs_pagination();
+
+            if(isset($this->options['pagination']['limit']))
+                $this->pagination->setLimit((int)$this->options['pagination']['limit']);
+
+            if(isset($this->options['pagination']['max_links']))
+                $this->pagination->setMaxLinks((int)$this->options['pagination']['max_links']);
+
+            if(isset($this->options['pagination']['index']))
+                $this->pagination->setIndex($this->options['pagination']['index']);
         }
     }
 
@@ -83,6 +104,11 @@ class template_helper
         if (array_key_exists($name, $this->buffers) && $append === TRUE)
             $this->buffers[$name] .= $data;
         else $this->buffers[$name] = $data;
+    }
+
+    public function getPagination()
+    {
+        return $this->pagination ? $this->pagination : FALSE;
     }
 
     public function showBuffer($name, $print = FALSE, $purge = FALSE)
@@ -136,7 +162,7 @@ class template_helper
 
         // minify html
         if($this->options['minify-html'] && $minify = $CS->gc('html_minify_helper', 'helpers'))
-            $this->setBuffer('body', $minify->minify($this->getBuffer('body')), FALSE);
+            $this->setBuffer('body', $minify->minify($this->showBuffer('body')), FALSE);
 
         return $this->showBuffer('body', $print_buffer, TRUE);
     }

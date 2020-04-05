@@ -47,8 +47,7 @@ table {
 
 .mm__page
 {
-    padding: 10px;
-    padding-top: 0px;
+    padding: 0px 10px 10px;
 }
 
 .mm__page_content
@@ -119,8 +118,7 @@ ul.mm__page_info_list > li:before
 
 .mm__widget
 {
-    padding: 10px;
-    padding-top: 0px;
+    padding: 0px 10px 10px;
 }
 
 .mm__widget_header
@@ -165,4 +163,40 @@ ul.mm__page_info_list > li:before
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
+}
+
+
+/*
+    MM pagination
+*/
+
+.mm__pagination
+{
+    padding: 0px 10px 10px;
+}
+
+.mm__pagination ul {
+    list-style: none;
+    width:100%;
+    background:#9bbd94;
+    text-align:center;
+    padding: 5px;
+}
+.mm__pagination ul li {
+    display: inline-block;
+}
+.mm__pagination ul li a {
+    color: #000;
+    text-decoration: none;
+    border: 1px solid transparent;
+    padding: 10px;
+    margin: 5px;
+}
+.mm__pagination ul li a:hover {
+    background: #a3e196;
+    border: 1px solid #c7eebf;
+}
+.mm__pagination ul li.cs_pagin_item_active a {
+    background: #9bbd94;
+    border: 1px solid #679951;
 }
