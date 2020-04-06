@@ -66,6 +66,10 @@ class template_helper
             'autoload_css_path' => FALSE,
             'autoload_js' => TRUE,
             'autoload_js_path' => FALSE,
+            'custom_meta'   =>
+            [
+                'favicon' => 'assets/img/favicon.png',
+            ],
             'main_view' => 'main_view',
             'tmpl_prepare' => TRUE,
             'pagination' => [
@@ -132,7 +136,10 @@ class template_helper
         $this->setBuffer('head', "<meta charset=\"UTF-8\">", TRUE);
         $this->setBuffer('head', "<meta name=\"generator\" content=\"CubSystem CMS\">", TRUE);
         $this->setBuffer('head', "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">", TRUE);
-        $this->setBuffer('head', "<meta property=\"og:url\" content=\"{$CS->dynamic['url-address']}\">", TRUE);
+        $this->setBuffer('head', "<meta property=\"og:url\" content=\"{$CS->dynamic['full-url']}\">", TRUE);
+
+        if(is_array($this->options['custom_meta']))
+            $this->setMeta($this->options['custom_meta']);
 
         if($this->options['autoload_css'])
         {
@@ -191,7 +198,7 @@ class template_helper
                 {
                     case 'title':
                         $this->setBuffer('head', "<title>{$value}</title>", TRUE);
-                        $this->setBuffer('head', "<meta property='og:title' content=\"{$value}\">", TRUE);
+                        $this->setBuffer('head', "<meta property=\"og:title\" content=\"{$value}\">", TRUE);
                     break;
 
                     case 'description':
@@ -199,12 +206,21 @@ class template_helper
                         $this->setBuffer('head', "<meta property=\"og:description\" content=\"{$value}\">", TRUE);
                     break;
 
+                    case 'icon':
+                    case 'favicon':
+                        $path = $this->path . 'assets' . _DS . 'img' . _DS . 'favicons' . _DS;
+                        $url = cs_path_to_url($path);
+                        $this->setBuffer('head', "<link rel=\"icon shortcut\" href=\"{$url}{$value}\" type=\"image/x-icon\">", TRUE);
+                        break;
+
+                    case 'css':
                     case 'stylesheet':
                         $path = $this->path . 'assets' . _DS . 'css' . _DS . 'manual' . _DS;
                         $url = cs_path_to_url($path);
                         $this->setBuffer('head', "<link rel=\"stylesheet\" href=\"{$url}{$value}\">", TRUE);
                     break;
 
+                    case 'js':
                     case 'script':
                         $path = $this->path . 'assets' . _DS . 'js' . _DS . 'manual' . _DS;
                         $url = cs_path_to_url($path);

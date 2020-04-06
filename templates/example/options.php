@@ -31,6 +31,8 @@ $this->options['autoload_js'] = TRUE;
 // на любую свою, важно указывать абсолютный путь
 $this->options['autoload_js_path'] = FALSE;
 
+$this->options['custom_meta']['favicon'] = "cs.jpg";
+
 // главный callback файл,
 // который содержит основную структуру страницы
 // указывать нужно без .PHP
@@ -45,7 +47,7 @@ $this->options['tmpl_prepare'] = TRUE;
 $this->options['pagination']['enable'] = TRUE;
 
 // количество страниц на страницу пагинации
-$this->options['pagination']['limit'] = 5;
+$this->options['pagination']['limit'] = 20;
 
 // какой индекс использовать для опеределения страницы
 // например /site/cat/category/next/3 (next - индекс)

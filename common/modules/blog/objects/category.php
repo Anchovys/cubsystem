@@ -30,6 +30,47 @@ class cs_cat
         return self::getBy($id, 'id', $needle);
     }
 
+    public static function getListAll($pagination = FALSE, $needle = FALSE, $reverse = FALSE)
+    {
+        return self::getListBy(FALSE, FALSE, $pagination, $needle, $reverse);
+    }
+
+    public static function getListBy($sel = FALSE, $by = 'id', $pagination = FALSE, $needle = FALSE, $reverse = FALSE)
+    {
+        global $CS;
+
+        if(!$db = $CS->gc('mysqli_db_helper', 'helpers')->getInstance())
+            die('[blog] Can`t connect to database');
+
+        if($reverse)
+            $db->orderBy('id', 'desc');
+        if($by && is_string($by) && $sel)
+            $db->where($by, $sel);
+
+        if($pagination === FALSE)
+        {
+            if(!$objects = $db->get('categories'))
+                return NULL;
+        } else
+        {
+            $db->pageLimit = $pagination->getLimit();
+            $objects = $db->arraybuilder()->paginate("categories", $pagination->getCurrentPage());
+            $pagination->setTotal($db->totalCount);
+            if(!$objects)
+                return NULL;
+        }
+
+        $result = [];
+        foreach ($objects as $item)
+            $result[] = new cs_cat($item, $needle);
+
+        return
+            [
+                'count'      =>  count($result),
+                'result'     =>  $result
+            ];
+    }
+
     public static function getByLink($link = FALSE, $needle = FALSE)
     {
         $link = cs_filter($link, 'base');
@@ -48,7 +89,7 @@ class cs_cat
 
         $db->where($by, $sel);
 
-        if($data = $db->getOne('categories'))
+        if($data = $db->getOne('categories', $needle))
             return new cs_cat($data, $needle);
 
         return NULL;

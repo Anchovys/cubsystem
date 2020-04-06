@@ -33,13 +33,19 @@
                     <input type="text" name="title" placeholder="Article title">
                 </label><hr>
                 <label>
-                    <input type="text" name="author" placeholder="Article author">
+                    <input type="text" name="author-id" placeholder="Article author">
+                </label><hr>
+                <label>
+                    <input type="text" name="link" placeholder="Article link">
                 </label><hr>
                 <label>
                     <input type="text" name="tag" placeholder="Article tag">
                 </label><hr>
                 <label>
-                    <input type="text" name="cat" placeholder="Article categories ID`s, by delimiter: ',' example(1,4,6,8,3)">
+                    {% $cats = cs_cat::getListAll(FALSE, ['name', 'id'], FALSE);
+                    if($cats['count'] != 0)
+                    foreach ($cats['result'] as $cat)
+                        print "<input type=\"checkbox\" id=\"cat_$cat->id\" name=\"cat[]\" value=\"$cat->id\" style='width: auto;'><label for=\"cat$cat->id\">$cat->name</label>"; %}
                 </label><hr>
                 <label>
                     <textarea name="content" rows="30" placeholder="Page text (html, BBcode support)"></textarea>

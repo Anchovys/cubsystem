@@ -63,22 +63,41 @@ class blog_module extends cs_module
         if($segments[2] === 'add_page')
         {
             if(!isset($_POST['title'])    || !isset($_POST['tag']) || !isset($_POST['cat']) ||
-               !isset($_POST['content'])  || !isset($_POST['author']))
+                !isset($_POST['content']) || !isset($_POST['author-id']) || !isset($_POST['link']))
             {
                 return;
             }
 
-            $data = [
-                'title'     => cs_filter($_POST['title']),
-                'context'   => cs_filter($_POST['content'], 'multi_spaces;trim'),
-                'author'    => cs_filter($_POST['author']),
-                'link'      => cs_rnd_str(3),
-                'tag'       => cs_filter($_POST['tag']),
-                'cat'       => cs_filter($_POST['cat'])
-            ];
+            $data = [];
+
+            $title = cs_filter($_POST['title']);
+            $title = $title ? $title : 'no-title';
+            $data['title'] = $title;
+
+            $content = cs_filter($_POST['content'], 'multi_spaces;trim');
+            $content = $content ? $content : 'no-content';
+
+            $content = explode('[x]', $content);
+
+            $data['short_text'] = $content[0];
+            $data['full_text']   = $content[1];
+
+            $author = cs_filter($_POST['author-id'], 'base;int');
+            $data['author'] = $author;
+
+            $link = $_POST['link'];
+            $link = $link ? $link : cs_filter($title, 'transliterate;');
+            $link = cs_filter($link, 'to_lower;spaces;special_string');
+            $data['link'] = $link;
+
+            $tag = cs_filter($_POST['tag']);
+            $data['tag'] = $tag;
+
+            $cat = is_array($_POST['cat']) ? implode(',', $_POST['cat']) : '';
+            $data['cat'] = $cat;
+
 
             $page = new cs_page($data);
-
             $obj = $page->insert();
 
             die($obj === NULL ? 'fail' : 'success');
@@ -114,7 +133,7 @@ class blog_module extends cs_module
                 break;
 
             case 'tag': // first segment = tag
-                $page = $this->displayPages(cs_page::getListByTag($page_tag = $segments[1], $CS->template->getPagination()), 'blog/short-page_view', FALSE);
+                $page = $this->displayPages(cs_page::getListByTag($page_tag = $segments[1], $CS->template->getPagination(), ['cats', 'title', 'short_text', 'link', 'tag', 'author', 'views', 'comments'], TRUE), 'blog/short-page_view', FALSE);
                 $CS->template->setBuffer('body', (!$page) ? $this->page404() : $page, FALSE);
                 $CS->template->setMeta([
                     'title' => "Tag: {$page_tag}",
@@ -123,7 +142,7 @@ class blog_module extends cs_module
                 break;
             case 'cat': // first segment = cat
                 $category = cs_cat::getByLink($cat_link = $segments[1]);
-                $page = $this->displayPages(cs_page::getByCategoryId($category->id, $CS->template->getPagination()), 'blog/short-page_view', FALSE);
+                $page = $this->displayPages(cs_page::getByCategoryId($category->id, $CS->template->getPagination(), ['cats', 'title', 'short_text', 'link', 'tag', 'author', 'views', 'comments'], TRUE), 'blog/short-page_view', FALSE);
                 $CS->template->setBuffer('body', (!$page) ? $this->page404() : $page, FALSE);
                 $CS->template->setMeta([
                     'title' => "Cat: {$category->name}",
@@ -133,7 +152,7 @@ class blog_module extends cs_module
 
             case '':
             case 'home': // first segment = home or empty
-                $page = $this->displayPages(cs_page::getListBy(FALSE,FALSE, $CS->template->getPagination()), 'blog/short-page_view', FALSE);
+                $page = $this->displayPages(cs_page::getListAll($CS->template->getPagination(), ['cats', 'title', 'short_text', 'link', 'tag', 'author', 'views', 'comments'], TRUE), 'blog/short-page_view', FALSE);
                 $CS->template->setBuffer('body', (!$page) ? $this->page404() : $page, FALSE);
                 $CS->template->setMeta([
                     'title' => "Home Page",

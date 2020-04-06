@@ -186,7 +186,10 @@ class cs_pagination
         {
             // значит следующий идущий будет id страницы
             if (isset($segments[$key + 1]))
-                $key = $segments[$key + 1];
+            {
+                $key = cs_filter($segments[$key + 1], 'int');
+                if(!$key) $key = 1;
+            }
 
             // id страницы больше чем ноль
             if ($key > 0)

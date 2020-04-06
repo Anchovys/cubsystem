@@ -35,8 +35,10 @@ class Cubsystem
         $this->dynamic['time_pre'] = microtime(TRUE);
 
         if(!defined('CS__BASEURL')) define('CS__BASEURL', cs_base_url());
+        if(!defined('CS__FULLURL')) define('CS__FULLURL', cs_full_url());
         if(defined('CS__CFG')) $this->config = CS__CFG;
-        $this->dynamic['url-address']  = CS__BASEURL;
+        $this->dynamic['full-url']  = CS__FULLURL;
+        $this->dynamic['base-url']  = CS__BASEURL;
     }
 
     public static function getInstance() // for singleton

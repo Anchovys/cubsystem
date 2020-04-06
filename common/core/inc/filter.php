@@ -12,6 +12,27 @@
 |
 */
 
+function cs_translite_text($text = FALSE)
+{
+    $cyr = [
+        'а','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н','о','п',
+        'р','с','т','у','ф','х','ц','ч','ш','щ','ъ','ы','ь','э','ю','я',
+        'А','Б','В','Г','Д','Е','Ё','Ж','З','И','Й','К','Л','М','Н','О','П',
+        'Р','С','Т','У','Ф','Х','Ц','Ч','Ш','Щ','Ъ','Ы','Ь','Э','Ю','Я',
+        'š','č','đ','č','ć','ž','ñ','Š','Č','Đ','Č','Ć','Ž','Ñ'
+
+    ];
+    $lat = [
+        'a','b','v','g','d','ie','io','zh','z','i','ai','k','l','m','n','o','p',
+        'r','s','t','u','f','h','ts','ch','sh','sht','','i','','e','yu','ja',
+        'A','B','V','G','D','E','Io','Zh','Z','I','Y','K','L','M','N','O','P',
+        'R','S','T','U','F','H','Ts','Ch','Sh','Sht','A','I','Y','e','Yu','Ya',
+        's','c','d','c','c','z','n','S','C','D','C','C','Z','N'
+    ];
+
+    return str_replace($cyr, $lat, $text);
+}
+
 function xss_clean($data)
 {
     // Fix &entity\n;
@@ -72,7 +93,8 @@ function xss_clean($data)
  *          quotes          - очищает кавычки из строки
  *          special_string  - безопасная строка, в которой используется только
  *                            ОДНО СЛОВО из букв латинского алфавата с нижним регистром
- *          multi_spaces     - заменяет многочисленные пробелы одним символом
+ *          multi_spaces    - заменяет многочисленные пробелы одним символом
+ *       transliterate text - преобразовать русский текст в латиницу
  *          md5             - проверить является ли строка md5 хешем в случае ошибки, выведется пустой символ
  *
  *          base            - пресет. включает самые стандартные режимы
@@ -118,7 +140,7 @@ function cs_filter ($str, $mode = "base")
 
             case 'special_string':
                 $str = cs_filter( $str, 'base;string;spaces' );
-                $str = preg_replace( '/[^a-zA-Z0-9]/', '', $str );
+                $str = preg_replace( '/[^a-zA-Z0-9-]/', '', $str );
                 $str = substr($str, 0, 64);
                 break;
         }
@@ -127,7 +149,7 @@ function cs_filter ($str, $mode = "base")
 
             case 'spaces':
                 $str = preg_replace( '!\s+!', ' ', $str );
-                $str = preg_replace( '/\s+/', '_', $str );
+                $str = preg_replace( '/\s+/', '-', $str );
                 break;
 
             case 'trim':
@@ -141,7 +163,7 @@ function cs_filter ($str, $mode = "base")
             case 'integer':
             case 'int':
                 $str = intval( $str );
-                if ( !is_int( $str ) )
+                if ( !is_int( $str ) || $str > 4294967295 )
                     $str = '';
                 break;
 
@@ -199,6 +221,10 @@ function cs_filter ($str, $mode = "base")
 
             case 'quotes':
                 $str = preg_replace( ['\'', '"', '`'], '', $str );
+                break;
+
+            case 'transliterate':
+                $str = cs_translite_text($str);
                 break;
 
             case 'multi_spaces':

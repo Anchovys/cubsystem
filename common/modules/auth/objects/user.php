@@ -24,29 +24,34 @@ class cs_user
     private $password   = NULL;
     private $salt       = NULL;
 
-    function __construct($data = [])
+    function __construct($data = [], $needle = FALSE)
     {
         if (is_array($data))
         {
             // all basic data
-            if (isset($data['id']))         $this->id = (int)$data['id'];
-            if (isset($data['name']))       $this->name = (string)$data['name'];
-            if (isset($data['faction']))    $this->faction = (int)$data['faction'];
-            if (isset($data['salt']))       $this->salt = (string)$data['salt'];
-            if (isset($data['password']))   $this->password = (string)$data['password'];
+            if (isset($data['id']) && (!$needle || in_array('id', $needle)))
+                $this->id = (int)$data['id'];
+            if (isset($data['name']) && (!$needle || in_array('id', $needle)))
+                $this->name = (string)$data['name'];
+            if (isset($data['faction']) && (!$needle || in_array('id', $needle)))
+                $this->faction = (int)$data['faction'];
+            if (isset($data['salt']) && (!$needle || in_array('id', $needle)))
+                $this->salt = (string)$data['salt'];
+            if (isset($data['password']) && (!$needle || in_array('id', $needle)))
+                $this->password = (string)$data['password'];
         }
     }
 
-    public static function getById($id = FALSE)
+    public static function getById($id = FALSE, $needle = FALSE)
     {
         $id = cs_filter($id, 'int');
-        return ($id) ? self::getBy($id, 'id') : NULL;
+        return ($id) ? self::getBy($id, 'id', $needle) : NULL;
     }
 
-    public static function getByUsername($username = FALSE)
+    public static function getByUsername($username = FALSE, $needle = FALSE)
     {
         $username = cs_filter($username, 'username');
-        return ($username) ? self::getBy($username, 'name') : NULL;
+        return ($username) ? self::getBy($username, 'name', $needle) : NULL;
     }
 
     /*
@@ -56,7 +61,7 @@ class cs_user
         return ($email) ? self::getBy($email, 'email') : NULL;
     }*/
 
-    private static function getBy($property = '', $selector = '')
+    private static function getBy($property = '', $selector = '', $needle = FALSE)
     {
         if (!$selector || !is_string($selector) || !$property)
             return NULL;
@@ -67,7 +72,7 @@ class cs_user
 
         $db->where($selector, $property);
 
-        if ($data = $db->getOne('users'))
+        if ($data = $db->getOne('users', $needle))
             return new cs_user($data);
 
         return NULL;
