@@ -12,7 +12,7 @@ class Cubsystem
 {
     private static $instance = null;
     public $info = [
-        "version" => "0.06",
+        "version" => "0.07",
         "name"    => "Cubsystem"
     ];
 
