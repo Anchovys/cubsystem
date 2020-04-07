@@ -1,0 +1,77 @@
+<?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
+if($id = cs_get_segment(2))
+{
+    $page = cs_page::getById(cs_filter($id, 'base;int'));
+    $page = ($page === NULL || $page['count'] === 0) ? NULL : $page['result'];
+}
+?>
+
+<script>
+    function sendRequest(url, id) {
+
+        var form = document.getElementById(id);
+        var request = new XMLHttpRequest();
+
+        request.open("POST", url);
+
+        request.onreadystatechange = function()
+        {
+            if(this.readyState === 4 && this.status === 200)
+            {
+                alert(this.responseText);
+            }
+        };
+
+        request.send(new FormData(form));
+    }
+</script>
+<div class="mm__page">
+    <div class="mm__page_title">
+        <h1 class="mm__page_title_link mm__page_title_label">
+            <?= !isset($page) ? 'Добавление новой' : 'Редактирование' ?> записи
+        </h1>
+    </div>
+    <div class="mm__page_info">
+    </div>
+    <div class="mm__page_content">
+        <article id="content">
+            <form id="addForm" onsubmit="sendRequest('<?= cs_abs_url('admin/admin-ajax/page_edit') ?>', 'addForm'); return false;">
+                <input type="hidden" name="page-id" value="<?=isset($page) ? ($page->id) : '0';?> ">
+                <label>
+                    <input type="text" name="title" required placeholder="Article title" value="<?=isset($page)?$page->title:'';?>">
+                </label><hr>
+                <label>
+                    <textarea name="content" required id="editor" rows="30" placeholder="Page text (html, BBcode support)"><?=isset($page) ? ($page->short_text .'[x]'. $page->full_text) : ''; ?></textarea>
+                </label><hr>
+                <label>
+                    <?
+                    $cats = cs_cat::getListAll(FALSE, ['name', 'id'], FALSE);
+                        if($cats['count'] != 0)
+                            foreach ($cats['result'] as $cat)
+                            {
+                                $checked = (isset($page) and in_array($cat->id, $page->cat_ids)) ? 'checked=""' : '';
+                                print "<input type='checkbox' id='cat_{$cat->id}' name='cat[]' value='{$cat->id}' style='width: auto;' {$checked}>";
+                                print "<label for='cat{$cat->id}'>{$cat->name}</label>";
+                            }
+                            ?>
+                </label><hr>
+                <label>
+                    <input type="text" required name="author-id" placeholder="Article author" value="<?= isset($page) ? ($page->author_id) : ''; ?>">
+                </label><hr>
+                <label>
+                    <input type="text" name="link" placeholder="Article link" value="<?= isset($page) ? ($page->link) : ''; ?>">
+                </label><hr>
+                <label>
+                    <input type="text" required name="tag" placeholder="Article tag" value="<?= isset($page) ? ($page->tag) : ''; ?>">
+                </label><hr>
+                <button name="send"><?= !isset($page) ? 'Добавить' : 'Отредактировать' ?> </button>
+            </form>
+            <? if(isset($page)):?>
+            <form id="removeForm"  onsubmit="sendRequest('<?= cs_abs_url('admin/admin-ajax/page_del') ?>', 'removeForm'); return false;">
+                <input type="hidden" name="page-id" value="<?=isset($page) ? ($page->id) : '0';?> ">
+                <button name="send">Удалить страницу</button>
+            </form>
+            <? ENDIF; ?>
+        </article>
+    </div>
+</div>

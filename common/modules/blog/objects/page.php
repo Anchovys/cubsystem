@@ -58,7 +58,11 @@ class cs_page
                 $this->author = cs_user::getById($this->author_id, ['name', 'id']);
             }
 
-            if (!$needle || in_array('cat_ids', $needle))
+            if(isset($data['cat_ids']) && is_array($data['cat_ids']))
+            {
+                $this->cat_ids = $data['cat_ids'];
+            }
+            else if (!$needle || in_array('cat_ids', $needle))
             {
                 if($this->id !== NULL)
                 {
@@ -248,6 +252,87 @@ class cs_page
         ];
     }
 
+    public function delete()
+    {
+        global $CS;
+
+        if(!$db = $CS->database->getInstance())
+            die('[blog] Can`t connect to database');
+
+        // если id не указан
+        if(!$this->id)
+            return FALSE;
+
+        // вычищаем категории
+        $db->where('page_id', $this->id);
+        $db->delete('cat_pages');
+
+        // вычищаем данные страницы
+        $db->where('id', $this->id);
+        return $db->delete('pages');
+    }
+
+    public function update()
+    {
+        global $CS;
+
+        if(!$db = $CS->database->getInstance())
+            die('[blog] Can`t connect to database');
+
+        $data = [
+            'id'            => $this->id,
+            'title'         => $this->title,
+            'tag'           => $this->tag,
+            'author'        => $this->author_id,
+            'link'          => $this->link,
+            'short_text'    => $this->short_text,
+            'full_text'     => $this->full_text
+        ];
+
+        // обновляем данные о странице
+        $db->update('pages', $data);
+
+        $for_remove = [];
+        $for_add    = $this->cat_ids;
+
+        $cats = cs_cat::getByPageId($this->id, ['id']);
+
+        foreach ($cats['result'] as $cat)
+        {
+            if(in_array($cat->id, $this->cat_ids))
+            {
+                $key = array_search($cat->id, $for_add);
+                unset($for_add[$key]);
+            }
+            else
+            {
+                $for_remove[] = $cat->id;
+            }
+        }
+
+        // для удаления
+        foreach ($for_remove as $cat_id)
+        {
+            $db->where('page_id', $this->id);
+            $db->where('cat_id', $cat_id);
+            $db->delete('cat_pages');
+        }
+
+        // для добавления
+        foreach ($for_add as $cat_id)
+        {
+            $data = [
+                'page_id' => intval($this->id),
+                'cat_id'  => intval($cat_id)
+            ];
+
+            $db->insert('cat_pages', $data);
+        }
+
+        // get page from database
+        return self::getById($this->id);
+    }
+
     public function insert()
     {
         global $CS;
@@ -289,7 +374,7 @@ class cs_page
             }
         }
 
-        // get user from database
+        // get page from database
         return self::getById($page_id);
     }
 }

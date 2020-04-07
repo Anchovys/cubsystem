@@ -66,6 +66,7 @@ define("CS__CFG",
     'modules'   =>
     [
         'auth',
+        'markitup_editor',
         'admin',
         'blog'
     ],

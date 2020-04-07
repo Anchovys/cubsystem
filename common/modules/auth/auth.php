@@ -95,7 +95,10 @@ class auth_module extends cs_module
             $this->sentResponse($this->register($username, $password));
         }
         elseif($action == 'logout')
+        {
             $this->sentResponse($this->purgeSession());
+            cs_redir('', TRUE);
+        }
 
         else return;
     }

@@ -6,11 +6,11 @@
                 <tbody>
                     <tr>
                         <td style="width: 40%;">Version</td>
-                        <td style="width: 60%;">{{$CS->info['name'] . ' rev.' . $CS->info['version']}}</td>
+                        <td style="width: 60%;">{{$CS->info['name'] . ' v' . $CS->info['version']}}</td>
                     </tr>
                     <tr>
                         <td style="width: 40%;">Template loaded</td>
-                        <td style="width: 60%;"> - </td>
+                        <td style="width: 60%;">{{$CS->template->info['name']}} *(current)</td>
                     </tr>
                     <tr>
                         <td style="width: 40%;">Helpers loaded</td>

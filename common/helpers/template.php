@@ -17,6 +17,7 @@ class template_helper
 {
     public  $joined     = FALSE;
     public  $path       = '';
+    public  $url        = '';
     public  $info       = [];
     public  $meta_data  = [];
     private $options    = [];
@@ -47,6 +48,7 @@ class template_helper
             define("CS__TEMPLATESPATH", CS__BASEPATH . 'templates' . _DS);
 
         $this->path = $fullpath ? $setpath : CS__TEMPLATESPATH . $setpath . _DS;
+        $this->url  = cs_path_to_url($this->path);
 
         // setup as joined
         $this->joined = TRUE;
@@ -110,7 +112,6 @@ class template_helper
     {
         return $this->pagination ? $this->pagination : FALSE;
     }
-
     public function showBuffer($name, $print = FALSE, $purge = FALSE)
     {
         if (array_key_exists($name, $this->buffers)) {
@@ -155,13 +156,15 @@ class template_helper
             $this->setBuffer('head', csAutoloadJs($path_js), TRUE);
         }
 
+        // no content view
+        if(strlen($this->showBuffer('body')) == 0)
+            $this->callbackLoad([], 'no-content', 'body');
+
         require_once($f);
 
         if(function_exists('onload_template'))
             onload_template($this);
 
-        if($this->showBuffer('body') == '')
-            $this->setBuffer('buffer', '<div class="blank">No content</div>', TRUE);
 
         // minify html
         if($this->options['minify-html'] && $minify = $CS->gc('html_minify_helper', 'helpers'))
@@ -208,15 +211,13 @@ class template_helper
 
                     case 'icon':
                     case 'favicon':
-                        $path = $this->path . 'assets' . _DS . 'img' . _DS . 'favicons' . _DS;
-                        $url = cs_path_to_url($path);
+                        $url = $this->url . 'assets/img/favicons/';
                         $this->setBuffer('head', "<link rel=\"icon shortcut\" href=\"{$url}{$value}\" type=\"image/x-icon\">", TRUE);
                         break;
 
                     case 'css':
                     case 'stylesheet':
-                        $path = $this->path . 'assets' . _DS . 'css' . _DS . 'manual' . _DS;
-                        $url = cs_path_to_url($path);
+                        $url = $this->url . 'assets/css/manual/';
                         $this->setBuffer('head', "<link rel=\"stylesheet\" href=\"{$url}{$value}\">", TRUE);
                     break;
 

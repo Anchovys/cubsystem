@@ -7,38 +7,38 @@ b, u, i, center,
 dl, dt, dd, ol, ul, li,
 fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed, 
-figure, figcaption, footer, header, hgroup, 
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
 menu, nav, output, ruby, section, summary,
 time, mark, audio, video {
-	margin: 0;
-	padding: 0;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	vertical-align: baseline;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
 }
-article, aside, details, figcaption, figure, 
+article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
-	display: block;
+    display: block;
 }
 body {
-	line-height: 1;
+    line-height: 1;
 }
 ol, ul {
-	list-style: none;
+    list-style: none;
 }
 blockquote, q {
-	quotes: none;
+    quotes: none;
 }
 blockquote:before, blockquote:after,
 q:before, q:after {
-	content: '';
-	content: none;
+    content: '';
+    content: none;
 }
 table {
-	border-collapse: collapse;
-	border-spacing: 0;
+    border-collapse: collapse;
+    border-spacing: 0;
 }
 
 /*
@@ -46,10 +46,7 @@ table {
 */
 
 .mm__page
-{
-    padding: 10px;
-    padding-top: 0px;
-}
+{background: #fff;border: 1px solid #ccc;}
 
 .mm__page_content
 {
@@ -64,20 +61,20 @@ table {
 
 .mm__page_title, .mm__other_pages, .mm__comments
 {
-	text-align: center;
+    text-align: center;
     padding: 10px;
-    background: darkblue;
+    background: #ececec;
 }
 
 .mm__page_title, .mm__other_pages, .mm__comments, .mm__page_title_link
 {
-    color: white;
+    color: #333;
     text-decoration: none;
 }
 
 ul.mm__page_info_list
 {
-	list-style: none;
+    list-style: none;
 }
 
 ul.mm__page_info_list li
@@ -89,7 +86,7 @@ ul.mm__page_info_list li
 ul.mm__page_info_list > li:before
 {
     margin-right: 0.5em;
-    content: '◦';
+    content: 'â—¦';
 }
 
 /*
@@ -98,7 +95,7 @@ ul.mm__page_info_list > li:before
 
 .mm__top_container, .mm__middle_container, .mm__bottom_container
 {
-    margin-top:25px;
+    padding-top: 10px;
 }
 
 /*
@@ -109,38 +106,37 @@ ul.mm__page_info_list > li:before
 {
     text-align: center;
     padding: 15px;
-    background: darkblue;
-    color: #fff;
+    color: #545454;
 }
 
 /*
 	MM widget sidebar
 */
 
-.mm__widget
-{
-    padding: 10px;
-    padding-top: 0px;
-}
 
 .mm__widget_header
 {
-	text-align: center;
+    text-align: center;
     padding: 10px;
-    background: darkblue;
-    color: #fff;
+    background: #ececec;
+    border-bottom: 1px solid #d8d8d8;
+    color: #333;
 }
 
 .mm__widget_content
 {
     padding: 10px;
+    background: #fff;
 }
 
 .mm__vertical_menu ul a.mm_menu_item
 {
     margin-left: 10px;
-    padding: 2px 5px;
+    padding: 5px 10px;
     display: block;
+    color: #000;
+    border-bottom: 1px dashed #ccc;
+    text-decoration: none;
 }
 
 /*
@@ -150,7 +146,6 @@ ul.mm__page_info_list > li:before
 .mm__horizontal_menu>ul
 {
     overflow: hidden;
-    background: darkblue;
 }
 
 .mm__horizontal_menu>ul>li
@@ -161,13 +156,38 @@ ul.mm__page_info_list > li:before
 .mm__horizontal_menu>ul a.mm_menu_item
 {
     display: inline-block;
-    color: white;
+    color: #404040;
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
+    border-bottom: 4px solid #bbb;
 }
 
 input, textarea, button {
     width: 100%;
     padding: 5px;
+}
+.mm__widget {
+    background: #fff;
+    border: 1px solid #ccc;
+}
+
+body {
+    background: #eaeaea;
+}
+
+.container.mm__middle_container {
+    background: #eee;
+}
+
+.container.mm__top_container {
+    background: #eee;
+}
+
+.mm__horizontal_menu>ul a.mm_menu_item:hover {
+    background: #bbb;
+    color: #000;
+}
+.mm__vertical_menu ul a.mm_menu_item:hover {
+    background: #f7f7f7;
 }

@@ -1,0 +1,6 @@
+.markItUp .bold_btn a {
+    background-image:url(images/bold.png);
+}
+.markItUp .cut_btn a {
+    background-image:url(images/clean.png);
+}

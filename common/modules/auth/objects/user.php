@@ -31,13 +31,13 @@ class cs_user
             // all basic data
             if (isset($data['id']) && (!$needle || in_array('id', $needle)))
                 $this->id = (int)$data['id'];
-            if (isset($data['name']) && (!$needle || in_array('id', $needle)))
+            if (isset($data['name']) && (!$needle || in_array('name', $needle)))
                 $this->name = (string)$data['name'];
-            if (isset($data['faction']) && (!$needle || in_array('id', $needle)))
+            if (isset($data['faction']) && (!$needle || in_array('faction', $needle)))
                 $this->faction = (int)$data['faction'];
-            if (isset($data['salt']) && (!$needle || in_array('id', $needle)))
+            if (isset($data['salt']) && (!$needle || in_array('salt', $needle)))
                 $this->salt = (string)$data['salt'];
-            if (isset($data['password']) && (!$needle || in_array('id', $needle)))
+            if (isset($data['password']) && (!$needle || in_array('password', $needle)))
                 $this->password = (string)$data['password'];
         }
     }
