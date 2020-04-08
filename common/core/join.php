@@ -3,7 +3,7 @@
 require_once(CS_OPTIONSPATH . 'options.php');
 
 require_once(CS_COREINCPATH . 'debugging.php');
-require_once(CS_COREINCPATH . 'strings.php');
+require_once(CS_COREINCPATH . 'security.php');
 require_once(CS_COREINCPATH . 'filter.php');
 require_once(CS_COREINCPATH . 'url.php');
 require_once(CS_COREINCPATH . 'fs.php');

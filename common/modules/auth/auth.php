@@ -1,7 +1,7 @@
 <?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
 /*
 | -------------------------------------------------------------------------
-| auth.php [rev 1.2], Назначение: система авторизации для пользователей
+| auth.php [rev 1.3], Назначение: система авторизации для пользователей
 | -------------------------------------------------------------------------
 | В этом файле описаны основные функциональности для работы
 | с авторизацией пользователей
@@ -24,7 +24,7 @@ class auth_module extends cs_module
         global $CS;
         $this->name = "Auth";
         $this->description = "A simple authorization system.";
-        $this->version = "2";
+        $this->version = "3";
         $this->fullpath = CS_MODULESCPATH . 'auth' . _DS;
 
         // require default objects
@@ -50,6 +50,11 @@ class auth_module extends cs_module
 
         switch(isset($segments[0]) ? $segments[0] : '') {
             case 'login':
+
+                // уже авторизован
+                if($this->currentUser !== NULL)
+                    cs_redir('logout');
+
                 $CS->template->setBuffer('body', $CS->template->callbackLoad([], 'auth/loginform_view'), FALSE);
                 $CS->template->setMeta([
                     'title' => "Authorization",
@@ -57,11 +62,29 @@ class auth_module extends cs_module
                 ]);
                 break;
             case 'register':
+
+                // уже авторизован
+                if($this->currentUser !== NULL)
+                    cs_redir('logout');
+
                 $CS->template->setBuffer('body', $CS->template->callbackLoad([], 'auth/registerform_view'), FALSE);
                 $CS->template->setMeta([
                     'title' => "Registration",
                     'description' => "You can register on website"
                 ]);
+                break;
+            case 'logout':
+
+                // не авторизован
+                if($this->currentUser === NULL)
+                    cs_redir('login');
+
+                $CS->template->setBuffer('body', $CS->template->callbackLoad($this->currentUser, 'auth/logout_view'), FALSE);
+                $CS->template->setMeta([
+                    'title' => "Logout",
+                    'description' => "Do you want logout?"
+                ]);
+
                 break;
         }
     }
@@ -72,27 +95,34 @@ class auth_module extends cs_module
         ///// Обработка оболочки. Сюда должен приходить AJAX/POST /////
         ///////////////////////////////////////////////////////////////
 
+        // простая защита от перебора пароля(задержка)
+        sleep(3);
+
         $action = cs_filter($segments[1], 'special_string');
 
         if($action === 'login')
         {
-            $username = cs_filter($_POST['username']);
-            $password = cs_filter($_POST['password']);
+            $usernameOrEmail = cs_filter($_POST['username']);
+            $password        = cs_filter($_POST['password']);
 
-            if(!$username && !$password)
-                $this->setError('no-data', TRUE);
+            if(!$usernameOrEmail && !$password)
+                return $this->setError('no-data', TRUE);
 
-            $this->sentResponse($this->auth($username, $password));
+            $msg = $this->sentResponse($this->auth($usernameOrEmail, $password));
 
         } elseif($action === 'register')
         {
             $username = cs_filter($_POST['username']);
             $password = cs_filter($_POST['password']);
+            $email    = cs_filter($_POST['email'], 'base;email');
 
             if(!$username && !$password)
-                $this->setError('no-data', TRUE);
+                return $this->setError('no-data', TRUE);
 
-            $this->sentResponse($this->register($username, $password));
+            if(!$email)
+                return $this->setError('wrong email', TRUE);
+
+            $msg = $this->sentResponse($this->register($username, $password, $email));
         }
         elseif($action == 'logout')
         {
@@ -101,6 +131,9 @@ class auth_module extends cs_module
         }
 
         else return;
+
+        // отправляем сообщение, если есть
+        if(isset($msg)) die($msg);
     }
 
     public function getLoggedUser()
@@ -113,35 +146,53 @@ class auth_module extends cs_module
         return $this->currentUser !== FALSE;
     }
 
-    private function auth($username, $password, $email = '')
+    private function auth($usernameOrEmail, $password)
     {
-        // filter by username
-        $username = cs_filter($username, 'username');
+        // проверка что пришло: юзернейм или емейл
+        if(cs_filter($usernameOrEmail, 'email'))
+            $email = cs_filter($usernameOrEmail, 'base');
+        else $username = cs_filter($usernameOrEmail, 'username');
 
         // filter by password
         $password = cs_filter($password, 'password');
 
-        $user = cs_user::getByUsername($username);
+        // выбираем по юзернейму или емейл
+        if(isset($username))
+            $user = cs_user::getByUsername($username);
+        elseif(isset($email))
+            $user = cs_user::getByEmail($email);
 
-        if($user === NULL || !$user->checkPassword($password))
-            $this->setError('incorrect');
+        if($user === NULL || !$password || !$user->checkPassword($password))
+            return $this->setError('incorrect');
 
         return $this->makeSession($user->id);
     }
 
-    private function register($username, $password, $email = '')
+    private function register($username, $password, $email)
     {
+        if(!$username || !$password || !$email)
+            return $this->setError('data?');
+
         $user = new cs_user (
             [
                 'name'      =>  $username,
                 'password'  =>  $password,
+                'email'     =>  $email,
                 'faction'   =>  0
             ]
         );
+
+        // check user not exits in table
+        if(cs_user::getByUsername($user->name,['id']) !== NULL ||
+           cs_user::getByEmail($user->email,['id']) !== NULL)
+            return $this->setError('user-exists');
+
+        // пробуем вставить данные
         $user = $user->insert();
 
+        //не удалось
         if($user === NULL)
-            $this->setError('failed-registration');
+            return $this->setError('failed-registration');
 
         return $this->makeSession($user->id);
     }
@@ -194,16 +245,16 @@ class auth_module extends cs_module
         $u_id = cs_filter($u_id, 'int');
 
         $u_ua = $session->get('auth_uua');
-        $u_ua = cs_filter($u_ua, 'base;string;md5');
+        $u_ua = cs_filter($u_ua, 'base;string;sha512');
 
         $u_ip = $session->get('auth_uip');
-        $u_ip = cs_filter($u_ip, 'base;string;md5');
+        $u_ip = cs_filter($u_ip, 'base;string;sha512');
 
         // проверяем userAgent, IP-адрес клиента
         if( $u_ua !== NULL && $u_ua && $u_ua === cs_hash_str($_SERVER['HTTP_USER_AGENT']) &&
             $u_ip !== NULL && $u_ip && $u_ip === cs_hash_str($_SERVER['REMOTE_ADDR']))
         {
-            return cs_user::getById($u_id);
+            return cs_user::getById($u_id, ['id', 'name', 'faction']);
         }
         return NULL;
     }

@@ -231,8 +231,8 @@ function cs_filter ($str, $mode = "base")
                 $str = preg_replace( '!\s+!', ' ', $str );
                 break;
 
-            case 'md5':
-                $str = (!preg_match('/^[a-f0-9]{32}$/', $str )) ? '' : $str;
+            case 'sha512':
+                $str = (!preg_match('/^[a-f0-9]{128}$/', $str )) ? '' : $str;
                 break;
 
                 /*

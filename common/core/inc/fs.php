@@ -59,7 +59,7 @@ function cs_file_ext($file)
 }
 function cs_mk_htaccess()
 {
-    $htaccess = file_get_contents(CS_COMMONPATH . 'dist' . _DS . 'htaccess-distr.txt');
+    $htaccess = file_get_contents(CS__BASEPATH . 'dist' . _DS . 'htaccess-distr.txt');
     $htaccess = str_replace('{path}', isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/', $htaccess);
     file_put_contents(CS__BASEPATH . '.htaccess', $htaccess) or die('Can`t make .htaccess file. Please, create this file or configure directory rules!');
 }

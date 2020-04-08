@@ -24,6 +24,7 @@ class cs_page
     public $cat_ids     = NULL;
     public $short_text  = NULL;
     public $full_text   = NULL;
+    public $cut_type    = NULL;
     public $comments    = NULL;
     public $author      = NULL;
     public $author_id   = NULL;
@@ -52,6 +53,8 @@ class cs_page
                 $this->short_text = (string)$data['short_text'];
             if (isset($data['full_text']) && (!$needle || in_array('full_text', $needle)))
                 $this->full_text = (string)$data['full_text'];
+            if (isset($data['cut_type']) && (!$needle || in_array('cut_type', $needle)))
+                $this->cut_type = (int)$data['cut_type'];
             if (isset($data['author']) && (!$needle || in_array('author', $needle)))
             {
                 $this->author_id = intval($data['author']);
@@ -286,7 +289,8 @@ class cs_page
             'author'        => $this->author_id,
             'link'          => $this->link,
             'short_text'    => $this->short_text,
-            'full_text'     => $this->full_text
+            'full_text'     => $this->full_text,
+            'cut_type'     => $this->cut_type
         ];
 
         // обновляем данные о странице
@@ -352,7 +356,8 @@ class cs_page
             'author'        => $this->author_id,
             'link'          => $this->link,
             'short_text'    => $this->short_text,
-            'full_text'     => $this->full_text
+            'full_text'     => $this->full_text,
+            'cut_type'      => $this->cut_type
         ];
 
         // function returned current page id

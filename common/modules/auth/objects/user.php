@@ -18,11 +18,12 @@
 
 class cs_user
 {
-    public $id          = NULL;
-    public $name        = NULL;
-    private $faction    = 0;
-    private $password   = NULL;
-    private $salt       = NULL;
+    public  $id          = NULL;
+    public  $name        = NULL;
+    public  $email       = NULL;
+    private $faction     = 0;
+    private $password    = NULL;
+    private $salt        = NULL;
 
     function __construct($data = [], $needle = FALSE)
     {
@@ -33,6 +34,8 @@ class cs_user
                 $this->id = (int)$data['id'];
             if (isset($data['name']) && (!$needle || in_array('name', $needle)))
                 $this->name = (string)$data['name'];
+            if (isset($data['email']) && (!$needle || in_array('email', $needle)))
+                $this->email = (string)$data['email'];
             if (isset($data['faction']) && (!$needle || in_array('faction', $needle)))
                 $this->faction = (int)$data['faction'];
             if (isset($data['salt']) && (!$needle || in_array('salt', $needle)))
@@ -54,12 +57,11 @@ class cs_user
         return ($username) ? self::getBy($username, 'name', $needle) : NULL;
     }
 
-    /*
     public static function getByEmail($email = FALSE)
     {
         $email = (string)$email;
         return ($email) ? self::getBy($email, 'email') : NULL;
-    }*/
+    }
 
     private static function getBy($property = '', $selector = '', $needle = FALSE)
     {
@@ -105,15 +107,12 @@ class cs_user
         if(!$db = $CS->database->getInstance())
             die('[auth] Can`t connect to database');
 
-        // check user not exits in table
-        if(self::getByUsername($this->name) !== NULL)
-            return NULL;
-
         // generate random salt
         $this->salt = cs_rnd_str(16);
 
         $data = [
             'name'      => $this->name,
+            'email'     => $this->email,
             'faction'   => $this->faction,
             'password'  => $this->makePasswordHash($this->password),
             'salt'      => $this->salt

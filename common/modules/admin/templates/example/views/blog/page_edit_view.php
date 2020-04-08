@@ -41,18 +41,34 @@ if($id = cs_get_segment(2))
                     <input type="text" name="title" required placeholder="Article title" value="<?=isset($page)?$page->title:'';?>">
                 </label><hr>
                 <label>
-                    <textarea name="content" required id="editor" rows="30" placeholder="Page text (html, BBcode support)"><?=isset($page) ? ($page->short_text .'[x]'. $page->full_text) : ''; ?></textarea>
+                    <textarea name="content" required id="editor" rows="30" placeholder="Page text (html, BBcode support)"><?
+
+                        if(isset($page))
+                        {
+                            // dont cut
+                            if($page->cut_type === 0)
+                                print $page->short_text . $page->full_text;
+                            else
+                            {
+                                // cut other types
+                                print $page->short_text;
+                                print $page->cut_type === 1 ? '[xcut]' : '[cut]';
+                                print $page->full_text;
+                            }
+                        }
+                        ?></textarea>
                 </label><hr>
                 <label>
                     <?
                     $cats = cs_cat::getListAll(FALSE, ['name', 'id'], FALSE);
-                        if($cats['count'] != 0)
+                        if($cats !== NULL && $cats['count'] !== 0)
                             foreach ($cats['result'] as $cat)
                             {
                                 $checked = (isset($page) and in_array($cat->id, $page->cat_ids)) ? 'checked=""' : '';
-                                print "<input type='checkbox' id='cat_{$cat->id}' name='cat[]' value='{$cat->id}' style='width: auto;' {$checked}>";
+                                print "<input type='checkbox' id='cat_{$cat->id}' name='category[]' value='{$cat->id}' style='width: auto;' {$checked}>";
                                 print "<label for='cat{$cat->id}'>{$cat->name}</label>";
                             }
+                        else print 'нет ни одной категории.';
                             ?>
                 </label><hr>
                 <label>

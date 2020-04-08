@@ -19,9 +19,12 @@ $CS->template->setMeta(['script'=>'loginform_auth_AJAX.js']);
     </div>
     <div class="mm__page_content">
         <article id="content">
-            <form id = "registerForm" onsubmit="sendRequest('<?= cs_abs_url('ajax/register') ?>'); return false;">
+            <form id="registerForm" onsubmit="sendRequest('<?= cs_abs_url('ajax/register') ?>', 'registerForm'); return false;">
                 <label for="login">
                     <input type="text" name="username" placeholder="Введите свой логин" value="admin">
+                </label>
+                <label for="login">
+                    <input type="email" name="email" placeholder="Введите свой email" value="test@gmail.com">
                 </label>
                 <label for="password">
                     <input type="password" name="password" placeholder="Введите свой пароль" value="admin">

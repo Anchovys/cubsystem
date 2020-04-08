@@ -6,7 +6,7 @@ function cs_hash_str($str, $salted = TRUE)
 
     $str = (string)$str;
     $str .= $salted !== FALSE ? (string)$CS->config['secret_key'] : '';
-    return md5($str);
+    return hash('sha512', $str);
 }
 
 function cs_rnd_str($length = 10, $numbers = TRUE, $upper = TRUE, $special = FALSE)

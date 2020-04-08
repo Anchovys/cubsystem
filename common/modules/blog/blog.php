@@ -47,11 +47,17 @@ class blog_module extends cs_module
             return;
 
         if($segments[1] === 'page_edit')
+        {
             $CS->template->callbackLoad('', 'blog/page_edit_view', 'body');
+        }
         if($segments[1] === 'page_list')
+        {
             $CS->template->callbackLoad('', 'blog/page_list_view', 'body');
+        }
         else if($segments[1] === 'addcat')
+        {
             $CS->template->callbackLoad('', 'blog/addcat_view', 'body');
+        }
     }
 
     public function admin_ajax()
@@ -62,12 +68,12 @@ class blog_module extends cs_module
         if(!isset($segments[2]))
             return;
 
-        if($segments[2] === 'page_edit')
-        {
-            if(!isset($_POST['title'])    || !isset($_POST['tag']) || !isset($_POST['cat']) || !isset($_POST['page-id']) ||
-               !isset($_POST['content'])  || !isset($_POST['author-id']) || !isset($_POST['link']))
-            {
+        if($segments[2] === 'page_edit') {
+            if (!isset($_POST['page-id']) || !isset($_POST['title']) || !isset($_POST['tag']) ||
+            !isset($_POST['content']) || !isset($_POST['link'])  || !isset($_POST['author-id']) ) {
+
                 return;
+
             }
 
             $data = [];
@@ -86,15 +92,43 @@ class blog_module extends cs_module
             $content = cs_filter($_POST['content'], 'multi_spaces;trim');
             $content = $content ? $content : 'no-content';
 
-            $content = explode('[x]', $content);
+            if (strpos($content, '[xcut]'))
+            {
+                $content = explode('[xcut]', $content);
 
-            $data['short_text'] = $content[0];
-            $data['full_text']   = $content[1];
+                $data['short_text'] = $content[0];
+                $data['full_text'] = $content[1];
 
+                $data['cut_type'] = 1;
+
+            } else if (strpos($content, '[cut]'))
+            {
+                $content = explode('[cut]', $content);
+
+                $data['short_text'] = $content[0];
+
+                $data['full_text'] = $data['short_text'];
+                $data['full_text'] .= $content[1];
+
+                $data['cut_type'] = 2;
+            } else // без разбивки
+            {
+                $data['full_text'] = $data['short_text'] = $content;
+            }
 
             // автор
-            $author = cs_filter($_POST['author-id'], 'base;int');
-            $data['author'] = $author;
+            $author_id = $_POST['author-id'];
+            if($author_id) // указан
+            {
+                // применим указанного автора
+                $author_id = cs_filter($author_id, 'base;int');
+            }
+            else // не указан
+                {
+                    $author = $CS->gc('auth_module', 'modules')->getLoggedUser();
+                    $author_id = $author->id;
+                }
+            $data['author'] = $author_id;
 
             // ссылка
             $link = $_POST['link'];
@@ -107,17 +141,13 @@ class blog_module extends cs_module
             $data['tag'] = $tag;
 
             //категория
-            //$cat = is_array($_POST['cat']) ? implode(',', $_POST['cat']) : '';
-            //$data['cat_ids'] = $cat;
-
-            $cat = is_array($_POST['cat']) ? $_POST['cat'] : [];
+            $cat = isset($_POST['category']) && is_array($_POST['category']) ? $_POST['category'] : [];
             $data['cat_ids'] = $cat;
 
             // создадим экземпляр страницы
             $page = new cs_page($data);
 
-            // id редактируемой записи ноль.
-            // значит добавление
+            // id редактируемой записи ноль. значит добавление
             if($id == 0)
             {
                 $obj = $page->insert();
@@ -140,9 +170,10 @@ class blog_module extends cs_module
 
             // айди
             $id = cs_filter($_POST['page-id'], 'base;int');
+            if(!$id)
+                die('fail');
 
             $obj = cs_page::getById($id);
-
 
             die($obj['count'] === 0 || $obj['result']->delete() === FALSE ? 'fail' : 'success');
         }

@@ -1,6 +1,6 @@
-function sendRequest(url) {
+function sendRequest(url, name) {
 
-    var form = document.getElementById("loginForm");
+    var form = document.getElementById(name);
     var request = new XMLHttpRequest();
 
     request.open("POST", url);

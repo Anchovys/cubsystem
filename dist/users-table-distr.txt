@@ -1,6 +1,7 @@
 CREATE TABLE `cubsystem`.`users` (
     `id`        INT         NOT NULL AUTO_INCREMENT,
     `name`      TINYTEXT    NOT NULL,
+    `email`     TINYTEXT    NOT NULL,
     `password`  TINYTEXT    NOT NULL,
     `faction`   TINYINT     NOT NULL,
     `salt`      TINYTEXT    NOT NULL,
