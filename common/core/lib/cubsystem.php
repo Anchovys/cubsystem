@@ -64,9 +64,9 @@ class Cubsystem
         } else return !array_key_exists($classname, $seek_array) ? FALSE : $seek_array[$classname];
     }
 
-    public function workingTime($suff = ' sec.')
+    public function workingTime($suff = ' ms.')
     {
-        $diff = round(microtime(TRUE) - $this->dynamic['time_pre'], 3);
+        $diff = round(microtime(TRUE) - $this->dynamic['time_pre'], 3) * 1000;
         return $diff . $suff;
     }
 

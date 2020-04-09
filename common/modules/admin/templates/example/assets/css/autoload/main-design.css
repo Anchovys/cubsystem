@@ -46,12 +46,12 @@ table {
 */
 
 .mm__page
-{background: #fff;border: 1px solid #ccc;}
+{background: #f9f9f9;border: 1px solid #ccc;}
 
 .mm__page_content
 {
     padding: 10px;
-    border-bottom: 1px solid;
+    /* border-bottom: 1px solid; */
 }
 
 .mm__page_info
@@ -86,7 +86,7 @@ ul.mm__page_info_list li
 ul.mm__page_info_list > li:before
 {
     margin-right: 0.5em;
-    content: 'â—¦';
+    content: '';
 }
 
 /*
@@ -126,7 +126,7 @@ ul.mm__page_info_list > li:before
 .mm__widget_content
 {
     padding: 10px;
-    background: #fff;
+    background: #f9f9f9;
 }
 
 .mm__vertical_menu ul a.mm_menu_item
@@ -189,5 +189,5 @@ body {
     color: #000;
 }
 .mm__vertical_menu ul a.mm_menu_item:hover {
-    background: #f7f7f7;
+    background: #f3f3f3;
 }

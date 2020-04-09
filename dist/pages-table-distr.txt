@@ -1,8 +1,11 @@
 CREATE TABLE `cubsystem`.`pages` ( 
     `id`            SMALLINT    NOT NULL AUTO_INCREMENT,
+    `datetime`      DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `title`         TINYTEXT    NOT NULL,
     `short_text`    TEXT        NOT NULL,
     `full_text`     TEXT        NOT NULL,
+    `meta_desc`     TEXT        NOT NULL,
+    `meta_title`    TINYTEXT    NOT NULL,
     `cut_type`      SMALLINT    NOT NULL,
     `link`          TINYTEXT    NOT NULL,
     `views`         SMALLINT    NOT NULL,

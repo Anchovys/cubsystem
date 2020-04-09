@@ -27,7 +27,7 @@ class cs_cat
     {
         $id = cs_filter($id, 'int');
         if(!$id) return NULL;
-        return self::getBy($id, 'id', $needle);
+        return self::_getBy($id, 'id', $needle);
     }
 
     public static function getListAll($pagination = FALSE, $needle = FALSE, $reverse = FALSE)
@@ -75,10 +75,10 @@ class cs_cat
     {
         $link = cs_filter($link, 'base');
         if(!$link || !is_string($link)) return NULL;
-        return self::getBy($link, 'link', $needle);
+        return self::_getBy($link, 'link', $needle);
     }
 
-    private static function getBy($sel = FALSE, $by = 'id', $needle = FALSE)
+    protected static function _getBy($sel = FALSE, $by = 'id', $needle = FALSE)
     {
         global $CS;
 
@@ -149,21 +149,19 @@ class cs_cat
         if(!$db = $CS->database->getInstance())
             die('[blog] Can`t connect to database');
 
-        /*
         $cats = self::getListBy('link', $this->link);
         if($cats !== FALSE && $cats['count'] !== 0)
             return NULL;
-        */
 
-        $data = [
-            'name'          => $this->name,
-            'link'          => $this->link,
-            'description'   => $this->description,
-        ];
+        $data =
+            [
+                'name'          => $db->escape($this->name),
+                'link'          => $db->escape($this->link),
+                'description'   => $db->escape($this->description),
+            ];
 
         // function returned current cat id
         $id = $db->insert('categories', $data);
-
 
         // get user from database
         return is_int($id) ? self::getById($id) : NULL;

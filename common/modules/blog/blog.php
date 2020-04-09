@@ -68,12 +68,12 @@ class blog_module extends cs_module
         if(!isset($segments[2]))
             return;
 
-        if($segments[2] === 'page_edit') {
+        if($segments[2] === 'page_edit')
+        {
             if (!isset($_POST['page-id']) || !isset($_POST['title']) || !isset($_POST['tag']) ||
-            !isset($_POST['content']) || !isset($_POST['link'])  || !isset($_POST['author-id']) ) {
-
+            !isset($_POST['content']) || !isset($_POST['link'])  || !isset($_POST['author-id']) )
+            {
                 return;
-
             }
 
             $data = [];
@@ -114,6 +114,7 @@ class blog_module extends cs_module
             } else // без разбивки
             {
                 $data['full_text'] = $data['short_text'] = $content;
+                $data['cut_type'] = 0;
             }
 
             // автор
@@ -143,6 +144,18 @@ class blog_module extends cs_module
             //категория
             $cat = isset($_POST['category']) && is_array($_POST['category']) ? $_POST['category'] : [];
             $data['cat_ids'] = $cat;
+
+            // мета данные
+
+            // титул
+            $meta_title = cs_filter($_POST['meta_title']);
+            $meta_title = $meta_title ? $meta_title : '';
+            $data['meta_title'] = $meta_title;
+
+            // описание
+            $meta_desc = cs_filter($_POST['meta_description']);
+            $meta_desc = $meta_desc ? $meta_desc : '';
+            $data['meta_desc'] = $meta_desc;
 
             // создадим экземпляр страницы
             $page = new cs_page($data);
@@ -179,16 +192,36 @@ class blog_module extends cs_module
         }
         else if($segments[2] === 'add_cat')
         {
-            if(!isset($_POST['name']) || !isset($_POST['link']) || !isset($_POST['descr']))
+            if(!isset($_POST['name']) || !isset($_POST['descr']))
             {
                 return;
             }
 
-            $data = [
+            $data = [];
+
+            // название
+            $name = cs_filter($_POST['name']);
+            $name = $name ? $name : 'no-title';
+            $data['name'] = $name;
+
+            // ссылка
+            $link = $_POST['link'];
+            $link = $link ? $link : cs_filter($name, 'transliterate;');
+            $link = cs_filter($link, 'to_lower;spaces;special_string');
+            $data['link'] = $link;
+
+            // описание
+            $link = $_POST['link'];
+            $link = $link ? $link : cs_filter($name, 'transliterate;');
+            $link = cs_filter($link, 'to_lower;spaces;special_string');
+            $data['link'] = $link;
+
+            $data =
+                [
                 'name'           => cs_filter($_POST['name']),
                 'link'           => cs_filter($_POST['link']),
                 'description'    => cs_filter($_POST['descr'])
-            ];
+                ];
 
             $cat = new cs_cat($data);
             $obj = $cat->insert();
@@ -204,21 +237,57 @@ class blog_module extends cs_module
         switch(isset($segments[0]) ? $segments[0] : '')
         {
             case 'page': // first segment = page
-                $page = $this->displayPages(cs_page::getByLink($page_link = $segments[1]), 'blog/full-page_view');
+                $page = $this->_displayPages(cs_page::getByLink($page_link = $segments[1]), 'blog/full-page_view');
                 $CS->template->setBuffer('body', $page, FALSE);
                 break;
 
             case 'tag': // first segment = tag
-                $page = $this->displayPages(cs_page::getListByTag($page_tag = $segments[1], $CS->template->getPagination(), ['cats', 'id', 'title', 'short_text', 'link', 'tag', 'author', 'views', 'comments'], TRUE), 'blog/short-page_view', FALSE);
+                $page = $this->_displayPages(cs_page::getListByTag($page_tag = $segments[1], $CS->template->getPagination(), ['cats', 'id', 'title', 'short_text', 'link', 'tag', 'author', 'views', 'comments'], TRUE), 'blog/short-page_view', FALSE);
                 $CS->template->setBuffer('body', $page, FALSE);
                 $CS->template->setMeta([
                     'title' => "Tag: {$page_tag}",
                     'description' => "Here you can see all page with tag: {$page_tag}"
                 ]);
                 break;
-            case 'cat': // first segment = cat
-                $category = cs_cat::getByLink($cat_link = $segments[1]);
-                $page = $this->displayPages(cs_page::getByCategoryId($category->id, $CS->template->getPagination(), ['cats', 'id', 'title', 'short_text', 'link', 'tag', 'author', 'views', 'comments'], TRUE), 'blog/short-page_view', FALSE);
+            case 'category': // first segment = category
+
+                $start = 1; // с какого индекса начинают идти категории (1)
+                $end   = count($segments) - 1; // и заканчивают
+
+                // если есть пагинация, то кончаться могут другим индексом
+                // тогда конец категорий - это начало пагинаций
+                if($pg = $CS->template->getPagination())
+                {
+                    // указано
+                    if($start_id = $pg->getSegmentStartId())
+                    {
+                        // записываем
+                        $end = $start_id;
+                    }
+                }
+
+                // вырежем список категорий
+                $cat_list = array_slice($segments, $start, $end);
+
+                if(count($cat_list) === 0)
+                    break;
+                //if(count($cat_list) === 1)
+                //{
+                    $category = cs_cat::getByLink($cat_list[0], ['id']);
+                    $page = cs_page::getByCategoryId($category->id, $CS->template->getPagination(), ['cats', 'id', 'title', 'short_text', 'link', 'tag', 'author', 'views', 'comments'], TRUE);
+                //}
+                //else
+                //{
+                //    $ids = [];
+                //    foreach ($cat_list as $cat_link)
+                //    {
+                //        $category = cs_cat::getByLink($cat_link, ['id']);
+                //        $ids[] = $category->id;
+                //    }
+                //    $page = cs_page::getByCategoryIds($ids);
+                //}
+
+                $page = $this->_displayPages($page, 'blog/short-page_view', FALSE);
                 $CS->template->setBuffer('body', $page, FALSE);
                 $CS->template->setMeta([
                     'title' => "Cat: {$category->name}",
@@ -228,7 +297,7 @@ class blog_module extends cs_module
 
             case '':
             case 'home': // first segment = home or empty
-                $page = $this->displayPages(cs_page::getListAll($CS->template->getPagination(), ['cats', 'id', 'title', 'short_text', 'link', 'tag', 'author', 'views', 'comments'], TRUE), 'blog/short-page_view', FALSE);
+                $page = $this->_displayPages(cs_page::getListAll($CS->template->getPagination(), ['cats', 'id', 'title', 'short_text', 'link', 'tag', 'author', 'views', 'comments'], TRUE), 'blog/short-page_view', FALSE);
                 $CS->template->setBuffer('body', $page, FALSE);
                 $CS->template->setMeta([
                     'title' => "Home Page",
@@ -238,10 +307,11 @@ class blog_module extends cs_module
         }
     }
 
-    private function displayPages($pages, $view_name = 'blog/short-page_view', $set_meta = TRUE)
+    protected function _displayPages($pages, $view_name = 'blog/short-page_view', $set_meta = TRUE)
     {
         global $CS;
         $content = '';
+
         if(!isset($pages['count']) || $pages['count'] === 0)
         {
             return false;

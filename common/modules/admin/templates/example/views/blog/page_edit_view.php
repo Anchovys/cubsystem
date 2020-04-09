@@ -66,13 +66,13 @@ if($id = cs_get_segment(2))
                             {
                                 $checked = (isset($page) and in_array($cat->id, $page->cat_ids)) ? 'checked=""' : '';
                                 print "<input type='checkbox' id='cat_{$cat->id}' name='category[]' value='{$cat->id}' style='width: auto;' {$checked}>";
-                                print "<label for='cat{$cat->id}'>{$cat->name}</label>";
+                                print "<label for='cat_{$cat->id}'>{$cat->name}</label>";
                             }
                         else print 'нет ни одной категории.';
                             ?>
                 </label><hr>
                 <label>
-                    <input type="text" required name="author-id" placeholder="Article author" value="<?= isset($page) ? ($page->author_id) : ''; ?>">
+                    <input type="text" name="author-id" placeholder="Article author" value="<?= isset($page) ? ($page->author_id) : ''; ?>">
                 </label><hr>
                 <label>
                     <input type="text" name="link" placeholder="Article link" value="<?= isset($page) ? ($page->link) : ''; ?>">
@@ -80,6 +80,15 @@ if($id = cs_get_segment(2))
                 <label>
                     <input type="text" required name="tag" placeholder="Article tag" value="<?= isset($page) ? ($page->tag) : ''; ?>">
                 </label><hr>
+
+                <label>
+                    <input type="text" name="meta_title" placeholder="Meta title" value="<?= isset($page) ? ($page->meta['title']) : ''; ?>">
+                </label><hr>
+
+                <label>
+                    <textarea name="meta_description" rows="10" placeholder="Meta description"><?= isset($page) ? ($page->meta['desc']) : ''; ?></textarea>
+                </label><hr>
+
                 <button name="send"><?= !isset($page) ? 'Добавить' : 'Отредактировать' ?> </button>
             </form>
             <? if(isset($page)):?>

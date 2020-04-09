@@ -18,12 +18,12 @@
 
 class cs_user
 {
-    public  $id          = NULL;
-    public  $name        = NULL;
-    public  $email       = NULL;
-    private $faction     = 0;
-    private $password    = NULL;
-    private $salt        = NULL;
+    public      $id          = NULL;
+    public      $name        = NULL;
+    public      $email       = NULL;
+    protected   $_faction     = 0;
+    protected   $_password    = NULL;
+    protected   $_salt        = NULL;
 
     function __construct($data = [], $needle = FALSE)
     {
@@ -37,33 +37,33 @@ class cs_user
             if (isset($data['email']) && (!$needle || in_array('email', $needle)))
                 $this->email = (string)$data['email'];
             if (isset($data['faction']) && (!$needle || in_array('faction', $needle)))
-                $this->faction = (int)$data['faction'];
+                $this->_faction = (int)$data['faction'];
             if (isset($data['salt']) && (!$needle || in_array('salt', $needle)))
-                $this->salt = (string)$data['salt'];
+                $this->_salt = (string)$data['salt'];
             if (isset($data['password']) && (!$needle || in_array('password', $needle)))
-                $this->password = (string)$data['password'];
+                $this->_password = (string)$data['password'];
         }
     }
 
     public static function getById($id = FALSE, $needle = FALSE)
     {
         $id = cs_filter($id, 'int');
-        return ($id) ? self::getBy($id, 'id', $needle) : NULL;
+        return ($id) ? self::_getBy($id, 'id', $needle) : NULL;
     }
 
     public static function getByUsername($username = FALSE, $needle = FALSE)
     {
         $username = cs_filter($username, 'username');
-        return ($username) ? self::getBy($username, 'name', $needle) : NULL;
+        return ($username) ? self::_getBy($username, 'name', $needle) : NULL;
     }
 
     public static function getByEmail($email = FALSE)
     {
         $email = (string)$email;
-        return ($email) ? self::getBy($email, 'email') : NULL;
+        return ($email) ? self::_getBy($email, 'email') : NULL;
     }
 
-    private static function getBy($property = '', $selector = '', $needle = FALSE)
+    protected static function _getBy($property = '', $selector = '', $needle = FALSE)
     {
         if (!$selector || !is_string($selector) || !$property)
             return NULL;
@@ -80,24 +80,24 @@ class cs_user
         return NULL;
     }
 
-    private function makePasswordHash($password)
+    protected function _makePasswordHash($password)
     {
-        return cs_hash_str($password . $this->salt, TRUE);
+        return cs_hash_str($password . $this->_salt, TRUE);
     }
 
     public function checkPassword($password)
     {
-        return $this->makePasswordHash($password) === $this->password;
+        return $this->_makePasswordHash($password) === $this->_password;
     }
 
     public function isAdmin()
     {
-        return $this->faction === 1;
+        return $this->_faction === 1;
     }
 
     public function getFaction()
     {
-        return $this->faction;
+        return $this->_faction;
     }
 
     public function insert()
@@ -108,15 +108,16 @@ class cs_user
             die('[auth] Can`t connect to database');
 
         // generate random salt
-        $this->salt = cs_rnd_str(16);
+        $this->_salt = cs_rnd_str(16);
 
-        $data = [
-            'name'      => $this->name,
-            'email'     => $this->email,
-            'faction'   => $this->faction,
-            'password'  => $this->makePasswordHash($this->password),
-            'salt'      => $this->salt
-        ];
+        $data =
+            [
+                'name'      => $db->escape($this->name),
+                'email'     => $db->escape($this->email),
+                'faction'   => $db->escape($this->_faction),
+                'password'  => $this->_makePasswordHash($this->_password),
+                'salt'      => $db->escape($this->_salt)
+            ];
 
         // function returned current user id
         $id = $db->insert('users', $data);

@@ -31,7 +31,7 @@ class auth_module extends cs_module
         require_once($this->fullpath . 'objects' . _DS . 'user.php');
 
         // detect current logged user by session
-        $this->currentUser = $this->getCurrentUser();
+        $this->currentUser = $this->_getCurrentUser();
 
         if($h = $CS->gc('hooks_helper', 'helpers'))
             $h->register('cs__pre-template_hook', 'view', $this);
@@ -89,7 +89,7 @@ class auth_module extends cs_module
         }
     }
 
-    private function authHandler($segments)
+    protected function authHandler($segments)
     {
         ///////////////////////////////////////////////////////////////
         ///// Обработка оболочки. Сюда должен приходить AJAX/POST /////
@@ -106,9 +106,9 @@ class auth_module extends cs_module
             $password        = cs_filter($_POST['password']);
 
             if(!$usernameOrEmail && !$password)
-                return $this->setError('no-data', TRUE);
+                return $this->_setError('no-data', TRUE);
 
-            $msg = $this->sentResponse($this->auth($usernameOrEmail, $password));
+            $msg = $this->_sentResponse($this->_auth($usernameOrEmail, $password));
 
         } elseif($action === 'register')
         {
@@ -117,16 +117,16 @@ class auth_module extends cs_module
             $email    = cs_filter($_POST['email'], 'base;email');
 
             if(!$username && !$password)
-                return $this->setError('no-data', TRUE);
+                return $this->_setError('no-data', TRUE);
 
             if(!$email)
-                return $this->setError('wrong email', TRUE);
+                return $this->_setError('wrong email', TRUE);
 
-            $msg = $this->sentResponse($this->register($username, $password, $email));
+            $msg = $this->_sentResponse($this->_register($username, $password, $email));
         }
         elseif($action == 'logout')
         {
-            $this->sentResponse($this->purgeSession());
+            $this->_sentResponse($this->_purgeSession());
             cs_redir('', TRUE);
         }
 
@@ -146,7 +146,7 @@ class auth_module extends cs_module
         return $this->currentUser !== FALSE;
     }
 
-    private function auth($usernameOrEmail, $password)
+    protected function _auth($usernameOrEmail, $password)
     {
         // проверка что пришло: юзернейм или емейл
         if(cs_filter($usernameOrEmail, 'email'))
@@ -163,15 +163,15 @@ class auth_module extends cs_module
             $user = cs_user::getByEmail($email);
 
         if($user === NULL || !$password || !$user->checkPassword($password))
-            return $this->setError('incorrect');
+            return $this->_setError('incorrect');
 
-        return $this->makeSession($user->id);
+        return $this->_makeSession($user->id);
     }
 
-    private function register($username, $password, $email)
+    protected function _register($username, $password, $email)
     {
         if(!$username || !$password || !$email)
-            return $this->setError('data?');
+            return $this->_setError('data?');
 
         $user = new cs_user (
             [
@@ -185,27 +185,27 @@ class auth_module extends cs_module
         // check user not exits in table
         if(cs_user::getByUsername($user->name,['id']) !== NULL ||
            cs_user::getByEmail($user->email,['id']) !== NULL)
-            return $this->setError('user-exists');
+            return $this->_setError('user-exists');
 
         // пробуем вставить данные
         $user = $user->insert();
 
         //не удалось
         if($user === NULL)
-            return $this->setError('failed-registration');
+            return $this->_setError('failed-registration');
 
-        return $this->makeSession($user->id);
+        return $this->_makeSession($user->id);
     }
 
-    private function purgeSession()
+    protected function _purgeSession()
     {
         if($this->currentUser === NULL) // already dont have session
-            return $this->setError('no-login');
+            return $this->_setError('no-login');
 
         global $CS;
         $session = $CS->session;
         if(!$session)
-            $this->setError();
+            $this->_setError();
 
         return $session->purge('auth_uid') &&
                $session->purge('auth_uua') &&
@@ -213,16 +213,16 @@ class auth_module extends cs_module
     }
 
 
-    private function makeSession($id)
+    protected function _makeSession($id)
     {
         if($this->currentUser !== NULL) // already have session
-            return $this->setError('already-login');
+            return $this->_setError('already-login');
 
         global $CS;
 
         $session = $CS->session;
         if(!$session || !$id)
-            $this->setError();
+            $this->_setError();
 
         $id = intval($id);
 
@@ -231,7 +231,7 @@ class auth_module extends cs_module
                $session->push('auth_uip', cs_hash_str($_SERVER['REMOTE_ADDR']));
     }
 
-    private function getCurrentUser() // get current logged user from session
+    protected function _getCurrentUser() // get current logged user from session
     {
         global $CS;
 
@@ -239,7 +239,7 @@ class auth_module extends cs_module
         $session    = $CS->session;
 
         if(!$db || !$session)
-            $this->setError();
+            $this->_setError();
 
         $u_id = $session->get('auth_uid');
         $u_id = cs_filter($u_id, 'int');
@@ -259,16 +259,16 @@ class auth_module extends cs_module
         return NULL;
     }
 
-    private function setError($error = 'system', $die = TRUE)
+    protected function _setError($error = 'system', $die = TRUE)
     {
         $this->errors[] = cs_filter($error, 'string;spaces');
 
         if($die === TRUE)
-            die($this->sentResponse(FALSE));
+            die($this->_sentResponse(FALSE));
         else return FALSE;
     }
 
-    private function sentResponse($status = FALSE)
+    protected function _sentResponse($status = FALSE)
     {
         return json_encode([
             'status' => $status ? 1 : 0,

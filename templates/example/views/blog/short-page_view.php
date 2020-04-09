@@ -15,7 +15,7 @@
         </ul>
         <ul class="mm__page_info_list">
             <li>Категория: {% if($__data['page']->cats) foreach($__data['page']->cats as $cat)
-                print ('<a href="'.cs_abs_url('cat/' . $cat->link , '/').'">' . $cat->name . '</a> '); else print 'нет'; %}
+                print ('<a href="'.cs_abs_url('category/' . $cat->link , '/').'">' . $cat->name . '</a> '); else print 'нет'; %}
              </li>
         </ul>
     </div>

@@ -94,8 +94,10 @@ class cs_page
             // meta data
             if (!$needle || in_array('meta', $needle))
             {
-                if (isset($data['title']))      $this->meta['title']   = (string)$data['title'];
-                if (isset($data['context']))    $this->meta['context'] = (string)$data['title'];
+                $this->meta['title'] = isset($data['meta_title']) && $data['meta_title'] ? (string)$data['meta_title'] :
+                    isset($data['title']) && $data['title'] ? (string)$data['title'] : '';
+
+                $this->meta['description'] = isset($data['meta_desc']) ? (string)$data['meta_desc'] : '';
             }
         }
     }
@@ -104,17 +106,17 @@ class cs_page
     {
         $id = cs_filter($id, 'int');
         if(!$id) return NULL;
-        return self::getBy($id, 'id');
+        return self::_getBy($id, 'id');
     }
 
     public static function getByLink($link = FALSE)
     {
         $link = cs_filter($link, 'base');
         if(!$link || !is_string($link)) return NULL;
-        return self::getBy($link, 'link');
+        return self::_getBy($link, 'link');
     }
 
-    private static function getBy($sel = FALSE, $by = 'id')
+    protected static function _getBy($sel = FALSE, $by = 'id')
     {
         global $CS;
 
@@ -180,46 +182,108 @@ class cs_page
         if(!$db = $CS->database->getInstance())
             die('[blog] Can`t connect to database');
 
-        $id = cs_filter($id, 'int');
-        if(!$id) return NULL;
+        // фильтруем id
+        if(!$id = cs_filter($id, 'int'))
+        {
+            return NULL;
+        }
 
+        // обратная сортировка (если требуется)
         if($reverse)
+        {
             $db->orderBy('id', 'desc');
+        }
+
         $db->where('cat_id', $id);
 
+        // пагинация отключена
         if($pagination === FALSE)
         {
+            // просто выдергиваем все данные
             if (!$matches = $db->get('cat_pages'))
                 return FALSE;
         }
         else
         {
+            // количество элементов на страницу
             $db->pageLimit = $pagination->getLimit();
+
+            // по пагинации
             if(!$matches = $db->arraybuilder()->paginate("cat_pages", $pagination->getCurrentPage(), ['page_id']))
                 return FALSE;
+
+            // для пагинации ставим общее кол-во элементов
             $pagination->setTotal($db->totalCount);
         }
 
+        // массив с id страниц под вывод
         $page_ids = [];
+
+        // вытаскиваем id страниц
         foreach ($matches as $math)
             $page_ids [] = $math['page_id'];
 
         return self::getByIds($page_ids, FALSE, $needle, FALSE);
     }
 
+    /*
+    public static function getByCategoryIds($ids = [], $pagination = FALSE, $needle = FALSE, $reverse = TRUE)
+    {
+        global $CS;
+
+        // лимит до 3х вложений
+        $ids = array_slice($ids, 0 , 3);
+
+        if(!$db = $CS->database->getInstance())
+            die('[blog] Can`t connect to database');
+
+        $db->where('cat_id', $ids, 'IN');
+
+        // обратная сортировка (если требуется)
+        //if($reverse)
+        //{
+        //    $db->orderBy('page_id', 'desc');
+        //}
+
+        if (!$matches = $db->get('cat_pages'))
+            return FALSE;
+
+        // наполняем массив типа [page_id] => cats[]
+        $matches_n = [];
+        foreach ($matches as $match)
+            $matches_n[$match['page_id']] [] = $match['cat_id'];
+
+        // массив с id страниц под вывод
+        $page_ids = [];
+        foreach ($matches_n as $key=>$item) {
+            $checks = true;
+            foreach ($ids as $id)
+                if (!in_array($id, $item)) {
+                    $checks = false;
+                    return;
+                }
+            if($checks) {
+                $page_ids[] = $key;
+            }
+        }
+
+        return self::getByIds($page_ids, $pagination, $needle, FALSE);
+    }*/
+
+
     public static function getListByTag($tag = FALSE, $pagination = FALSE, $needle = FALSE, $reverse = FALSE)
     {
         $tag = cs_filter($tag, 'base');
         if(!$tag || !is_string($tag)) return NULL;
-        return self::getListBy($tag, 'tag', $pagination, $needle, $reverse);
+        return self::_getListBy($tag, 'tag', $pagination, $needle, $reverse);
     }
 
     public static function getListAll($pagination = FALSE, $needle = FALSE, $reverse = FALSE)
     {
-        return self::getListBy(FALSE, FALSE, $pagination, $needle, $reverse);
+        return self::_getListBy(FALSE, FALSE, $pagination, $needle, $reverse);
     }
 
-    private static function getListBy($sel = FALSE, $by = 'id', $pagination = FALSE, $needle = FALSE, $reverse = FALSE)
+    protected static function _getListBy($sel = FALSE, $by = 'id', $pagination = FALSE, $needle = FALSE, $reverse = FALSE)
     {
         global $CS;
 
@@ -282,16 +346,19 @@ class cs_page
         if(!$db = $CS->database->getInstance())
             die('[blog] Can`t connect to database');
 
-        $data = [
-            'id'            => $this->id,
-            'title'         => $this->title,
-            'tag'           => $this->tag,
-            'author'        => $this->author_id,
-            'link'          => $this->link,
-            'short_text'    => $this->short_text,
-            'full_text'     => $this->full_text,
-            'cut_type'     => $this->cut_type
-        ];
+        $data =
+            [
+                'id'            => $db->escape($this->id),
+                'title'         => $db->escape($this->title),
+                'tag'           => $db->escape($this->tag),
+                'author'        => $db->escape($this->author_id),
+                'link'          => $db->escape($this->link),
+                'short_text'    => $db->escape($this->short_text),
+                'full_text'     => $db->escape($this->full_text),
+                'cut_type'      => $db->escape($this->cut_type),
+                'meta_title'    => $db->escape($this->meta['title']),
+                'meta_desc'     => $db->escape($this->meta['description'])
+            ];
 
         // обновляем данные о странице
         $db->update('pages', $data);
@@ -344,21 +411,24 @@ class cs_page
         if(!$db = $CS->database->getInstance())
             die('[blog] Can`t connect to database');
 
-        $pages = self::getListBy( $this->link, 'link');
+        $pages = self::_getListBy( $this->link, 'link');
         if($pages && $pages['count'] !== 0)
            return NULL;
 
-        $data = [
-            'title'         => $this->title,
-            'tag'           => $this->tag,
-            'comments'      => 0,
-            'views'         => 0,
-            'author'        => $this->author_id,
-            'link'          => $this->link,
-            'short_text'    => $this->short_text,
-            'full_text'     => $this->full_text,
-            'cut_type'      => $this->cut_type
-        ];
+        $data =
+            [
+                'title'         => $db->escape($this->title),
+                'tag'           => $db->escape($this->tag),
+                'author'        => $db->escape($this->author_id),
+                'link'          => $db->escape($this->link),
+                'short_text'    => $db->escape($this->short_text),
+                'full_text'     => $db->escape($this->full_text),
+                'cut_type'      => $db->escape($this->cut_type),
+                'meta_title'    => $db->escape($this->meta['title']),
+                'meta_desc'     => $db->escape($this->meta['description']),
+                'comments'      => 0,
+                'views'         => 0
+            ];
 
         // function returned current page id
         $page_id = $db->insert('pages', $data);

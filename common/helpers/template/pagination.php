@@ -8,6 +8,7 @@ class cs_pagination
     private $maxLinks    = 10;
     private $amount      = 0;
     private $index       = 'next';
+    private $indexSegId  = NULL;
 
     function __construct()
     {
@@ -38,6 +39,11 @@ class cs_pagination
     {
         $to = cs_filter($to, 'int');
         $this->limit = $to >= 1 ? $to : 1;
+    }
+
+    public function getSegmentStartId()
+    {
+        return empty($this->indexSegId) ? FALSE : $this->indexSegId;
     }
 
     public function getTotal()
@@ -74,6 +80,10 @@ class cs_pagination
     {
         // найти количество ссылок
         $this->amount = $this->amount();
+
+        // нечего выводить, уходим
+        if($this->amount == 0)
+            return;
 
         // ссылки пока не созданы
         $links = NULL;
@@ -190,6 +200,9 @@ class cs_pagination
                 $key = cs_filter($segments[$key + 1], 'int');
                 if(!$key) $key = 1;
             }
+
+            // сохраним с какого сегмента идет пагинация
+            $this->indexSegId = $key;
 
             // id страницы больше чем ноль
             if ($key > 0)

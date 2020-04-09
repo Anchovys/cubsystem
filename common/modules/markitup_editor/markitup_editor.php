@@ -5,8 +5,8 @@ class markitup_editor_module extends cs_module
         [
             'name'      => 'Bold',
             'key'       => 'B',
-            'openWith'  => '(!(<strong>|!|<b>)!)',
-            'closeWith' => '(!(</strong>|!|</b>)!)',
+            'openWith'  => '[b]',
+            'closeWith' => '[/b]',
             'className' => 'bold_btn'
         ],
         [
@@ -35,23 +35,20 @@ class markitup_editor_module extends cs_module
         $path = cs_path_to_url($this->fullpath . 'markitup' . _DS);
         ?>
 
-        <script type="text/javascript" src="http://code.jquery.com/jquery-1.8.0.min.js"></script>
+        <script type="text/javascript" src="<?=$path?>/jquery-3.4.1.min.js"></script>
         <script type="text/javascript" src="<?=$path?>/jquery.markitup.js"></script>
 
         <link rel="stylesheet" type="text/css" href="<?=$path?>/sets.css">
         <link rel="stylesheet" type="text/css" href="<?=$path?>/skins/simple/style.css">
 
         <script type="text/javascript">
-
             $(function() {
-
                 $('#editor').markItUp({
                     onShiftEnter: {keepDefault: false, replaceWith: '<br />\n'},
                     onCtrlEnter: {keepDefault: false, openWith: '\n<p>', closeWith: '</p>'},
                     onTab: {keepDefault: false, replaceWith: '    '},
                     markupSet:  <?=json_encode($this->options)?>
                 });
-
             });
         </script>
 
