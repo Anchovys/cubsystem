@@ -1,11 +1,9 @@
 <?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
-if($id = cs_get_segment(2))
-{
-    $page = cs_page::getById(cs_filter($id, 'base;int'));
-    $page = ($page === NULL || $page['count'] === 0) ? NULL : $page['result'];
-}
-?>
 
+// по аргументу передается страница (если есть)
+$page = $__data['page'];
+
+?>
 <script>
     function sendRequest(url, id) {
 
