@@ -48,46 +48,109 @@ class admin_module extends cs_module
         $segments = cs_get_segment();
 
         // nothing to do
-        if(!isset($segments[0] ) || $segments[0] !== 'admin' || !$this->checkUser())
+        if(!isset($segments[0] ) || $segments[0] !== 'admin' || !$this->_checkUser())
             return;
 
         if(isset($segments[1]) && $segments[1] === "admin-ajax")
         {
             // ничего не обработалось из стандартных правил
-            if(!$this->adminHandler($segments))
+            if(!$this->_admin_ajax($segments))
             {
                 // HOOK on
                 if ($h = $CS->gc('hooks_helper', 'helpers'))
                     $h->here('cs__admin-ajax');
             }
-            die();
+
+
+            return;
         }
 
         // поменяем шаблон на шаблон админки
         $tmpl_path = $this->fullpath . 'templates' . _DS . $this->options['template'] . _DS;
         $CS->template->join($tmpl_path, TRUE);
 
-        // HOOK ON load admin
-        if ($h = $CS->gc('hooks_helper', 'helpers'))
-            $h->here('cs__admin-view');
-
-        switch(isset($segments[1]) ? $segments[1] : '')
+        // ничего не обработалось из стандартных правил
+        if(!$this->_admin_view($segments))
         {
-            case '':
-            case 'panel':
-                $CS->template->callbackLoad('', 'admin/info_view', 'body');
-            break;
+            // HOOK ON load admin
+            if ($h = $CS->gc('hooks_helper', 'helpers'))
+                $h->here('cs__admin-view');
         }
     }
 
-    private function adminHandler($segments)
+    private function _admin_ajax($segments)
     {
-        // ничего не обработано, вернем false
-        return false;
+        if($segments[2] === 'upload-file')
+        {
+            define("UPLOADPATH", CS__BASEPATH . 'uploads');
+
+            $file = $_FILES['file'];
+
+            if(!isset($_FILES) || !array_key_exists('file', $_FILES))
+                return;
+
+            $file_name = $file['name'];
+            $file_type = $file['type'];
+            $file_size = $file['size'];
+            $tmp_name  = $file['tmp_name'];
+            $tar_name  = basename($file['name']);
+
+            // allow image types
+            $allow = [
+                'jpg'   => 'image/jpg',
+                'jpeg'  => 'image/jpeg',
+                'gif'   => 'image/gif',
+                'png'   => 'image/png'
+            ];
+
+            // check file type
+            if(!array_key_exists(cs_file_ext($file_name), $allow) || !in_array($file_type, $allow))
+                die("Incorrect format, allow: jpg/jpeg; gif; png only!");
+
+            // 1 mb max
+            if($file_size > 1 * 1024 * 1024)
+                die("1MB filesize - max");
+
+            if(!file_exists(CS_UPLOADSPATH) || !is_dir(CS_UPLOADSPATH))
+            {
+                mkdir(CS_UPLOADSPATH, 0777) or die('Can`t make /uploads/ path');
+                //chmod('CS_UPLOADSPATH', 0777);
+            }
+
+            if(file_exists(CS_UPLOADSPATH . $tar_name))
+                die('Already exists');
+
+            $res = move_uploaded_file($tmp_name, CS_UPLOADSPATH . $tar_name);
+
+            die($res ? 'Ok':'Fail');
+
+            return TRUE;
+        }
+
+        return FALSE;
     }
 
+    private function  _admin_view($segments)
+    {
+        global $CS;
+        $segments[1] = (isset($segments[1]) ? $segments[1] : '' );
+
+        if($segments[1] === '' or $segments[1] === 'panel')
+        {
+            $CS->template->callbackLoad('', 'admin/info_view', 'body');
+            return TRUE;
+        } elseif ($segments[1] === 'uploads')
+        {
+            $CS->template->callbackLoad('', 'admin/uploads_view', 'body');
+            return TRUE;
+        }
+
+        return FALSE;
+    }
+
+
     // check is admin user and logged-in
-    private function checkUser()
+    private function _checkUser()
     {
         global $CS;
 

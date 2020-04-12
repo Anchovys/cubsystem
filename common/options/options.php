@@ -48,12 +48,13 @@ define("CS__CFG",
     // lot of helpers for load firstly
     'helpers-priority' =>
     [
-        'debugging',    // first
+        'debugging',     // first
         'filters',       // second
-        'url',          // ... etc
+        'url',           // ... etc
         'sessions',
         'mysqli_db',
         'hooks',
+        'uploads',
         'loader',
         'pagination',
         'template'
@@ -66,9 +67,9 @@ define("CS__CFG",
     'modules'   =>
     [
         'auth',
-        'markitup_editor',
         'admin',
-        'blog'
+        'blog',
+        'markitup_editor'
     ],
 
     // enable hook system

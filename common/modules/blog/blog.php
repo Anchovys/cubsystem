@@ -68,6 +68,7 @@ class blog_module extends cs_module
     {
         require_once ($this->fullpath . 'blog_ajax.php');
         __ajax();
+
     }
 
     public function view()

@@ -22,6 +22,7 @@ $page = $__data['page'];
 
         request.send(new FormData(form));
     }
+
 </script>
 <div class="mm__page">
     <div class="mm__page_title">
