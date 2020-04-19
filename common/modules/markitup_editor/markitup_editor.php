@@ -11,9 +11,16 @@ class markitup_editor_module extends cs_module
         ],
         [
             'name'      => 'Cut',
-            'key'       => 'C',
-            'openWith'  => '[x]',
-            'className' => 'cut_btn'
+            'openWith'  => '[cut]',
+            'className' => 'cut_btn',
+            'dropMenu'  =>
+                [
+                        [
+                            'name'      => 'XCut',
+                            'openWith'  => '[xcut]',
+                            'className' => 'cut_btn',
+                        ]
+                ]
         ]
     ];
     function __construct()
