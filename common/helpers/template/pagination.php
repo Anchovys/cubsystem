@@ -1,5 +1,18 @@
 <?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
 
+/*
+| -------------------------------------------------------------------------
+| pagination.php, Назначение: постраничная навигация
+| Файл подключается в template.php, в зависимости от настроек шаблона
+| -------------------------------------------------------------------------
+|
+@
+@   Cubsystem CMS, (с) 2020
+@   Author: Anchovy
+@   GitHub: //github.com/Anchovys/cubsystem
+@
+*/
+
 class cs_pagination
 {
     private $currentPage = 1;
@@ -82,7 +95,7 @@ class cs_pagination
         $this->amount = $this->amount();
 
         // нечего выводить, уходим
-        if($this->amount == 0)
+        if($this->amount == 0 || $this->total < $this->limit)
             return;
 
         // ссылки пока не созданы
