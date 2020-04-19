@@ -81,5 +81,3 @@ function _pr($var, $html = false, $echo = true)
 	pr($var, $html, $echo);
 	die();
 }
-
-?>

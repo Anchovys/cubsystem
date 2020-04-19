@@ -55,4 +55,3 @@ function cs_load_one_helper($helper, $path = CS_COMMONPATH . 'helpers' . _DS, $s
 
     return new $helper();
 }
-?>

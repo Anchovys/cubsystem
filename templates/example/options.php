@@ -56,5 +56,3 @@ $this->options['pagination']['index'] = 'next';
 // сколько ссылок пагинации создавать, если 0,
 // будут созданы только две ссылки - вперед / назад
 $this->options['pagination']['max_links'] = 10;
-
-?>

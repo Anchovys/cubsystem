@@ -280,4 +280,3 @@ class auth_module extends cs_module
         ]);
     }
 }
-?>

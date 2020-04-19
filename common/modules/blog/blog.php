@@ -118,4 +118,3 @@ class blog_module extends cs_module
         return $content;
     }
 }
-?>

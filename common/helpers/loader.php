@@ -139,4 +139,3 @@ class loader_helper {
         return false;
     }
 }
-?>

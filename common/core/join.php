@@ -15,4 +15,3 @@ require_once(CS_CORELIBPATH . 'cubsystem.php');
 global $CS;
 if(!isset($CS) && $CS = Cubsystem::getInstance())
     $CS->init();
-?>

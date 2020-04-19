@@ -20,5 +20,3 @@ $template_info =
     'description'   => 'A example template',
     'author'        => 'Anchovy'
 ];
-
-?>

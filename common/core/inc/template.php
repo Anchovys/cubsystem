@@ -94,4 +94,3 @@ function csReturnOutput($file, $__data = '', $custom = FALSE)
 
     return ob_get_clean();
 }
-?>

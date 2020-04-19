@@ -19,5 +19,3 @@ $template_info =
     'description'   => 'A admin panel template',
     'author'        => 'Anchovy'
 ];
-
-?>

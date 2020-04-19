@@ -16,5 +16,3 @@ $options = [
     'admin_segment' => 'admin',
     'template'      => 'example'
 ];
-
-?>

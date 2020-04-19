@@ -162,4 +162,3 @@ class admin_module extends cs_module
         return $user !== NULL && $user->isAdmin();
     }
 }
-?>

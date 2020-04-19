@@ -25,4 +25,3 @@ function cs_rnd_str($length = 10, $numbers = TRUE, $upper = TRUE, $special = FAL
 
     return $string;
 }
-?>

@@ -230,4 +230,3 @@ class template_helper
                 }
     }
 }
-?>

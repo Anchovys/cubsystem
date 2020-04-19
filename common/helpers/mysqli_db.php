@@ -2518,5 +2518,3 @@ class mysqli_db_helper
         }
     }
 }
-// END class\
-?>

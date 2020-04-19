@@ -453,4 +453,3 @@ class cs_page
         return self::getById($page_id);
     }
 }
-?>

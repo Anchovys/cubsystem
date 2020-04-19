@@ -28,4 +28,3 @@ function onload_template()
     // generate totally buffer, with put data in main view
     $template->setBuffer('body', $html, FALSE);
 }
-?>

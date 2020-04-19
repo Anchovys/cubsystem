@@ -167,4 +167,3 @@ class cs_cat
         return is_int($id) ? self::getById($id) : NULL;
     }
 }
-?>

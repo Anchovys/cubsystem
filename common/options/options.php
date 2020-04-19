@@ -75,5 +75,3 @@ define("CS__CFG",
     // enable hook system
     'enable_hooks' => TRUE
 ]);
-
-?>

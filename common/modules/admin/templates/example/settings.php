@@ -42,5 +42,3 @@ $template_settings =
     // для всех компонентов шаблона
     'tmpl_prepare'          => TRUE,
 ];
-
-?>

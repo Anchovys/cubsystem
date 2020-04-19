@@ -14,5 +14,3 @@ define('CS_CORELIBPATH',   CS_COREPATH   . 'lib'     . _DS);
 // ядро системы
 if(file_exists($f = CS_COREPATH . 'join.php'))
     require_once($f);
-
-?>

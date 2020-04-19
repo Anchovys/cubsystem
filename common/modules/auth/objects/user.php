@@ -126,4 +126,3 @@ class cs_user
         return is_int($id) ? self::getById($id) : NULL;
     }
 }
-?>
