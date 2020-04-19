@@ -191,7 +191,7 @@ class cs_pagination
 
     private function amount()
     {
-        return round($this->total / $this->limit);
+        return ceil($this->total / $this->limit);
     }
 
     /**
