@@ -19,6 +19,7 @@ class cs_page
 {
     public $id          = NULL;
     public $title       = NULL;
+    public $date        = NULL;
     public $tag         = NULL;
     public $cats        = NULL;
     public $cat_ids     = NULL;
@@ -53,6 +54,8 @@ class cs_page
                 $this->short_text = (string)$data['short_text'];
             if (isset($data['full_text']) && (!$needle || in_array('full_text', $needle)))
                 $this->full_text = (string)$data['full_text'];
+            if (isset($data['datetime']) && (!$needle || in_array('date', $needle)))
+                $this->date = (string)$data['datetime'];
             if (isset($data['cut_type']) && (!$needle || in_array('cut_type', $needle)))
                 $this->cut_type = (int)$data['cut_type'];
             if (isset($data['author']) && (!$needle || in_array('author', $needle)))

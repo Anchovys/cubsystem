@@ -225,4 +225,3 @@ class cs_pagination
         return (int)$currentPage;
     }
 }
-?>
