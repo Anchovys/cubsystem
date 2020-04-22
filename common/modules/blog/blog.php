@@ -24,6 +24,8 @@ class blog_module extends cs_module
         $this->version = "4";
         $this->fullpath = CS_MODULESCPATH . 'blog' . _DS;
 
+        require_once($this->fullpath . 'xss_feed.php');
+
         require_once($this->fullpath . 'objects' . _DS . 'category.php');
         require_once($this->fullpath . 'objects' . _DS . 'page.php');
 
@@ -73,13 +75,16 @@ class blog_module extends cs_module
 
     public function view()
     {
-        if(cs_get_segment(0) === 'home' || !cs_get_segment(0))
+        $segment = cs_get_segment(0);
+        $segment = $segment ? $segment : 'home';
+
+        if($segment === 'home' || xss_feed_check())
             require_once ($this->fullpath . 'view' . _DS . 'home.php');
-        elseif (cs_get_segment(0) === 'category')
+        elseif ($segment === 'category')
             require_once ($this->fullpath . 'view' . _DS . 'category.php');
-        elseif (cs_get_segment(0) === 'tag')
+        elseif ($segment === 'tag')
             require_once ($this->fullpath . 'view' . _DS . 'tag.php');
-        elseif (cs_get_segment(0) === 'page')
+        elseif ($segment === 'page')
             require_once ($this->fullpath . 'view' . _DS . 'page.php');
     }
 

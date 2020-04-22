@@ -37,6 +37,10 @@ if($page_link = cs_get_segment(1)) {
 
     $page = cs_page::getListByTag($page_tag = $segments[1], $pagination, $needle, TRUE);
 
+    // вывод xss ленты (если есть подходящий адрес)
+    if(function_exists('xss_feed_check') && xss_feed_check())
+        die(xss_feed_display($result));
+
     $buffer = $this->_displayPages($page, 'blog/short-page_view', FALSE);
 
 

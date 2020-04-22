@@ -34,6 +34,10 @@ $pagination = $CS->template->getPagination();
 // выборка страниц
 $result = cs_page::getListAll($pagination, $needle, TRUE);
 
+// вывод xss ленты (если есть подходящий адрес)
+if(function_exists('xss_feed_check') && xss_feed_check())
+    die(xss_feed_display($result));
+
 // соберем буфер
 $buffer = $this->_displayPages($result, 'blog/short-page_view');
 
