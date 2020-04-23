@@ -7,35 +7,52 @@ class cs_cat
     public $link        = NULL;
     public $description = NULL;
 
-    function __construct($data = [], $needle = FALSE)
+    function __construct(array $data = NULL, array $needle = NULL)
     {
-        if(is_array($data))
-        {
-            // all basic data
-            if (isset($data['id']) && (!$needle || in_array('id', $needle)))
-                $this->id = (int)$data['id'];
-            if (isset($data['name']) && (!$needle || in_array('name', $needle)))
-                $this->name = (string)$data['name'];
-            if (isset($data['link']) && (!$needle || in_array('link', $needle)))
-                $this->link = (string)$data['link'];
-            if (isset($data['description']) && (!$needle || in_array('description', $needle)))
-                $this->description = (string)$data['description'];
-        }
+        if(!$data) return;
+
+        // all basic data
+        if (isset($data['id']) && (!$needle || in_array('id', $needle)))
+            $this->id = (int)$data['id'];
+        if (isset($data['name']) && (!$needle || in_array('name', $needle)))
+            $this->name = (string)$data['name'];
+        if (isset($data['link']) && (!$needle || in_array('link', $needle)))
+            $this->link = (string)$data['link'];
+        if (isset($data['description']) && (!$needle || in_array('description', $needle)))
+            $this->description = (string)$data['description'];
     }
 
-    public static function getById($id = FALSE, $needle = FALSE)
+    protected static function _getBy($sel = FALSE, ?string $by = 'id', array $needle = NULL)
     {
-        $id = cs_filter($id, 'int');
+        global $CS;
+
+        if(!$by || !$sel) return NULL;
+
+        if(!$db = $CS->database->getInstance())
+            die('[blog] Can`t connect to database');
+
+        $db->where($db->escape($by), $db->escape($sel));
+
+        if($data = $db->getOne('categories', $needle))
+            return new cs_cat($data, $needle);
+
+        return NULL;
+    }
+
+    public static function getById(?int $id, array $needle = NULL)
+    {
         if(!$id) return NULL;
+        $id = cs_filter($id, 'int');
+
         return self::_getBy($id, 'id', $needle);
     }
 
-    public static function getListAll($pagination = FALSE, $needle = FALSE, $reverse = FALSE)
+    public static function getListAll(cs_pagination $pagination = NULL, array $needle = NULL, $reverse = FALSE)
     {
         return self::getListBy(FALSE, FALSE, $pagination, $needle, $reverse);
     }
 
-    public static function getListBy($sel = FALSE, $by = 'id', $pagination = FALSE, $needle = FALSE, $reverse = FALSE)
+    public static function getListBy($sel = FALSE, ?string $by = 'id', cs_pagination $pagination = NULL, array $needle = NULL, $reverse = FALSE)
     {
         global $CS;
 
@@ -45,9 +62,9 @@ class cs_cat
         if($reverse)
             $db->orderBy('id', 'desc');
         if($by && is_string($by) && $sel)
-            $db->where($by, $sel);
+            $db->where($db->escape($by), $db->escape($sel));
 
-        if($pagination === FALSE)
+        if(!$pagination)
         {
             if(!$objects = $db->get('categories'))
                 return NULL;
@@ -71,31 +88,14 @@ class cs_cat
             ];
     }
 
-    public static function getByLink($link = FALSE, $needle = FALSE)
+    public static function getByLink(?string $link = NULL, array $needle = NULL)
     {
         $link = cs_filter($link, 'base');
         if(!$link || !is_string($link)) return NULL;
         return self::_getBy($link, 'link', $needle);
     }
 
-    protected static function _getBy($sel = FALSE, $by = 'id', $needle = FALSE)
-    {
-        global $CS;
-
-        if(!$by || !$sel) return NULL;
-
-        if(!$db = $CS->database->getInstance())
-            die('[blog] Can`t connect to database');
-
-        $db->where($by, $sel);
-
-        if($data = $db->getOne('categories', $needle))
-            return new cs_cat($data, $needle);
-
-        return NULL;
-    }
-
-    public static function getByPageId($id = FALSE, $needle = FALSE)
+    public static function getByPageId(? int $id = NULL, array $needle = NULL)
     {
         global $CS;
 
@@ -117,7 +117,7 @@ class cs_cat
         else return NULL;
     }
 
-    public static function getByIds($ids = [], $needle = FALSE)
+    public static function getByIds(array $ids = NULL, array $needle = NULL)
     {
         global $CS;
 
