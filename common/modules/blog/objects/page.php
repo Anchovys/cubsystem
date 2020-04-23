@@ -156,7 +156,7 @@ class cs_page
         return self::_getBy($link, 'link');
     }
 
-    public static function getByIds(array $ids = NULL, cs_pagination $pagination = NULL, array $needle = NULL, $reverse = FALSE)
+    public static function getByIds(?array $ids = NULL, cs_pagination $pagination = NULL, array $needle = NULL, $reverse = FALSE)
     {
         global $CS;
 
@@ -242,7 +242,7 @@ class cs_page
         foreach ($matches as $math)
             $page_ids [] = $math['page_id'];
 
-        return self::getByIds($page_ids, FALSE, $needle, FALSE);
+        return self::getByIds($page_ids, NULL, $needle, FALSE);
     }
 
     /*

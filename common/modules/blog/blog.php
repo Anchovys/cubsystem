@@ -81,7 +81,7 @@ class blog_module extends cs_module
         $segments = cs_get_segment();
 
         // rss ok
-        if($segments[count($segments) - 1] == 'feed')
+        if(count($segments) > 0 && $segments[count($segments) - 1] == 'feed')
         {
             $this->rssFeedShow = true;
             unset($segments[count($segments) - 1]);
