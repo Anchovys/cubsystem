@@ -59,9 +59,9 @@ if(count($cat_list) === 0)
 $category = cs_cat::getByLink($cat_list[0], ['id']);
 $result = cs_page::getByCategoryId($category->id, $pagination, $needle, $reverse);
 
-// вывод xss ленты (если есть подходящий адрес)
-if(function_exists('xss_feed_check') && xss_feed_check())
-    die(xss_feed_display($result));
+// вывод RSS ленты по выборке
+if($this->rssFeedShow)
+    die(rss_feed_display($result));
 
 //}
 //else

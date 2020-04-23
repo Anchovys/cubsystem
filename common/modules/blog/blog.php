@@ -16,6 +16,8 @@
 
 class blog_module extends cs_module
 {
+    public $rssFeedShow = false;
+
     function __construct()
     {
         global $CS;
@@ -24,7 +26,8 @@ class blog_module extends cs_module
         $this->version = "4";
         $this->fullpath = CS_MODULESCPATH . 'blog' . _DS;
 
-        require_once($this->fullpath . 'xss_feed.php');
+
+        require_once($this->fullpath . 'rss_feed.php');
 
         require_once($this->fullpath . 'objects' . _DS . 'category.php');
         require_once($this->fullpath . 'objects' . _DS . 'page.php');
@@ -53,7 +56,7 @@ class blog_module extends cs_module
             $page = NULL;
             if(isset($segments[2]))
             {
-                $id = $segments[2];
+                $id = (int)$segments[2];
                 $page = cs_page::getById(cs_filter($id, 'base;int'));
                 $page = ($page === NULL || $page['count'] === 0) ? NULL : $page['result'];
             }
@@ -75,16 +78,22 @@ class blog_module extends cs_module
 
     public function view()
     {
-        $segment = cs_get_segment(0);
-        $segment = $segment ? $segment : 'home';
+        $segments = cs_get_segment();
 
-        if($segment === 'home' || xss_feed_check())
+        // rss ok
+        if($segments[count($segments) - 1] == 'feed')
+        {
+            $this->rssFeedShow = true;
+            unset($segments[count($segments) - 1]);
+        }
+
+        if(!isset($segments[0]) || $segments[0] === 'home')
             require_once ($this->fullpath . 'view' . _DS . 'home.php');
-        elseif ($segment === 'category')
+        elseif ($segments[0]  === 'category')
             require_once ($this->fullpath . 'view' . _DS . 'category.php');
-        elseif ($segment === 'tag')
+        elseif ($segments[0]  === 'tag')
             require_once ($this->fullpath . 'view' . _DS . 'tag.php');
-        elseif ($segment === 'page')
+        elseif ($segments[0]  === 'page')
             require_once ($this->fullpath . 'view' . _DS . 'page.php');
     }
 

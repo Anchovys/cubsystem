@@ -24,12 +24,16 @@ if($page_link = cs_get_segment(1))
     // выбираем страницу по сегменту
     $page = cs_page::getByLink($page_link);
 
+    // вывод RSS ленты по выборке
+    if($this->rssFeedShow)
+        die(rss_feed_display($page));
+
     // страница есть
     if($page['count'] > 0)
     {
-        // вывод xss ленты (если есть подходящий адрес)
-        if(function_exists('xss_feed_check') && xss_feed_check())
-            die(xss_feed_display($result));
+        // вывод RSS ленты по выборке
+        if($this->rssFeedShow)
+            die(rss_feed_display($result));
 
         $set_meta = TRUE;
 

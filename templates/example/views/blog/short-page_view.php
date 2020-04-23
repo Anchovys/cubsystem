@@ -12,6 +12,7 @@
             <li>Автор: {% if($__data['page']->author) print $__data['page']->author->name; else print 'нет'; %}</li>
             <li>Просмотров: {{$__data['page']->views}}</li>
             <li>Комментариев: {{$__data['page']->comments}}</li>
+            <li><time datetime="{{$__data['page']->date}}">Опубликовано: {{$__data['page']->date}}</time></li>
         </ul>
         <ul class="mm__page_info_list">
             <li>Категория: {% if($__data['page']->cats) foreach($__data['page']->cats as $cat)
