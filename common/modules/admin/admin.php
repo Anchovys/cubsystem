@@ -23,23 +23,55 @@ class admin_module extends cs_module
 
     function __construct()
     {
-        global $CS;
         $this->name = "Admin";
         $this->description = "A simple adminpanel.";
         $this->version = "1";
         $this->fullpath = CS_MODULESCPATH . 'admin' . _DS;
+        $this->config['autoload'] = TRUE;
+    }
+
+    // on load module
+    public function onLoad()
+    {
+        global $CS;
 
         // connect the options
-        if(file_exists($f = $this->fullpath . 'options.php'))
-        {
+        if (file_exists($f = $this->fullpath . 'options.php')) {
             require_once($f);
-            if(isset($options))
+            if (isset($options))
                 $this->options = $options;
         }
 
         // make hook into render
         if ($h = $CS->gc('hooks_helper', 'helpers'))
             $h->register('cs__pre-template_hook', 'view', $this);
+
+        // set is loaded true
+        $this->isLoaded = true;
+    }
+
+    // on unload module
+    public function onUnload()
+    {
+
+    }
+
+    // on system install
+    public function onInstall()
+    {
+
+    }
+
+    // on enable that module
+    public function onEnable()
+    {
+
+    }
+
+    // on disable that module
+    public function onDisable()
+    {
+
     }
 
     public function view()
@@ -138,10 +170,6 @@ class admin_module extends cs_module
         if($segments[1] === '' or $segments[1] === 'panel')
         {
             $CS->template->callbackLoad('', 'admin/info_view', 'body');
-            return TRUE;
-        } elseif ($segments[1] === 'uploads')
-        {
-            $CS->template->callbackLoad('', 'admin/uploads_view', 'body');
             return TRUE;
         }
 

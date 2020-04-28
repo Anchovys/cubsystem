@@ -23,17 +23,49 @@ class markitup_editor_module extends cs_module
                 ]
         ]
     ];
+
     function __construct()
     {
-        global $CS;
         $this->name = "Markitup Editor";
         $this->description = "A simple editor with BBcode support.";
-        $this->version = "1";
+        $this->version = "2";
         $this->fullpath = CS_MODULESCPATH . 'markitup_editor' . _DS;
+        $this->config['autoload'] = TRUE;
+    }
+
+
+    // on load module
+    public function onLoad()
+    {
+        global $CS;
 
         // make hook into render
         if ($h = $CS->gc('hooks_helper', 'helpers'))
             $h->register('cs__admin-view', 'load', $this);
+    }
+
+    // on unload module
+    public function onUnload()
+    {
+
+    }
+
+    // on system install
+    public function onInstall()
+    {
+
+    }
+
+    // on enable that module
+    public function onEnable()
+    {
+
+    }
+
+    // on disable that module
+    public function onDisable()
+    {
+
     }
 
     function load()

@@ -6,6 +6,11 @@ class cs_module
     public $description    = null;
     public $version        = null;
     public $fullpath       = null;
+    public $isLoaded       = FALSE;
+    public $config         = [
+        'autoload'         => TRUE, // подключить сразу после загрузки
+        'load_on_call'     => TRUE  // подключить при первом вызове
+    ];
 }
 
 class Cubsystem
@@ -16,7 +21,7 @@ class Cubsystem
         "name"    => "Cubsystem"
     ];
 
-    public $config       = [];
+    public $config      = [];
     public $dynamic     = [];
     public $hooks       = [];
     public $session     = null;
@@ -49,19 +54,39 @@ class Cubsystem
       return self::$instance;
     }
 
-    public function gc($classname, $category=FALSE)
+    public function gc(?string $classname, ?string $category = NULL)
     {
         $classname = strtolower(trim($classname));
+        $seek_array = !$category ? FALSE : $this->autoload[$category];
 
-        $seek_array = $category === FALSE ? FALSE : $this->autoload[$category];
-
+        // seek_array is not setting-up, find seek_array
         if(!$seek_array) {
             foreach(array_keys($this->autoload) as $key)
                 if(array_key_exists($classname, $this->autoload[$key]))
-                        return $this->autoload[$key][$classname];
+                        $seek_array = $key; // found him
             return FALSE;
-            
-        } else return !array_key_exists($classname, $seek_array) ? FALSE : $seek_array[$classname];
+        }
+
+        // checks for seek_array
+        if(!$seek_array || !array_key_exists($classname, $seek_array))
+            return FALSE;
+
+        // module class here
+        $class = $seek_array[$classname];
+
+        //////////////////////////////////////////////////////////
+        //             additional actions for module            //
+        //                  (module is not loaded)              //
+        //////////////////////////////////////////////////////////
+
+        if($seek_array == 'modules' && !$class->isLoaded &&
+            $class->config && key_exists('load_on_call', $class->config) &&
+            $class->config['load_on_call'] === TRUE)
+        {
+            $class->onLoad(); // try load him
+        }
+
+        return $class;
     }
 
     public function workingTime($suff = ' ms.')
@@ -79,7 +104,12 @@ class Cubsystem
     public function init()
     {
         /////// --> CREATING HTACCESS ////////
-            
+
+            if(!is_writable(CS__BASEPATH . '.htaccess'))
+            {
+                exit('Filesystem is not writeable');
+            }
+
             // make htaccess if not exists
             if(!file_exists( CS__BASEPATH . '.htaccess')) 
             {
@@ -107,10 +137,10 @@ class Cubsystem
         /////// --> MYSQL CONNECTING ////////
 
         // check if config skip mysql load
-        if($this->config['skip_database-connect'] !== TRUE)
+        if($this->config['skip_database-connect'] !== TRUE && is_array($this->config['database']))
         {
             if(!$db = $this->gc('mysqli_db_helper', 'helpers'))
-                die("Can`t load database helper! Re-install the system");
+                die('Can\'t load database helper! Re-install the system');
 
             // экземпляр остается в поле autoload[helpers] и остается
             // одним обьектом (не дублируется!)
@@ -121,7 +151,7 @@ class Cubsystem
             $this->database->connect('default');
 
             if(!$this->database)
-                die('Can`t connect to MySql Database! Check your connection info');
+                die('Can\'t connect to MySql Database! Check your connection info');
         }
 
         /////// MYSQL CONNECTING <-- ////////
@@ -129,7 +159,7 @@ class Cubsystem
         /////// --> SESSION LOADING ////////
 
             if(!$s = $this->gc('sessions_helper', 'helpers'))
-                die('Can`t load session helper! Re-install the system');
+                die('Can\'t load session helper! Re-install the system');
 
             $this->session = $s; $s = null;
             $this->session->init(['autoStart' => true]);

@@ -20,12 +20,16 @@ class blog_module extends cs_module
 
     function __construct()
     {
-        global $CS;
         $this->name = "Blog";
         $this->description = "A simple blog realization.";
         $this->version = "4";
         $this->fullpath = CS_MODULESCPATH . 'blog' . _DS;
+    }
 
+    // on load module
+    public function onLoad()
+    {
+        global $CS;
 
         require_once($this->fullpath . 'rss_feed.php');
 
@@ -41,6 +45,30 @@ class blog_module extends cs_module
             $h->register('cs__admin-view', 'admin_view',  $this);
             $h->register('cs__admin-ajax', 'admin_ajax',  $this);
         }
+    }
+
+    // on unload module
+    public function onUnload()
+    {
+
+    }
+
+    // on system install
+    public function onInstall()
+    {
+
+    }
+
+    // on enable that module
+    public function onEnable()
+    {
+
+    }
+
+    // on disable that module
+    public function onDisable()
+    {
+
     }
 
     public function admin_view()

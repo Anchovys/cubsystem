@@ -21,11 +21,17 @@ class auth_module extends cs_module
 
     function __construct()
     {
-        global $CS;
         $this->name = "Auth";
         $this->description = "A simple authorization system.";
         $this->version = "3";
         $this->fullpath = CS_MODULESCPATH . 'auth' . _DS;
+        $this->config['autoload'] = TRUE;
+    }
+
+    // on load module
+    public function onLoad()
+    {
+        global $CS;
 
         // require default objects
         require_once($this->fullpath . 'objects' . _DS . 'user.php');
@@ -35,6 +41,30 @@ class auth_module extends cs_module
 
         if($h = $CS->gc('hooks_helper', 'helpers'))
             $h->register('cs__pre-template_hook', 'view', $this);
+    }
+
+    // on unload module
+    public function onUnload()
+    {
+
+    }
+
+    // on system install
+    public function onInstall()
+    {
+
+    }
+
+    // on enable that module
+    public function onEnable()
+    {
+
+    }
+
+    // on disable that module
+    public function onDisable()
+    {
+
     }
 
     public function view()
