@@ -20,7 +20,7 @@
                 </tr>
 
                 <?
-                    $pages = cs_page::getListAll(FALSE, FALSE, TRUE);
+                    $pages = cs_page::getListAll();
                     if($pages['count'] === 0) print 'nothing to show';
                     else foreach ($pages['result'] as $page)
                         print("<tr>

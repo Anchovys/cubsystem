@@ -59,7 +59,7 @@ $page = $__data['page'];
                 </label><hr>
                 <label>
                     <?
-                    $cats = cs_cat::getListAll(FALSE, ['name', 'id'], FALSE);
+                    $cats = cs_cat::getListAll(NULL, ['name', 'id'], FALSE);
                         if($cats !== NULL && $cats['count'] !== 0)
                             foreach ($cats['result'] as $cat)
                             {

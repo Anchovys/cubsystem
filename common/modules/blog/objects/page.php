@@ -297,7 +297,7 @@ class cs_page
         return self::_getListBy($tag, 'tag', $pagination, $needle, $reverse);
     }
 
-    public static function getListAll($pagination = FALSE, $needle = FALSE, $reverse = FALSE)
+    public static function getListAll(cs_pagination $pagination = NULL, ?array $needle = NULL, $reverse = FALSE)
     {
         return self::_getListBy(FALSE, FALSE, $pagination, $needle, $reverse);
     }
