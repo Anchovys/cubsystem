@@ -68,7 +68,7 @@ class mysqli_db_helper
     protected $_lastQuery;
 
     /**
-     * The SQL query options required after SELECT, INSERT, UPDATE or DELETE
+     * The SQL query config required after SELECT, INSERT, UPDATE or DELETE
      *
      * @var array
      */
@@ -669,11 +669,11 @@ class mysqli_db_helper
     }
 
     /**
-     * This method allows you to specify multiple (method chaining optional) options for SQL queries.
+     * This method allows you to specify multiple (method chaining optional) config for SQL queries.
      *
      * @uses $MySqliDb->setQueryOption('name');
      *
-     * @param string|array $options The options name of the query.
+     * @param string|array $options The config name of the query.
      *
      * @throws Exception
      * @return MysqliDb

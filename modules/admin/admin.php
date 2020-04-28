@@ -35,8 +35,8 @@ class admin_module extends cs_module
     {
         global $CS;
 
-        // connect the options
-        if (file_exists($f = $this->fullpath . 'options.php')) {
+        // connect the config
+        if (file_exists($f = $this->fullpath . 'config.php')) {
             require_once($f);
             if (isset($options))
                 $this->options = $options;

@@ -1,7 +1,7 @@
 <?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
 /*
 | -------------------------------------------------------------------------
-| options.php [rev 1.1], Назначение: управление конфигурацией Cubsystem
+| config.php [rev 1.1], Назначение: управление конфигурацией Cubsystem
 | -------------------------------------------------------------------------
 | В этом файле описаны базовые настройки, используемые системой
 |
@@ -51,6 +51,7 @@ define("CS__CFG",
         'debugging',     // first
         'filters',       // second
         'url',           // ... etc
+        'fcaching',
         'sessions',
         'mysqli_db',
         'hooks',
@@ -69,9 +70,15 @@ define("CS__CFG",
         'auth',
         'admin',
         'blog',
+        'images',
         'markitup_editor'
     ],
 
     // enable hook system
-    'enable_hooks' => TRUE
+    'enable_hooks' => TRUE,
+
+
+    // дефолтное время файлового кеша
+    // по-умолчанию 24 часа. в секундах
+    'file_caching_time' => 24 * 60 * 60
 ]);

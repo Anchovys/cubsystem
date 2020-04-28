@@ -53,17 +53,23 @@ class loader_helper {
         {
             include_once($f);
 
-            $name = $name . '_module';
+            $full_name = $name . '_module';
 
-            if(!class_exists($name))
+            if(!class_exists($full_name))
                 return FALSE;
 
-            $class = new $name($args);
+            $class = new $full_name($args);
 
-            if($class->config && key_exists('autoload', $class->config) && $class->config['autoload'] === TRUE)
+            global $CS;
+
+            if(in_array($name, $CS->config['modules']) ||
+              ($class->config && key_exists('autoload', $class->config)
+              && $class->config['autoload'] === TRUE))
+            {
                 $class->onLoad();
+            }
 
-            return [$name, $module = $class];
+            return [$full_name, $module = $class];
 		}
 
         return false; 

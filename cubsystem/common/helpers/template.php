@@ -61,7 +61,7 @@ class template_helper
                 $this->info = $template_info;
         }
 
-        // default options
+        // default config
         $this->options = [
             'minify-html' => TRUE,
             'autoload_css' => TRUE,
@@ -82,7 +82,7 @@ class template_helper
         ];
 
         // get the advanced template settings
-        if (file_exists($f = $this->path . 'options.php')) {
+        if (file_exists($f = $this->path . 'config.php')) {
             require_once($f);
         }
 
