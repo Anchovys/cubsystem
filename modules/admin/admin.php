@@ -98,7 +98,8 @@ class admin_module extends cs_module
         }
 
         // поменяем шаблон на шаблон админки
-        $tmpl_path = $this->fullpath . 'templates' . _DS . $this->options['template'] . _DS;
+        $tmpl_name = isset($this->options['template']) ? $this->options['template'] : 'example';
+        $tmpl_path = $this->fullpath . 'templates' . _DS . $tmpl_name . _DS;
         $CS->template->join($tmpl_path, TRUE);
 
         // ничего не обработалось из стандартных правил
