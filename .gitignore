@@ -1,4 +1,7 @@
-
+common/temp
+common/temp/*
+shared
+shared/*
 .htaccess
 .idea/
 .idea/*

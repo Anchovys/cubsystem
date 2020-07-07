@@ -1,15 +1,29 @@
 <?php
+/**
+ *
+ *    CubSystem Minimal
+ *      -> http://github.com/Anchovys/cubsystem/minimal
+ *    copy, © 2020, Anchovy
+ * /
+ */
+
 define('_DS', DIRECTORY_SEPARATOR);
 define('CS__BASEPATH', dirname(realpath(__FILE__)) . _DS);
 
-define('CS_CUBSYSTEMPATH', CS__BASEPATH      . 'cubsystem' . _DS);
-define('CS_COMMONPATH',    CS_CUBSYSTEMPATH  . 'common'    . _DS);
-define('CS_COREPATH',      CS_COMMONPATH     . 'core'      . _DS);
+define('CS_COMMONPATH',    CS__BASEPATH   . 'common'    . _DS);
+define('CS_COREPATH',      CS_COMMONPATH  . 'core'      . _DS);
 
-// ядро системы
-if(file_exists($f = CS_COREPATH . 'join.php'))
-    require_once($f);
+require_once(CS_COREPATH . 'cubsystem.php');
 
-// вызов запуска
-if(function_exists("cs_start"))
-    cs_start();
+global $CS;
+if(!isset($CS) && $CS = Cubsystem::getInstance())
+{
+    $CS->init(); // иницилизация системы
+
+    /*
+        тут может включаться код,
+        меняющий поведение
+     */
+
+    $CS->start(); // запуск
+}
