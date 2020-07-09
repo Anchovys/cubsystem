@@ -9,6 +9,7 @@
 
 define('CS_MODULESCPATH', CS__BASEPATH   . 'modules' . _DS);
 
+define('CS_DISTRPATH',    CS_COMMONPATH  . 'distr'  . _DS);
 define('CS_CONFIGPATH',   CS_COMMONPATH  . 'config'  . _DS);
 define('CS_HELPERSPATH',  CS_COMMONPATH  . 'helpers' . _DS);
 
@@ -23,14 +24,15 @@ define("CS_UPLOADSPATH",  CS_SHAREDPATH  . 'uploads' . _DS);
 
 class Cubsystem
 {
-    public CsInfo    $info;
-    public CsConfig  $config;
-    public CsHooks   $hooks;
-    public CsHelpers $helpers;
-    public CsSession $session;
-    public CsShared  $shared;
-    public modules_helper $modules;
-    public template_helper $template;
+    public ?CsInfo    $info;
+    public ?CsConfig  $config;
+    public ?CsHooks   $hooks;
+    public ?CsHelpers $helpers;
+    public ?CsSession $session;
+    public ?CsRouter  $router;
+    public ?CsShared  $shared;
+    public ?modules_helper $modules;
+    public ?template_helper $template;
 
     // for singleton
     private static ?Cubsystem $_instance = NULL;
@@ -71,6 +73,10 @@ class Cubsystem
 
         // доп функции для url
         require_once(CS_COREINCPATH . 'url.php');
+
+        // роуты
+        require_once(CS_COREINCPATH . 'router.php');
+        $this->router = CsRouter::getInstance();
 
         // работа с инфой
         require_once(CS_COREINCPATH . 'info.php');
@@ -113,7 +119,19 @@ class Cubsystem
      */
     public function start()
     {
+        /* Хук при старте */
         $this->hooks->here('system_start');
+
+        // первоначально определили, что система не установлена.
+        if(!CsFS::fileExists(CS_CONFIGPATH . 'default.cfg.php'))
+        {
+            // загрузим специальный хелпер, который отвечает за установку
+            $install_helper = $this->helpers->loadOnce('install');
+            if($install_helper !== NULL) // загружен
+                $install_helper->init(); // по дефолту вызываемая ф-я init
+        }
+
+        /* Хук до загрузки маршрутов */
         $this->hooks->here('system_load_helpers');
 
                     //**/////////////////////
@@ -126,6 +144,7 @@ class Cubsystem
             $this->helpers->loadFor(CsFS::getDirectories(CS_HELPERSPATH, FALSE));
         }
 
+        /* Хук до загрузки модулей */
         $this->hooks->here('system_load_modules');
 
                     //**////////////////////
@@ -140,6 +159,11 @@ class Cubsystem
             $this->modules->loadFromData(); // юзерские модули
         }
 
+        /* Хук до загрузки роутов */
+        $this->hooks->here('system_load_router');
+        $this->router->run(); // запускаем все машруты
+
+        /* Хук до загрузки шаблона */
         $this->hooks->here('system_load_tmpl');
 
                     //**////////////////////
@@ -154,6 +178,7 @@ class Cubsystem
                 $this->template = $template->register($templates_config['default_tmpl']);
         }
 
+        /* Хук до вывода шаблона */
         $this->hooks->here('system_print_tmpl');
 
                     //**////////////////////

@@ -28,13 +28,16 @@ class CsHelpers
     /**
      * Подгружает указанный массив хелперов.
      * @param array $names
+     * @return object[]
      */
     public function loadFor(array $names)
     {
+        $return = [];
         foreach ($names as $key=>$name)
         {
-            $this->loadOnce($name);
+            $return[$name] = $this->loadOnce($name);
         }
+        return $return;
     }
 
     /**
@@ -43,7 +46,7 @@ class CsHelpers
      * @param $name - название хелпера
      * @param $args - массив аргументов, которые будут переданы
      *
-     * @return bool
+     * @return object
      */
     public function loadOnce(string $name = '', ?array $args = [])
     {
@@ -51,16 +54,16 @@ class CsHelpers
         $name = trim($name);
 
         if(!$name || !preg_match("/^\w+$/i", $name))
-            return FALSE;
+            return NULL;
 
         // есть в игноре
         if(in_array($name, $CS->config->getOption(['helpers', 'ignore'])))
-            return FALSE;
+            return NULL;
 
         $filename = CS_HELPERSPATH . $name . _DS . "$name.php";
 
         if(!CsFS::fileExists($filename))
-            return;
+            return NULL;
 
         // подключаем файл
         require_once($filename);
@@ -70,7 +73,7 @@ class CsHelpers
 
         $full_name = $name . '_helper';
         if(array_key_exists($full_name, $this->_loaded))
-            return FALSE;
+            return NULL;
 
         // класс есть
         if(class_exists($full_name))
@@ -89,7 +92,7 @@ class CsHelpers
         $this->_loaded[$name] = $class;
 
         // ок
-        return TRUE;
+        return $class;
     }
 
     public function getLoaded(?string $key = NULL)

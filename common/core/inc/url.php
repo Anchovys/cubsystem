@@ -36,6 +36,37 @@ class CsUrl
     }
 
     /**
+     * Получает якорь из url (все, что идет после #)
+     * @return string
+     */
+    public static function anchorHash()
+    {
+        $uri = self::currentUri(false,false);
+        $uri_array =  explode('#', $uri);
+        return count($uri_array) < 2 ? '' : $uri_array[1];
+    }
+
+    /**
+     * Получить основной адрес Url
+     * @param bool $anchorHashRemove  - удалить якорь
+     * @param bool $queryStringRemove - удалить строку get параметров
+     * @return string
+     */
+    public static function currentUri(bool $anchorHashRemove = TRUE, bool $queryStringRemove = TRUE)
+    {
+        if(!isset($_GET['m'])) return '';
+
+        $url = CsSecurity::filter($_GET['m'], 'base');
+        $url = str_replace(['.', '~', '\\'],  '_', $url);
+        if($anchorHashRemove)
+            $url = explode('#', $url)[0];
+        if($queryStringRemove)
+            $url = explode('?', $url)[0];
+
+        return $url;
+    }
+
+    /**
      * Получить основной адрес Url
      * @return string
      */
@@ -59,6 +90,18 @@ class CsUrl
     }
 
     /**
+     * Проверяет строку с каким-то сегментом
+     *
+     * @param string $value - строка, которая должна быть равна сегменту
+     * @param int $id - номер сегмента (по дефолту - 0)
+     * @return array|bool|string
+     */
+    public static function segmentEquals(string $value, int $id = 0)
+    {
+        return self::segment($id) === CsSecurity::filter($value);
+    }
+
+    /**
      * Вернет сегмент с номером, либо весь массив сегментов
      *
      * @param int $id - номер сегмента (не обязательно)
@@ -68,11 +111,7 @@ class CsUrl
     {
         if(!isset($_GET['m'])) return [];
 
-        $url = CsSecurity::filter($_GET['m'], 'base');
-        $url = str_replace(['.', '~', '\\'],  '_', $url);
-        $url = explode('#', $url)[0];
-        $url = explode('?', $url)[0];
-
+        $url = self::currentUri();
         $segments = explode('/', $url);
 
         if($id === NULL) return $segments;

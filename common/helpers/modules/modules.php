@@ -10,24 +10,22 @@
 class modules_helper
 {
     // for singleton
-    private static $instance = NULL;
+    private static ?modules_helper $_instance = NULL;
 
     /**
      * @return modules_helper
      */
     public static function getInstance()
     {
-        if (self::$instance == NULL)
-            self::$instance = new modules_helper();
+        if (self::$_instance == NULL)
+            self::$_instance = new modules_helper();
 
-        return self::$instance;
+        return self::$_instance;
     }
 
     public function __construct()
     {
         require_once(CS_HELPERSPATH . 'modules/module.php');
-        //$this->initOnce('demo');
-        //$this->loadOnce('demo');
     }
 
     private array $_loaded = [];
@@ -46,23 +44,31 @@ class modules_helper
     /**
      * Иницилизирует указанный массив модулей.
      * @param array $names
+     * @return object[]
      */
     public function initFor(array $names)
     {
-        foreach ($names as $key => $name) {
-            $this->initOnce($name);
+        $return = [];
+        foreach ($names as $key => $name)
+        {
+            $return[$name] = $this->initOnce($name);
         }
+        return $return;
     }
 
     /**
      * Подгружает указанный массив модулей.
      * @param array $names
+     * @return object[]
      */
     public function loadFor(array $names)
     {
-        foreach ($names as $key => $name) {
-            $this->loadOnce($name);
+        $return = [];
+        foreach ($names as $key => $name)
+        {
+            $return[$name] = $this->loadOnce($name);
         }
+        return $return;
     }
 
     function initOnce(string $name = '')
@@ -71,11 +77,11 @@ class modules_helper
 
         $name = trim($name);
         if (!$name || !preg_match("/^\w+$/i", $name))
-            return FALSE;
+            return NULL;
 
         // в загруженных уже есть
         if (array_key_exists($name, $this->_loaded))
-            return FALSE;
+            return NULL;
 
         $directory = CS_MODULESCPATH . $name . _DS;
         $config = NULL;
@@ -85,16 +91,16 @@ class modules_helper
 
         // нет конфигурации
         if (empty($config) || !is_array($config))
-            return FALSE;
+            return NULL;
 
         // конфигурация задана некорректно
         if (!isset($config['enable'], $config['min_rev']))
-            return FALSE;
+            return NULL;
 
         // проверим конфигурацию
         if ($config['enable'] === FALSE ||
             (double)$config['min_rev'] > $CS->info->getOption('system')['version'])
-            return FALSE;
+            return NULL;
 
         // подключаем файл модуля
         require_once($directory . "$name.php");
@@ -102,7 +108,7 @@ class modules_helper
         // проверить наличие класса
         $full_name = 'module_' . $name;
         if (!class_exists($full_name))
-            return FALSE;
+            return NULL;
 
         $this->_loaded[$name] =
             [
@@ -111,7 +117,7 @@ class modules_helper
                 'full_name' => $full_name
             ];
 
-        return TRUE;
+        return $this->_loaded[$name];
     }
 
     function loadOnce(string $name = '')
@@ -119,7 +125,7 @@ class modules_helper
         $module_item = $this->getLoaded($name, false, false);
 
         if($module_item == NULL)
-            return FALSE;
+            return NULL;
 
         // по умолчанию ничего не загружено
         $config = NULL;
@@ -137,31 +143,31 @@ class modules_helper
             // больше ничего не надо делать
             // модуль уже загружен
             if ($module_item->isLoaded === TRUE)
-                return FALSE;
+                return NULL;
             $config = $module_item->config;
             $full_name = $module_item->classname;
             $directory = $module_item->directory;
-        } else return FALSE;
+        } else return NULL;
 
         // что-то не указано
         if ($config === NULL || $full_name === NULL || $directory === NULL)
-            return FALSE;
+            return NULL;
 
         // создаем экземпляр
         $module = new $full_name($config, $directory, $full_name);
 
         // не подкласс модуля
         if (!is_subclass_of($module, 'CsModule'))
-            return FALSE;
+            return NULL;
 
         // нет метода "при загрузке"
         if (!method_exists($module, 'onLoad'))
-            return FALSE;
+            return NULL;
 
         // попытка загрузки
         // в процессе загрузки модуля что-то пошло не так
         if ($module->onLoad() !== TRUE)
-            return FALSE;
+            return NULL;
 
         // добавим в загруженные
         $this->_loaded[$name] = $module;
