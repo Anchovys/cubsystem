@@ -28,6 +28,7 @@ class CsRouter
 
         return self::$_instance;
     }
+
     /**
      * @var array The route patterns and their handling functions
      */

@@ -31,7 +31,6 @@ class module_demo extends CsModule
 
     public function onUnload()
     {
-
         /*
             Напишите здесь любой код,
             который должен выполняться

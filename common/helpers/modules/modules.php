@@ -57,6 +57,17 @@ class modules_helper
     }
 
     /**
+     * Выгружает все модули
+     */
+    public function unloadAll()
+    {
+        foreach ($this->_loaded as $key => $name)
+        {
+            $this->unloadOnce($key);
+        }
+    }
+
+    /**
      * Подгружает указанный массив модулей.
      * @param array $names
      * @return object[]
@@ -73,7 +84,7 @@ class modules_helper
 
     function initOnce(string $name = '')
     {
-        global $CS;
+        $CS = Cubsystem::getInstance();
 
         $name = trim($name);
         if (!$name || !preg_match("/^\w+$/i", $name))
@@ -86,8 +97,10 @@ class modules_helper
         $directory = CS_MODULESCPATH . $name . _DS;
         $config = NULL;
 
-        // подключаем файл личной конфигурации
-        require_once($directory . 'config.php');
+        try {
+            // подключаем файл личной конфигурации
+            require_once($directory . 'config.php');
+        } catch (Error $error) { return NULL; } // maybe parse error
 
         // нет конфигурации
         if (empty($config) || !is_array($config))
@@ -102,8 +115,10 @@ class modules_helper
             (double)$config['min_rev'] > $CS->info->getOption('system')['version'])
             return NULL;
 
-        // подключаем файл модуля
-        require_once($directory . "$name.php");
+        try {
+            // подключаем файл модуля
+            require_once($directory . "$name.php");
+        } catch (Error $error) { return NULL; } // maybe parse error
 
         // проверить наличие класса
         $full_name = 'module_' . $name;
