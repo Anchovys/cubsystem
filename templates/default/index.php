@@ -11,6 +11,7 @@ class default_template extends template_helper
 {
     public ?CsTmpl $indexTmpl = NULL;
     public ?CsTmpl $mainTmpl = NULL;
+    public ?CsTmpl $blankTmpl = NULL;
 
     /**
      * Действия при загрузке шаблона
@@ -27,12 +28,16 @@ class default_template extends template_helper
         // содержит юзерские буферы
         $this->mainTmpl  = new CsTmpl('main', $this);
 
-        // зарегистрируем два шаблона на Id 0 и 1
-        $this->addTmpl($this->indexTmpl, 0);
-        $this->addTmpl($this->mainTmpl,  1);
 
-        // поставим main id = 1
-        $this->mainId = 1;
+        $this->blankTmpl = new CsTmpl('blank', $this);
+
+        // зарегистрируем два шаблона на Id 0 , 1 и 2
+        $this->addTmpl($this->indexTmpl, 0);
+        $this->addTmpl($this->blankTmpl,  1);
+        $this->addTmpl($this->mainTmpl,  2);
+
+        // поставим main id = 2
+        $this->mainId = 2;
 
         // вернем True
         return parent::onLoad();
@@ -40,7 +45,7 @@ class default_template extends template_helper
 
     /**
      * Действия при отображении шаблона
-     * Вызывается при вызове главного шаблона
+     * Вызывается при вызове корневого шаблона
      * @return bool
      */
     public function onDisplay()
@@ -52,7 +57,7 @@ class default_template extends template_helper
         // в body добавим то, что вернул пользовательский
         $this->indexTmpl
             ->set('head', $this->getTotalMeta())
-            ->set('body', $this->mainTmpl->out());
+            ->set('body', $this->getTmpl($this->mainId)->out());
 
         // вернем True
         return parent::onDisplay();

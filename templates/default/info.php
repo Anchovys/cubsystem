@@ -14,8 +14,8 @@
  */
 
 $info            = [];
-$info['minv']    = 0.08;
+$info['minv']    = 0.10;
 $info['name']    = 'Default template';
 $info['author']  = 'Anchovy';
-$info['desc']    = 'Default template for Cubsystem';
-$info['rev']     = 1.0;
+$info['desc']    = 'Default template for CubSystem';
+$info['rev']     = 1.1;

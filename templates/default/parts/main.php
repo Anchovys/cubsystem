@@ -1,3 +1,11 @@
+<?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
+/**
+ *
+ *    CubSystem Minimal
+ *      -> http://github.com/Anchovys/cubsystem/minimal
+ *    copy, © 2020, Anchovy
+ * /
+ */ ?>
 <div class="container h-100">
     <div class="row h-100">
         <div class="col-3"></div>
