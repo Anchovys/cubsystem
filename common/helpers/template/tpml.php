@@ -12,14 +12,13 @@ class CsTmpl
     public string  $directory;
     public ?string $templateFile;
     private array $_buffer = [];
+    private ?template_helper $template;
 
     public function __construct(string $part = 'index', $template = NULL)
     {
         $CS = Cubsystem::getInstance();
 
-        if($template === NULL)
-            $template = $CS->template;
-
+        $this->template = $template === null ? $CS->template : $template;
         $this->directory = $template->directory;
 
         $this->templateFile  = $template->directory;
@@ -77,47 +76,10 @@ class CsTmpl
     /**
      * @param string $file
      * @param string $__data
-     * @param bool $custom
      * @return bool|false|string
      */
-    private function outf(string $file, $__data = '', bool $custom = FALSE)
+    private function outf(string $file, $__data = '')
     {
-        if(!file_exists($file))
-            return FALSE;
-
-        // извлечь массив
-        if(is_array($__data))
-            extract($__data);
-
-        /* ***********   ***********   ***********   ***********   ***********
-                кастомный случай, например для реализации шаблонизаторов,
-                или других функций, обрабатывающих исходные коды шаблонов
-        *  ***********   ***********   ***********   ***********   ********** */
-
-        // получим код из файла
-        $code = file_get_contents($file);
-        $code = '?>' . $code . '<?php';
-
-        // если в custom, например, функция
-        if (is_callable($custom))
-        {
-            // вызов функции
-            $res = $custom($code);
-
-            // вернула string, заменим целиком
-            if (is_string($res))
-                $code = $res;
-        }
-
-        ob_start();
-
-        try
-        {   // попытка выполнить php код
-            eval($code);
-        } catch (ParseError $e) {
-            die("<b>Check your template!</b><br><i>($e)</i>");
-        }
-
-        return ob_get_clean();
+        return $this->template->handleFile($file, $__data);
     }
 }

@@ -26,7 +26,7 @@ class template_helper
      */
     public function register(string $name, $dir = NULL)
     {
-        global $CS;
+        $CS = Cubsystem::getInstance();
 
         $dir = ($dir !== NULL) ? $dir :
             CS_TEMPLATES_PATH . $name . _DS;
@@ -79,6 +79,11 @@ class template_helper
         if($id === -1)
             $this->_tmpl[] = $tmpl;
         else $this->_tmpl[$id] = $tmpl;
+    }
+
+    public function getMainTmpl()
+    {
+        return $this->_tmpl[$this->mainId];
     }
 
     /**
@@ -164,13 +169,53 @@ class template_helper
      * @param $key
      * @param $value
      */
-    public function setMeta($key, $value): void
+    public function setMeta(string $key, $value): void
     {
         $this->_meta[] =
         [
             'k' => $key,
             'v' => $value
         ];
+    }
+
+    public function handleFile(string $file, $__data = '')
+    {
+        if ( !file_exists($file))
+            return FALSE;
+
+        // извлечь массив
+        if (is_array($__data))
+            extract($__data);
+
+        /* ***********   ***********   ***********   ***********   ***********
+                кастомный случай, например для реализации шаблонизаторов,
+                или других функций, обрабатывающих исходные коды шаблонов
+        *  ***********   ***********   ***********   ***********   ********** */
+
+        // получим код из файла
+        $code = file_get_contents($file);
+        $code = '?>' . $code . '<?php';
+
+        /*
+        // если в custom, например, функция
+        if (is_callable($custom)) {
+            // вызов функции
+            $res = $custom($code);
+
+            // вернула string, заменим целиком
+            if (is_string($res))
+                $code = $res;
+        }*/
+
+        ob_start();
+
+        try {   // попытка выполнить php код
+            eval($code);
+        } catch (ParseError $e) {
+            die("<b>Check your template!</b><br><i>($e)</i>");
+        }
+
+        return ob_get_clean();
     }
 
     /**
