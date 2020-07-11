@@ -15,7 +15,7 @@ class module_landing extends CsModule
      */
     public function onLoad()
     {
-        $CS = Cubsystem::getInstance();
+        $CS = CubSystem::getInstance();
         $seekDir = $this->directory . 'pages' . _DS;
         $directories = CsFS::getDirectories($seekDir, FALSE);
         foreach ($directories as $directory)
@@ -35,7 +35,6 @@ class module_landing extends CsModule
                     $CS->hooks->register('system_print_tmpl', function () use(&$requestFile, &$CS)
                     {
                         $string = $CS->template->handleFile($requestFile);
-
                         $CS->template->mainId = 1;
                         $CS->template->getMainTmpl()->set('content', $string, 0);
                     });

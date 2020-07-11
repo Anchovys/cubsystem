@@ -28,7 +28,7 @@ class default_template extends template_helper
         // содержит юзерские буферы
         $this->mainTmpl  = new CsTmpl('main', $this);
 
-
+        // "пустой", для ввода в входной буфера - body
         $this->blankTmpl = new CsTmpl('blank', $this);
 
         // зарегистрируем два шаблона на Id 0 , 1 и 2
@@ -57,7 +57,7 @@ class default_template extends template_helper
         // в body добавим то, что вернул пользовательский
         $this->indexTmpl
             ->set('head', $this->getTotalMeta())
-            ->set('body', $this->getTmpl($this->mainId)->out());
+            ->set('body', $this->getMainTmpl()->out());
 
         // вернем True
         return parent::onDisplay();

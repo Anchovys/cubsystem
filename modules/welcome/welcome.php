@@ -11,7 +11,7 @@ class module_welcome extends CsModule
 {
     public function onLoad()
     {
-        $CS = Cubsystem::getInstance();
+        $CS = CubSystem::getInstance();
         $CS->hooks->register('system_print_tmpl', function () use(&$CS)
         {
             $template = $CS->template;

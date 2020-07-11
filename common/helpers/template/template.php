@@ -26,7 +26,7 @@ class template_helper
      */
     public function register(string $name, $dir = NULL)
     {
-        $CS = Cubsystem::getInstance();
+        $CS = CubSystem::getInstance();
 
         $dir = ($dir !== NULL) ? $dir :
             CS_TEMPLATES_PATH . $name . _DS;
@@ -44,6 +44,8 @@ class template_helper
         // проверим конфигурацию
         if($info['minv'] > $CS->info->getOption(['system', 'version']))
             return NULL;
+
+        $this->info = $info;
 
         require_once ($dir . 'index.php');
 
@@ -81,6 +83,9 @@ class template_helper
         else $this->_tmpl[$id] = $tmpl;
     }
 
+    /**
+     * @return CsTmpl
+     */
     public function getMainTmpl()
     {
         return $this->_tmpl[$this->mainId];
@@ -95,19 +100,6 @@ class template_helper
         return $this->_tmpl[$id];
     }
 
-    /**
-     * @param int $id
-     * @return bool|string
-     */
-    public function getBuffer(int $id = 0)
-    {
-        if(!key_exists($id, $this->_tmpl))
-            return FALSE;
-
-        $result = $this->_tmpl[$id]->out();
-
-        return (count_chars($result) !== 0) ? $result : FALSE;
-    }
 
     /**
      * @param string $name
@@ -165,6 +157,20 @@ class template_helper
     }
 
     /**
+     * @param int $id
+     * @return bool|string
+     */
+    public function getBuffer(int $id = 0)
+    {
+        if(!key_exists($id, $this->_tmpl))
+            return FALSE;
+
+        $result = $this->_tmpl[$id]->out();
+
+        return (count_chars($result) !== 0) ? $result : FALSE;
+    }
+
+    /**
      * Поставить Meta данные
      * @param $key
      * @param $value
@@ -178,8 +184,9 @@ class template_helper
         ];
     }
 
-    public function handleFile(string $file, $__data = '')
+    public function handleFile(string $file, $__data = '', $custom = null)
     {
+        $CS = CubSystem::getInstance();
         if ( !file_exists($file))
             return FALSE;
 
@@ -196,7 +203,9 @@ class template_helper
         $code = file_get_contents($file);
         $code = '?>' . $code . '<?php';
 
-        /*
+        // обработаем шаблонизатором
+        $code = $this->tmpl_prepare($code);
+
         // если в custom, например, функция
         if (is_callable($custom)) {
             // вызов функции
@@ -205,17 +214,27 @@ class template_helper
             // вернула string, заменим целиком
             if (is_string($res))
                 $code = $res;
-        }*/
+        }
 
         ob_start();
 
         try {   // попытка выполнить php код
             eval($code);
         } catch (ParseError $e) {
-            die("<b>Check your template!</b><br><i>($e)</i>");
+            $CS->errors->handleException($e);
         }
 
         return ob_get_clean();
+    }
+
+    function tmpl_prepare($template)
+    {
+        $template =  str_replace(
+            array('{?', '?}', '{{', '}}', '{%', '%}'),
+            array('<?=', '??""?>', '<?=', '?>', '<?php', '?>'),
+            $template);
+
+        return $template;
     }
 
     /**

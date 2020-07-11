@@ -35,7 +35,7 @@ class CsHooks
     
     function __construct()
     {
-        $this->_enabled = Cubsystem::getInstance()->config->getOption(['hooks', 'enabled']);
+        $this->_enabled = CubSystem::getInstance()->config->getOption(['hooks', 'enabled']);
         define("ANONFUNCNAME", 'anonymous_');
     }
 

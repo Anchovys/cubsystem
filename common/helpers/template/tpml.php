@@ -16,7 +16,7 @@ class CsTmpl
 
     public function __construct(string $part = 'index', $template = NULL)
     {
-        $CS = Cubsystem::getInstance();
+        $CS = CubSystem::getInstance();
 
         $this->template = $template === null ? $CS->template : $template;
         $this->directory = $template->directory;

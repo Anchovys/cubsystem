@@ -13,10 +13,10 @@ define('CS__BASEPATH', dirname(realpath(__FILE__)) . _DS);
 define('CS_COMMONPATH',    CS__BASEPATH   . 'common'    . _DS);
 define('CS_COREPATH',      CS_COMMONPATH  . 'core'      . _DS);
 
-require_once(CS_COREPATH . 'cubsystem.php');
+require_once(CS_COREPATH . 'CubSystem.php');
 
 global $CS;
-if(!isset($CS) && $CS = Cubsystem::getInstance())
+if(!isset($CS) && $CS = CubSystem::getInstance())
 {
     $CS->init(); // иницилизация системы
 
@@ -25,5 +25,6 @@ if(!isset($CS) && $CS = Cubsystem::getInstance())
         меняющий поведение
      */
 
-    $CS->start(); // запуск
+    $CS->start(); // запускаем
+    $CS->out(); // выводим на эран
 }

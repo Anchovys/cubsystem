@@ -10,17 +10,17 @@
 class CsConfig
 {
     // for singleton
-    private static $instance = null;
+    private static ?CsConfig $_instance = null;
 
     /**
      * @return CsConfig
      */
     public static function getInstance()
     {
-        if (self::$instance == null)
-            self::$instance = new CsConfig();
+        if (self::$_instance == null)
+            self::$_instance = new CsConfig();
 
-        return self::$instance;
+        return self::$_instance;
     }
 
     private ?array $config = [];

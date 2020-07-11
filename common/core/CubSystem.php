@@ -22,7 +22,7 @@ define('CS_COREINCPATH',  CS_COREPATH    . 'inc'     . _DS);
 define("CS_SHAREDPATH",   CS__BASEPATH   . 'shared'  . _DS);
 define("CS_UPLOADSPATH",  CS_SHAREDPATH  . 'uploads' . _DS);
 
-class Cubsystem
+class CubSystem
 {
     public ?CsInfo    $info;
     public ?CsConfig  $config;
@@ -36,15 +36,15 @@ class Cubsystem
     public ?template_helper $template;
 
     // for singleton
-    private static ?Cubsystem $_instance = NULL;
+    private static ?CubSystem $_instance = NULL;
 
     /**
-     * @return Cubsystem
+     * @return CubSystem
      */
     public static function getInstance()
     {
         if (self::$_instance == NULL)
-            self::$_instance = new Cubsystem();
+            self::$_instance = new CubSystem();
 
         return self::$_instance;
     }
@@ -89,16 +89,16 @@ class Cubsystem
         $this->info = CsInfo::getInstance();
 
         /* установим какую-то начальную инфу */
-        $this->info->setOption('start_time', $_time);
+        $this->info->setOption('start_time', $_time, TRUE);
 
         $this->info->setOption('system', [
             'version' => '0.10'
-        ]);
+        ], TRUE);
 
-        $this->info->setOption('currenturi',  CsUrl::currentUri());
-        $this->info->setOption('baseurl',     CsUrl::baseUrl());
-        $this->info->setOption('fullurl',     CsUrl::fullUrl());
-        $this->info->setOption('segments',    CsUrl::segment());
+        $this->info->setOption('currenturi',  CsUrl::currentUri(), TRUE);
+        $this->info->setOption('baseurl',     CsUrl::baseUrl(), TRUE);
+        $this->info->setOption('fullurl',     CsUrl::fullUrl(), TRUE);
+        $this->info->setOption('segments',    CsUrl::segment(), TRUE);
 
         // работа с конфигами
         require_once(CS_COREINCPATH . 'config.php');
@@ -166,7 +166,7 @@ class Cubsystem
             $this->modules->loadFromData(); // юзерские модули
         }
 
-        /* Хук до загрузки роутов */
+        /* Хук до выполнения роутов */
         $this->hooks->here('system_load_router');
         $this->router->run(); // запускаем все машруты
 
@@ -184,20 +184,29 @@ class Cubsystem
             if($template !== NULL)
                 $this->template = $template->register($templates_config['default_tmpl']);
         }
+    }
 
+    /**
+     * Вывод на экран
+     */
+    public function out()
+    {
+        $buffer = '';
         /* Хук до вывода шаблона */
         $this->hooks->here('system_print_tmpl');
 
-                    //**////////////////////
-                    ///   Вывод шаблона  ///
-                    ////////////////////////
+        //**////////////////////
+        ///   Вывод шаблона  ///
+        ////////////////////////
         if($this->template !== NULL && $this->template instanceof template_helper)
-            $this->template->showBuffer(0); // show main buffer
+            $this->template->showBuffer(0);
 
         /* Хук на конец выполнения */
         $this->hooks->here('system_end');
 
         /* Модули: "выгружаем" все */
         $this->modules->unloadAll();
+
+        return $buffer;
     }
 }

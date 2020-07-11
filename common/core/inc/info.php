@@ -30,9 +30,9 @@ class CsInfo
      * Устанавливает значение по ключу
      * @param $key string|int  - ключ, в который нужно установить значение.
      * @param $value - само значение
-     * @param bool $defineType - константный тип (нельзя изменять)
+     * @param bool $readonly - константный тип (нельзя изменять)
      */
-    public function setOption($key, $value, $defineType = FALSE)
+    public function setOption($key, $value, $readonly = FALSE)
     {
         // залочено
         if(in_array($key, $this->lock))
@@ -41,7 +41,7 @@ class CsInfo
         $this->info[$key] = $value;
 
         // вносим в массив локов
-        if($defineType) $this->lock[] = $key;
+        if($readonly) $this->lock[] = $key;
     }
 
     /**

@@ -12,8 +12,8 @@
         <div class="col-6">
             <div class="card">
                 <div class="text-center">
-                    <h1><?= $title; ?></h1>
-                    <h2><?= $subtitle; ?></h2>
+                    <h1>{? $title ?}</h1>
+                    <h2>{? $subtitle ?}</h2>
                     <small>Working time:
                         <?=round(microtime(TRUE) - $CS->info->getOption('start_time'), 3)?>
                         sec.

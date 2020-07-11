@@ -68,7 +68,7 @@ class CsHelpers
         try {
             // подключаем файл
             require_once($filename);
-        } catch (Error $error) { return $error; } // maybe parse error
+        } catch (Error $error) { $CS->errors->handleException($error); return NULL; } // maybe parse error
 
         // класс еще не загружен
         $class = NULL;

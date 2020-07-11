@@ -82,7 +82,7 @@ class CsSecurity
     /**
      * Зачистка строки, числа, булевой и т.д.
      * @param $str - переменная string для очистки
-     * @param $mode - режим работы. можно комбинировать, через символ ';'
+     * @param string $mode - режим работы. можно комбинировать, через символ ';'
      *          spaces          - очистка пробелов во всей строке
      *          trim            - очистка пробелов в начале и конце
      *          string          - очистка для строки
@@ -112,6 +112,7 @@ class CsSecurity
      *          username        - пресет. обрабатывает никнейм
      *          password        - пресет. обрабатывает пароль
      * @return string
+     * @throws Exception
      */
     static function filter($str, $mode = "base")
     {
@@ -126,14 +127,14 @@ class CsSecurity
 
         $mode = trim( $mode );
 
-        //обработка массива
+        // обработка массива
         $mode = explode( ';', $mode );
         $mode = array_map( 'trim', $mode );
         $mode = array_unique( $mode );
 
         foreach ($mode as $rule)
         {
-            //обозначим пресеты отдельным switch
+            // обозначим пресеты отдельным switch
             switch ($rule) {
                 case 'base':
                     $str = self::filter( $str, 'trim;xss;strip_tags;special_chars' );
@@ -174,12 +175,14 @@ class CsSecurity
                 case 'integer':
                 case 'int':
                     $str = intval( $str );
-                    if ( !is_int( $str ) || $str > 4294967295 )
+                    if ( !is_int( $str ) || $str >= PHP_INT_MAX || $str <= PHP_INT_MIN )
                         $str = '';
                     break;
 
                 case 'float':
                     $str = floatval( $str );
+                    if ( !is_float($str ) || $str >= PHP_FLOAT_MAX || $str <= PHP_FLOAT_MIN )
+                        $str = '';
                     break;
 
                 case 'bool':

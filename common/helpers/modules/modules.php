@@ -32,7 +32,7 @@ class modules_helper
 
     public function loadFromData()
     {
-        $jsonData = Cubsystem::getInstance()->shared->
+        $jsonData = CubSystem::getInstance()->shared->
             getTextData('modules', TRUE);
 
         if(is_string($jsonData) != TRUE)
@@ -84,7 +84,7 @@ class modules_helper
 
     function initOnce(string $name = '')
     {
-        $CS = Cubsystem::getInstance();
+        $CS = CubSystem::getInstance();
 
         $name = trim($name);
         if (!$name || !preg_match("/^\w+$/i", $name))
@@ -100,7 +100,7 @@ class modules_helper
         try {
             // подключаем файл личной конфигурации
             require_once($directory . 'config.php');
-        } catch (Error $error) { return NULL; } // maybe parse error
+        } catch (Error $error) { $CS->errors->handleException($error); return NULL; } // maybe parse error
 
         // нет конфигурации
         if (empty($config) || !is_array($config))
@@ -118,7 +118,7 @@ class modules_helper
         try {
             // подключаем файл модуля
             require_once($directory . "$name.php");
-        } catch (Error $error) { return NULL; } // maybe parse error
+        } catch (Error $error) { $CS->errors->handleException($error); return NULL; } // maybe parse error
 
         // проверить наличие класса
         $full_name = 'module_' . $name;
@@ -243,7 +243,7 @@ class modules_helper
         if ($module->onEnable() == FALSE)
             return FALSE; // прерываем операцию
 
-        $CS = Cubsystem::getInstance();
+        $CS = CubSystem::getInstance();
 
         $array = [];
         $data = $CS->shared->getTextData('modules', TRUE);
@@ -276,7 +276,7 @@ class modules_helper
         if ($this->unloadOnce($name) !== TRUE)
             return FALSE; // что-то не так (не выгрузился)
 
-        $CS = Cubsystem::getInstance();
+        $CS = CubSystem::getInstance();
 
         $array = [];
         $data = $CS->shared->getTextData('modules', TRUE);
