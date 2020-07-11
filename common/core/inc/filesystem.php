@@ -76,13 +76,14 @@ class CsFS
 
             while (FALSE !== ($file = readdir($fp)))
             {
+                $filename = $full_path ? $source_dir . $file : $file;
                 // Remove '.', '..', and hidden files [optional]
                 if (!trim($file, '.') OR ($hidden == FALSE && $file[0] == '.')) continue;
 
                 if (($directory_depth < 1 OR $new_depth > 0) && @is_dir($source_dir . $file))
-                    $filedata[$file] = self::directoryMap($source_dir . $file . _DS, $new_depth, $full_path, $hidden);
+                    $filedata[$filename] = self::directoryMap($source_dir . $file . _DS, $new_depth, $full_path, $hidden);
                 else
-                    $filedata[] = $full_path ? $source_dir . $file : $file;
+                    $filedata[] = $filename;
                     // $filedata[] = htmlentities($file, ENT_QUOTES, 'cp1251');
             }
 
