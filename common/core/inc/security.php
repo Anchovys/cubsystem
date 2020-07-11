@@ -12,9 +12,11 @@ class CsSecurity
     /**
      * Заменяет всю кириллицу транслитом
      * @param string $text - текст для преобразования
+     * @param bool $reverse - наоборот из транслита в кирилицу
      * @return string
+     * @throws Exception
      */
-    static function transliterate(string $text)
+    static function transliterate(string $text, $reverse = FALSE)
     {
         $cyr = [
             'а','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н','о','п',
@@ -32,7 +34,7 @@ class CsSecurity
             's','c','d','c','c','z','n','S','C','D','C','C','Z','N'
         ];
 
-        return str_replace($cyr, $lat, $text);
+        return !$reverse ? str_replace($cyr, $lat, $text) : str_replace($lat, $cyr, $text);
     }
 
 
