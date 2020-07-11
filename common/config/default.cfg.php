@@ -57,6 +57,7 @@ $config['modules'] = [
     'enabled'  => TRUE,
     'autoload' =>
     [
+        'landing',
         'demo',
         'welcome' // change it!
     ]
