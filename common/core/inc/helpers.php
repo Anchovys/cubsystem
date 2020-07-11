@@ -65,8 +65,10 @@ class CsHelpers
         if(!CsFS::fileExists($filename))
             return NULL;
 
-        // подключаем файл
-        require_once($filename);
+        try {
+            // подключаем файл
+            require_once($filename);
+        } catch (Error $error) { return $error; } // maybe parse error
 
         // класс еще не загружен
         $class = NULL;
