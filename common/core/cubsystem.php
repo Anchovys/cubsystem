@@ -31,6 +31,7 @@ class Cubsystem
     public ?CsSession $session;
     public ?CsRouter  $router;
     public ?CsShared  $shared;
+    public ?CsErrors  $errors;
     public ?modules_helper $modules;
     public ?template_helper $template;
 
@@ -59,6 +60,11 @@ class Cubsystem
 
         // функции для дебага и отладки
         require_once(CS_COREINCPATH . 'debug.php');
+
+        // обработчик ошибок
+        require_once(CS_COREINCPATH . 'errors.php');
+        $this->errors = CsErrors::getInstance();
+        $this->errors->init();
 
         // доп функции для безопасности системы
         require_once(CS_COREINCPATH . 'security.php');
@@ -89,9 +95,10 @@ class Cubsystem
             'version' => '0.10'
         ]);
 
-        $this->info->setOption('baseurl',  CsUrl::baseUrl());
-        $this->info->setOption('fullurl',  CsUrl::fullUrl());
-        $this->info->setOption('segments', CsUrl::segment());
+        $this->info->setOption('currenturi',  CsUrl::currentUri());
+        $this->info->setOption('baseurl',     CsUrl::baseUrl());
+        $this->info->setOption('fullurl',     CsUrl::fullUrl());
+        $this->info->setOption('segments',    CsUrl::segment());
 
         // работа с конфигами
         require_once(CS_COREINCPATH . 'config.php');
@@ -187,6 +194,10 @@ class Cubsystem
         if($this->template !== NULL && $this->template instanceof template_helper)
             $this->template->showBuffer(0); // show main buffer
 
+        /* Хук на конец выполнения */
         $this->hooks->here('system_end');
+
+        /* Модули: "выгружаем" все */
+        $this->modules->unloadAll();
     }
 }
