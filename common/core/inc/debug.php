@@ -28,7 +28,7 @@ function pr($var, $html = true, $echo = true)
     if (!$echo)
         ob_start();
     else
-        echo '<pre>';
+        echo '<pre style="font-family: \'PT Mono\', sans-serif;">';
 
     if (is_bool($var))
     {

@@ -16,10 +16,8 @@ $config['helpers'] = [
     'singleton_support' => TRUE,
     'priority' =>
     [
-        'database',
         'modules',
-        'template',
-        'upload'
+        'template'
     ],
     'ignore' =>
     [

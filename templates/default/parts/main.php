@@ -15,10 +15,17 @@
                     <h1>{? $title ?}</h1>
                     <h2>{? $subtitle ?}</h2>
                     <small>Working time:
-                        <?=round(microtime(TRUE) - $CS->info->getOption('start_time'), 3)?>
+                        <?=CsStats::getTimeInSeconds()?>
                         sec.
+                        <br>
+                        Memory usage: <?=CsStats::getUsingMemoryString()?>
                     </small>
                 </div>
+
+                <!-- Выводим модули если есть -->
+                {% if(isset($modules)) print '<hr>'; %}
+                {? $modules ?}
+
             </div>
         </div>
         <div class="col-3"></div>

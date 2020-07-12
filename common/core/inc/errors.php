@@ -36,11 +36,6 @@ class CsErrors
         //register_shutdown_function([$this, 'handleStop']);
     }
 
-    public function registerHandler()
-    {
-
-    }
-
     public function handleError($level, $message, $file, $line, $context)
     {
         $this->printer(
@@ -105,10 +100,10 @@ class CsErrors
 
     private function printer($title = '', $body = '', $small = '')
     {
-        print '<details style="font-family: monospace;">';
+        print '<details style="background: white; font-family: \'PT Mono\', sans-serif;">';
             print '<summary><b>'. $title .'</b></summary>';
             print '<p>'. $body .'</p>';
-            print '<p><small>'. $small .'</small></p>';
+            print '<p><small color="#ccc">'. $small .'</small></p>';
         print '</details>';
     }
 }
