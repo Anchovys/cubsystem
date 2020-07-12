@@ -82,4 +82,9 @@ class CsTmpl
     {
         return $this->template->handleFile($file, $__data);
     }
+
+    public function unset()
+    {
+        unset($this->_buffer);
+    }
 }

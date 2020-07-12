@@ -61,6 +61,9 @@ class CubSystem
         // функции для дебага и отладки
         require_once(CS_COREINCPATH . 'debug.php');
 
+        // функции статистики
+        require_once(CS_COREINCPATH . 'stats.php');
+
         // обработчик ошибок
         require_once(CS_COREINCPATH . 'errors.php');
         $this->errors = CsErrors::getInstance();
@@ -77,35 +80,29 @@ class CubSystem
         // доп функции для файловой системы
         require_once(CS_COREINCPATH . 'filesystem.php');
 
-        // доп функции для url
+        // доп функции для работы с url
         require_once(CS_COREINCPATH . 'url.php');
 
-        // роуты
+        // роуты (маршруты)
         require_once(CS_COREINCPATH . 'router.php');
         $this->router = CsRouter::getInstance();
 
         // работа с инфой
         require_once(CS_COREINCPATH . 'info.php');
         $this->info = CsInfo::getInstance();
-
-        /* установим какую-то начальную инфу */
-        $this->info->setOption('start_time', $_time, TRUE);
-
-        $this->info->setOption('system', [
-            'version' => '0.10'
-        ], TRUE);
-
-        $this->info->setOption('currenturi',  CsUrl::currentUri(), TRUE);
-        $this->info->setOption('baseurl',     CsUrl::baseUrl(), TRUE);
-        $this->info->setOption('fullurl',     CsUrl::fullUrl(), TRUE);
-        $this->info->setOption('segments',    CsUrl::segment(), TRUE);
+            /* установим какую-то начальную инфу */
+            $this->info->setOption('start_time', $_time, TRUE);
+            $this->info->setOption('system', ['version' => '0.10'], TRUE);
+            $this->info->setOption('currenturi',  CsUrl::currentUri(), TRUE);
+            $this->info->setOption('baseurl',     CsUrl::baseUrl(), TRUE);
+            $this->info->setOption('fullurl',     CsUrl::fullUrl(), TRUE);
+            $this->info->setOption('segments',    CsUrl::segment(), TRUE);
 
         // работа с конфигами
         require_once(CS_COREINCPATH . 'config.php');
         $this->config = CsConfig::getInstance();
-
-        // сразу подгрузим из файла
-        $this->config->fromFile('default');
+            // сразу подгрузим из файла
+            $this->config->fromFile('default');
 
         // файлы в папке shared
         require_once(CS_COREINCPATH . 'shared.php');
@@ -123,22 +120,19 @@ class CubSystem
     /**
      * Запуск системы
      * Включение всех фунций системы
+     * @throws Exception
      */
     public function start()
     {
         /* Хук при старте */
         $this->hooks->here('system_start');
 
+        /* Определим, нужно ли запускать установщик */
         // первоначально определили, что система не установлена.
-        if(!CsFS::fileExists(CS_CONFIGPATH . 'default.cfg.php'))
-        {
-            // загрузим специальный хелпер, который отвечает за установку
-            $install_helper = $this->helpers->loadOnce('install');
-            if($install_helper !== NULL) // загружен
-                $install_helper->init(); // по дефолту вызываемая ф-я init
-        }
+        $cs_installed = CsFS::fileExists(CS_CONFIGPATH . 'default.cfg.php');
+        $this->info->setOption('installed', $cs_installed, TRUE);
 
-        /* Хук до загрузки маршрутов */
+        /* Хук до загрузки хелперов */
         $this->hooks->here('system_load_helpers');
 
                     //**/////////////////////
@@ -161,14 +155,31 @@ class CubSystem
         if($modules_config['enabled'] === TRUE)
         {
             $this->modules = $this->helpers->getLoaded('modules');
-            $this->modules->initFor(CsFS::getDirectories(CS_MODULESCPATH, FALSE));
-            $this->modules->loadFor($modules_config['autoload']);
-            $this->modules->loadFromData(); // юзерские модули
+
+            if($this->modules !== NULL)
+            {
+                $this->modules->initFor(CsFS::getDirectories(CS_MODULESCPATH, FALSE));
+                $this->modules->loadFor($modules_config['autoload']);
+                $this->modules->loadFromData(); // юзерские модули
+            } else throw new Exception("Modules enabled, but no helper defined.");
+
         }
 
         /* Хук до выполнения роутов */
         $this->hooks->here('system_load_router');
         $this->router->run(); // запускаем все машруты
+
+        // система не установлена
+        if(!$this->info->getOption('installed'))
+        {
+            // загрузим специальный хелпер, который отвечает за установку
+            $install_helper = $this->helpers->loadOnce('install');
+            if($install_helper !== NULL) // загружен
+            {
+                $install_helper->init(); // по дефолту вызываемая ф-я init
+                $this->info->setOption('ignore_default_template', TRUE, TRUE);
+            } else throw new Exception("Error, no defined install helper.");
+        }
 
         /* Хук до загрузки шаблона */
         $this->hooks->here('system_load_tmpl');
@@ -177,12 +188,12 @@ class CubSystem
                     ///   Шаблон сайта   ///
                     ////////////////////////
         $templates_config = $this->config->getOption('template');
-        if($templates_config['enabled'] === TRUE && !$this->info->getOption('in_admin'))
+        if($templates_config['enabled'] === TRUE && !$this->info->getOption('ignore_default_template'))
         {
             $template = $this->helpers->getLoaded('template');
-
             if($template !== NULL)
                 $this->template = $template->register($templates_config['default_tmpl']);
+            else throw new Exception("Template enabled, but no helper defined.");
         }
     }
 
