@@ -1,11 +1,9 @@
 <?php
-/**
- *
- *    CubSystem Minimal
- *      -> http://github.com/Anchovys/cubsystem/minimal
- *    copy, © 2020, Anchovy
- * /
- */
+/* .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+  .  @copyright Copyright (c) 2020, Anchovy.
+  .  @author Anchovy, <contact.anchovy@gmail.com>
+  .  @license MIT public license
+  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . */
 
 define('_DS', DIRECTORY_SEPARATOR);
 define('CS__BASEPATH', dirname(realpath(__FILE__)) . _DS);
