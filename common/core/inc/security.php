@@ -14,7 +14,6 @@ class CsSecurity
      * @param string $text - текст для преобразования
      * @param bool $reverse - наоборот из транслита в кирилицу
      * @return string
-     * @throws Exception
      */
     static function transliterate(string $text, $reverse = FALSE)
     {
@@ -112,7 +111,6 @@ class CsSecurity
      *          username        - пресет. обрабатывает никнейм
      *          password        - пресет. обрабатывает пароль
      * @return string
-     * @throws Exception
      */
     static function filter($str, $mode = "base")
     {
@@ -190,7 +188,7 @@ class CsSecurity
                     break;
 
                 case 'email':
-                    $str = (!preg_match( "/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix", $str )) ? '' : $str;
+                    $str = preg_match( "/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix", $str ) ? $str : '';
                     break;
 
                 case 'ipv4':
@@ -230,7 +228,8 @@ class CsSecurity
                     break;
 
                 case 'path':
-                    $str = preg_replace( ['\\', '../', './', '..'], '', $str );
+                    $str = preg_replace( '!/+!', '/', $str );
+                    $str = str_replace(['\\','../', './', '..'], '', $str );
                     break;
 
                 case 'quotes':
@@ -246,7 +245,7 @@ class CsSecurity
                     break;
 
                 case 'sha512':
-                    $str = (!preg_match('/^[a-f0-9]{128}$/', $str )) ? '' : $str;
+                    $str = preg_match('/^[a-f0-9]{128}$/', $str ) ? $str : '';
                     break;
             }
         }
