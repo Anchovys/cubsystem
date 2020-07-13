@@ -30,16 +30,6 @@ class modules_helper
 
     private array $_loaded = [];
 
-    public function loadFromData()
-    {
-        $jsonData = CubSystem::getInstance()->shared->
-            getTextData('modules', TRUE);
-
-        if(is_string($jsonData) != TRUE)
-            return;
-
-        $this->loadFor(json_decode($jsonData));
-    }
 
     /**
      * Иницилизирует указанный массив модулей.
@@ -56,30 +46,16 @@ class modules_helper
         return $return;
     }
 
-    /**
-     * Выгружает все модули
-     */
-    public function unloadAll()
+    public function initForDir(string $directory = '')
     {
-        foreach ($this->_loaded as $key => $name)
+        $directory = default_val($directory, CS_MODULESCPATH);
+        $directory = CsSecurity::filter($directory, 'path');
+        $directories = CsFS::getDirectories($directory, 0);
+        foreach ($directories as $dir)
         {
-            $this->unloadOnce($key);
+            $dir = str_replace($directory, '', $dir);
+            $this->initOnce($dir);
         }
-    }
-
-    /**
-     * Подгружает указанный массив модулей.
-     * @param array $names
-     * @return object[]
-     */
-    public function loadFor(array $names)
-    {
-        $return = [];
-        foreach ($names as $key => $name)
-        {
-            $return[$name] = $this->loadOnce($name);
-        }
-        return $return;
     }
 
     function initOnce(string $name = '')
@@ -133,6 +109,43 @@ class modules_helper
             ];
 
         return $this->_loaded[$name];
+    }
+
+    /**
+     * Подгружает указанный массив модулей.
+     * @param array $names
+     * @return object[]
+     */
+    public function loadFor(array $names)
+    {
+        $return = [];
+        foreach ($names as $key => $name)
+        {
+            $return[$name] = $this->loadOnce($name);
+        }
+        return $return;
+    }
+
+    public function loadForData()
+    {
+        $jsonData = CubSystem::getInstance()->shared->
+        getTextData('modules', TRUE);
+
+        if(is_string($jsonData) != TRUE)
+            return;
+
+        $this->loadFor(json_decode($jsonData));
+    }
+
+    /**
+     * Выгружает все модули
+     */
+    public function unloadAll()
+    {
+        foreach ($this->_loaded as $key => $name)
+        {
+            $this->unloadOnce($key);
+        }
     }
 
     function loadOnce(string $name = '')
