@@ -58,8 +58,8 @@ class CubSystem
         // для статистики
         $_time = microtime(TRUE);
 
-        // функции для дебага и отладки
-        require_once(CS_COREINCPATH . 'debug.php');
+        // дополнительные функции
+        require_once(CS_COREINCPATH . 'functions.php');
 
         // функции статистики
         require_once(CS_COREINCPATH . 'stats.php');
@@ -82,10 +82,6 @@ class CubSystem
 
         // доп функции для работы с url
         require_once(CS_COREINCPATH . 'url.php');
-
-        // роуты (маршруты)
-        require_once(CS_COREINCPATH . 'router.php');
-        $this->router = CsRouter::getInstance();
 
         // работа с инфой
         require_once(CS_COREINCPATH . 'info.php');
@@ -111,6 +107,13 @@ class CubSystem
         // работа с хуками
         require_once(CS_COREINCPATH . 'hooks.php');
         $this->hooks = CsHooks::getInstance();
+
+        // роуты (маршруты)
+        require_once(CS_COREINCPATH . 'router.php');
+        $this->router = CsRouter::getInstance();
+        $this->router->set404(function () {
+            $this->hooks->here('system_router_404');
+        });
 
         // работа с хелперами
         require_once(CS_COREINCPATH . 'helpers.php');
@@ -158,11 +161,10 @@ class CubSystem
 
             if($this->modules !== NULL)
             {
-                $this->modules->initFor(CsFS::getDirectories(CS_MODULESCPATH, FALSE));
+                $this->modules->initForDir(CS_MODULESCPATH);
                 $this->modules->loadFor($modules_config['autoload']);
-                $this->modules->loadFromData(); // юзерские модули
+                $this->modules->loadForData(); // юзерские модули
             } else throw new Exception("Modules enabled, but no helper defined.");
-
         }
 
         /* Хук до выполнения роутов */

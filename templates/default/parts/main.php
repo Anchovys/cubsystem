@@ -15,10 +15,8 @@
                     <h1>{? $title ?}</h1>
                     <h2>{? $subtitle ?}</h2>
                     <small>Working time:
-                        <?=CsStats::getTimeInSeconds()?>
-                        sec.
-                        <br>
-                        Memory usage: <?=CsStats::getUsingMemoryString()?>
+                        {{CsStats::getTimeInSeconds()}} sec.<br>
+                        Memory usage: {{CsStats::getUsingMemoryString()}}
                     </small>
                 </div>
 

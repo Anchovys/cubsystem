@@ -1,42 +1,32 @@
 <?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
 /**
- *
- *    CubSystem Minimal
- *      -> http://github.com/Anchovys/cubsystem/minimal
- *    copy, © 2020, Anchovy
- * /
+ * Return value or default
+ * Возвращает значение, если оно есть,
+ * либо возвращает дефолтное
+ * @param $check
+ * @param $default
+ * @return null
  */
-/*
- * функция для отладки кода pr($любая_переменная)
- * $html == true - преобразование спецсимволов в HTML, иначе отдается как есть
- * $echo == true - сразу вывод в браузер, иначе возврат по return
- |
- 	@
-	@   Cubsystem CMS, (с) 2019
-	@   Author: Anchovy
-	@   GitHub: //github.com/Anchovys/cubsystem
-	@
- |
- */
+function default_val($check, $default = null)
+{
+    return is_null($check) ? $default : $check;
+}
 
 /**
  * Print any var
  * используется для отладки
+ * @param $var
+ * @param bool $html
+ * @param bool $echo
+ * @return false|string
  */
-function pr($var, $html = true, $echo = true)
+function pr($var, bool $html = TRUE, bool $echo = TRUE)
 {
-    if (!$echo)
-        ob_start();
+    if (!$echo) ob_start();
     else
         echo '<pre style="font-family: \'PT Mono\', sans-serif;">';
 
-    if (is_bool($var))
-    {
-        if ($var)
-            echo 'TRUE';
-        else
-            echo 'FALSE';
-    }
+    if (is_bool($var)) echo $var ? 'TRUE' : 'FALSE';
     else
     {
         if (is_scalar($var))
@@ -82,9 +72,31 @@ function pr($var, $html = true, $echo = true)
 /**
  * Аналогична pr, только завершающаяся die()
  * используется для отладки с помощью прерывания
+ * @param $var
+ * @param bool $html
+ * @param bool $echo
  */
-function _pr($var, $html = true, $echo = true)
+function _pr($var, bool $html = TRUE, bool $echo = TRUE)
 {
     pr($var, $html, $echo);
     die();
+}
+
+/**
+ * @param array $input
+ * @return array
+ */
+function array_keys_recursive(array $input)
+{
+    $keys = array_keys($input);
+
+    foreach ($input as $i)
+    {
+        if (is_array($i))
+        {
+            $keys = array_merge($keys, array_keys_recursive($i));
+        }
+    }
+
+    return $keys;
 }

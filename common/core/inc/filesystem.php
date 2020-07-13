@@ -12,21 +12,18 @@ class CsFS
     /**
      * Вернет массив директорий в указанной директории
      *
-     * @param string $source_dir    - директория, в которой искать другие директории
-     * @param bool $full_path       - в качестве результата вернуть полный путь?
+     * @param string $source_dir - директория, в которой искать другие директории
+     * @param int $depth
      * @return array
      */
-    public static function getDirectories(string $source_dir, bool $full_path = TRUE)
+    public static function getDirectories($source_dir, int $depth = 0)
     {
-        $filedata = array();
+        $depth = $depth+2;
+        if($depth <= 0) return [];
 
-        $dirs = self::directoryMap($source_dir, 0, $full_path, FALSE);
-        foreach ($dirs as $dir=>$files)
-        {
-            if(is_string($dir))
-                $filedata[] = $dir;
-        }
-        return $filedata;
+        $dirs = self::directoryMap($source_dir, $depth, TRUE, FALSE, FALSE, TRUE);
+
+        return array_keys_recursive($dirs);
     }
 
     /**
@@ -66,7 +63,7 @@ class CsFS
      * @param bool $hidden          - обрабатывать скрытые директории (., ..)
      * @return array|bool
      */
-    public static function directoryMap(string $source_dir, int $directory_depth = 0, bool $full_path = TRUE, bool $hidden = FALSE)
+    public static function directoryMap(string $source_dir, int $directory_depth = 0, bool $full_path = TRUE, bool $hidden = FALSE, bool $files = TRUE, bool $dirs = TRUE)
     {
         if ($fp = @opendir($source_dir))
         {
@@ -80,11 +77,11 @@ class CsFS
                 // Remove '.', '..', and hidden files [optional]
                 if (!trim($file, '.') OR ($hidden == FALSE && $file[0] == '.')) continue;
 
+
                 if (($directory_depth < 1 OR $new_depth > 0) && @is_dir($source_dir . $file))
-                    $filedata[$filename] = self::directoryMap($source_dir . $file . _DS, $new_depth, $full_path, $hidden);
-                else
-                    $filedata[] = $filename;
-                    // $filedata[] = htmlentities($file, ENT_QUOTES, 'cp1251');
+                    if($dirs)
+                        $filedata[$filename] = self::directoryMap($source_dir . $file . _DS, $new_depth, $full_path, $hidden);
+                else if($files) $filedata[] = $filename;
             }
 
             closedir($fp);

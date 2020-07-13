@@ -26,5 +26,5 @@ if(!isset($CS) && $CS = CubSystem::getInstance())
      */
 
     $CS->start(); // запускаем
-    $CS->out(); // выводим на эран
+    $CS->out();   // выводим на эран
 }
