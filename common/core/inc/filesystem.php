@@ -11,7 +11,7 @@ class CsFS
      * Вернет массив директорий в указанной директории
      *
      * @param string $source_dir - директория, в которой искать другие директории
-     * @param int $depth
+     * @param int $depth - глубина поиска
      * @return array
      */
     public static function getDirectories($source_dir, int $depth = 0)
@@ -19,30 +19,41 @@ class CsFS
         $depth = $depth+2;
         if($depth <= 0) return [];
 
-        $dirs = self::directoryMap($source_dir, $depth, TRUE, FALSE, FALSE, TRUE);
+        $map = self::directoryMap($source_dir, $depth, TRUE, FALSE, FALSE);
 
-        return array_keys_recursive($dirs);
+        return array_keys_recursive($map);
     }
 
     /**
      * Вернет массив файлов в данной директории
      *
      * @param string $source_dir - директория, в которой искать другие директории
-     * @param bool $full_path
-     * @param array $exts
+     * @param int $depth - глубина поиска
+     * @param array|string $ext - расширения или массив расширений для поиска
      * @return array
      */
-    public static function getFiles(string $source_dir, bool $full_path = TRUE, array $exts = ['jpg', 'jpeg', 'png', 'gif', 'ico', 'svg'])
+    public static function getFiles(string $source_dir, int $depth = 0, $ext = ['jpg', 'jpeg', 'png', 'gif', 'ico', 'svg'])
     {
-        $filedata = array();
-        $files = self::directoryMap($source_dir, 0, TRUE, FALSE);
+        $depth = $depth+2;
+        if($depth <= 0) return [];
 
-        foreach ($files as $key=>$item)
+        $map = self::directoryMap($source_dir, $depth, TRUE);
+        $files = array_values_recursive($map);
+
+        $return = [];
+        foreach ($files as $file)
         {
-            if(is_string($item) && is_file($item) && in_array(self::getExt($item), $exts))
-                $filedata[] = $full_path ? $item : str_replace($source_dir, '', $item);
+            $extension = self::getExt($file);
+            if(is_array($ext) && array_key_exists($extension, $ext))
+            {
+                $return[] = $file;
+            } else if(is_string($ext) && $extension === $ext)
+            {
+                $return[] = $file;
+            }
         }
-        return $filedata;
+
+        return $return;
     }
 
     /**
@@ -52,38 +63,43 @@ class CsFS
      *      'dir name' =>
      *      [
      *          '0' => 'file.php'
+     *          'sub_dir' =>
+     *          [
+     *              '0' => 'file.php'
+     *          ]
      *      ]
      * ]
      *
-     * @param string $source_dir    - директория, в которой искать другие директории
-     * @param int $directory_depth  - макс. вложенность директорий
-     * @param bool $full_path       - в качестве результата вернуть полный путь?
-     * @param bool $hidden          - обрабатывать скрытые директории (., ..)
+     * @param string $source_dir - директория, в которой искать другие директории
+     * @param int $directory_depth - макс. вложенность директорий
+     * @param bool $full_path - в качестве результата вернуть полный путь?
+     * @param bool $hidden - обрабатывать скрытые директории (., ..)
+     * @param bool $files
      * @return array|bool
      */
-    public static function directoryMap(string $source_dir, int $directory_depth = 0, bool $full_path = TRUE, bool $hidden = FALSE, bool $files = TRUE, bool $dirs = TRUE)
+    public static function directoryMap(string $source_dir, int $directory_depth = 0, bool $full_path = TRUE, bool $hidden = FALSE, bool $files = TRUE)
     {
         if ($fp = @opendir($source_dir))
         {
-            $filedata	= array();
+            $return	= [];
             $new_depth	= $directory_depth - 1;
             $source_dir	= rtrim($source_dir, _DS)._DS;
 
-            while (FALSE !== ($file = readdir($fp)))
+            while (($file = readdir($fp)) !== FALSE)
             {
+                $new_source = $source_dir . $file . _DS;
                 $filename = $full_path ? $source_dir . $file : $file;
+
                 // Remove '.', '..', and hidden files [optional]
                 if (!trim($file, '.') OR ($hidden == FALSE && $file[0] == '.')) continue;
 
-
-                if (($directory_depth < 1 OR $new_depth > 0) && @is_dir($source_dir . $file))
-                    if($dirs)
-                        $filedata[$filename] = self::directoryMap($source_dir . $file . _DS, $new_depth, $full_path, $hidden);
-                else if($files) $filedata[] = $filename;
+                if (($directory_depth < 1 OR $new_depth > 0) && self::dirExists($new_source))
+                    $return[$filename] = self::directoryMap($new_source, $new_depth, $full_path, $hidden, $files);
+                else if($files) $return[] = $filename;
             }
 
             closedir($fp);
-            return $filedata;
+            return $return;
         }
 
         return FALSE;
