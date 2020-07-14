@@ -86,7 +86,7 @@ class CubSystem
         $this->info = CsInfo::getInstance();
             /* установим какую-то начальную инфу */
             $this->info->setOption('start_time', $_time, TRUE);
-            $this->info->setOption('system', ['version' => '0.10'], TRUE);
+            $this->info->setOption('system', ['version' => '0.11'], TRUE);
             $this->info->setOption('currenturi',  CsUrl::currentUri(), TRUE);
             $this->info->setOption('baseurl',     CsUrl::baseUrl(), TRUE);
             $this->info->setOption('fullurl',     CsUrl::fullUrl(), TRUE);
