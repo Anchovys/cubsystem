@@ -18,6 +18,9 @@ class default_template extends template_helper
      */
     public function onLoad()
     {
+        // можно поставить свои Meta данные
+        $this->setMeta('title', 'Hello world!');
+
         // входной шаблон (   parts/index.php   )
         // содержит два буфера - body, head
         $this->indexTmpl = new CsTmpl('index', $this);
@@ -34,6 +37,7 @@ class default_template extends template_helper
         $this->addTmpl($this->blankTmpl, 1);
         $this->addTmpl($this->mainTmpl,  2);
 
+        // ставим главный
         $this->setMainTmpl($this->mainTmpl);
 
         // вернем True
@@ -47,9 +51,6 @@ class default_template extends template_helper
      */
     public function onDisplay()
     {
-        // можно поставить свои Meta данные
-        $this->setMeta('title', 'Hello world!');
-
         // во входной шаблон добавляем буферы
         // в body добавим то, что вернул пользовательский
         $this->indexTmpl
