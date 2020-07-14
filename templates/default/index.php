@@ -31,11 +31,10 @@ class default_template extends template_helper
 
         // зарегистрируем два шаблона на Id 0 , 1 и 2
         $this->addTmpl($this->indexTmpl, 0);
-        $this->addTmpl($this->blankTmpl,  1);
+        $this->addTmpl($this->blankTmpl, 1);
         $this->addTmpl($this->mainTmpl,  2);
 
-        // поставим main id = 2
-        $this->mainId = 2;
+        $this->setMainTmpl($this->mainTmpl);
 
         // вернем True
         return parent::onLoad();
