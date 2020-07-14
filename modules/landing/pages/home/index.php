@@ -7,6 +7,7 @@
 
 /* OPTIONS_BLOCK {
     "title": "Hello, welcome to landing!",
+    "css": ["bootstrap.min.css"],
     "desc": "My landing are beautiful",
 	"keywords": "Landing, PHP, CubSystem",
 	"tmpl_part": "blank",
