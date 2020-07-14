@@ -18,14 +18,11 @@ class default_template extends template_helper
      */
     public function onLoad()
     {
-        // можно поставить свои Meta данные
-        $this->setMeta('title', 'Hello world!');
-
         // входной шаблон (   parts/index.php   )
         // содержит два буфера - body, head
         $this->indexTmpl = new CsTmpl('index', $this);
 
-        // главный шаблон (   parts/index.php   )
+        // главный шаблон (   parts/main.php   )
         // содержит юзерские буферы
         $this->mainTmpl  = new CsTmpl('main', $this);
 
@@ -51,7 +48,6 @@ class default_template extends template_helper
      */
     public function onDisplay()
     {
-
         $autoload = $this->autoloadAssets('css/autoload', 'css') .
                     $this->autoloadAssets('js/autoload', 'js');
 
