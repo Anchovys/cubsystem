@@ -15,7 +15,7 @@
  */
 function default_val($check, $default = null)
 {
-    return is_null($check) ? $default : $check;
+    return is_null($check) || (is_bool($check) && !$check) ? $default : $check;
 }
 
 /**
