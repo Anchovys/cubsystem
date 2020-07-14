@@ -89,20 +89,42 @@ function _pr($var, bool $html = TRUE, bool $echo = TRUE)
 }
 
 /**
+ * Рекурсивный аналог функции PHP array_keys()
  * @param array $input
  * @return array
  */
-function array_keys_recursive(array $input)
+function array_keys_recursive(array $input) : array
 {
     $keys = array_keys($input);
 
-    foreach ($input as $i)
+    foreach ($input as $item)
     {
-        if (is_array($i))
+        if (is_array($item))
         {
-            $keys = array_merge($keys, array_keys_recursive($i));
+            $keys = array_merge($keys, array_keys_recursive($item));
         }
     }
 
     return $keys;
+}
+
+/**
+ * Рекурсивный аналог функции PHP array_values()
+ * @param array $input
+ * @return array
+ */
+function array_values_recursive(array $input) : array
+{
+    $values = [];
+
+    foreach($input as $value)
+    {
+        if (is_array($value))
+        {
+            $values = array_merge($values, array_values_recursive($value));
+            continue;
+        }
+        $values[] = $value;
+    }
+    return $values;
 }
