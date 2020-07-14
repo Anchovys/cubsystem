@@ -56,89 +56,25 @@ class module_landing extends CsModule
 
     private function registerPage($name, $filename)
     {
+        //pr("регистрирую $filename на '/$name'");
         $CS = CubSystem::getInstance();
 
         /* Определяем файл страницы */
         if ( !CsFS::fileExists($filename)) return FALSE;
 
         /* Вешаем на маршрут */
-        $CS->router->get( ('/' . $name) , function() use($filename, $CS)
+        $CS->router->get('/' . $name, function() use($filename, $CS)
         {
             /* Пробуем вешать хук перед выводом шаблона */
             $CS->hooks->register('system_print_tmpl', function() use($filename, $CS)
             {
-                // получим опции из файла
-                $options = $this->getOptions($filename);
-
-                // перерегистрируем шаблон
-                if(is_string(default_val($options['template'], FALSE)) && $CS->template !== NULL)
-                {
-                    $CS->template = $CS->template->register($options['template']);
-                }
-
-                // выставляем мета-поля
-                if($options['title']) $CS->template->setMeta('title', $options['title']);
-                if($options['desc']) $CS->template->setMeta('description', $options['desc']);
-                if($options['keywords']) $CS->template->setMeta('keywords', $options['keywords']);
-
-                // выставляем поля css
-                if($options['css'] && is_string($options['css']))
-                    $CS->template->setMeta('css', $options['css']);
-                else if(is_array($options['css'])) foreach ($options['css'] as $css)
-                    $CS->template->setMeta('css', $css);
-
-                // выставляем поля js
-                if($options['js'] && is_string($options['js']))
-                    $CS->template->setMeta('js', $options['js']);
-                else if(is_array($options['js'])) foreach ($options['js'] as $css)
-                    $CS->template->setMeta('js', $css);
-
-
-                // обработаем страницу шаблоном и шаблонизатором
-                $string = $CS->template->handleFile($filename);
-
-                // создаем шаблон отображения
-                $template_part = new CsTmpl(default_val($options['tmpl_part'], 'blank'), $CS->template);
-
-                // ставим в шаблон отображения контент
-                $template_part->set(default_val($options['content_buffer'], 'content'), $string);
-
-                // добавляем шаблон отображения
-                $CS->template->addTmpl($template_part);
-
-                // установим шаблон отображения главным
-                $CS->template->setMainTmpl($template_part);
+                $string = $CS->template->handleFile($filename); // обработаем страницу
+                $CS->template->mainId = 1;
+                $CS->template->getMainTmpl()->
+                    set('content', $string, 0);
             });
         });
 
         return TRUE;
-    }
-
-
-    private function getOptions(string $filename)
-    {
-        $options_array = [];
-        $options_array['title'] = '';
-        $options_array['desc'] = '';
-        $options_array['css'] = '';
-        $options_array['js'] = '';
-        $options_array['keywords'] = '';
-        $options_array['template'] = FALSE;
-        $options_array['tmpl_part'] = 'blank';
-        $options_array['content_buffer'] = 'content';
-
-        $data = file_get_contents($filename);
-        if(preg_match("!/\* OPTIONS_BLOCK(.*?)\*/!is", $data, $options))
-        {
-            $options = trim($options[1]);
-            $options = json_decode($options, true);
-            if(is_array($options))
-                foreach ($options as $key=>$option)
-                    if(array_key_exists($key, $options_array))
-                        $options_array[$key] = $option;
-        }
-        unset($data);
-
-        return $options_array;
     }
 }
