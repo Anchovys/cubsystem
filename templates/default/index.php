@@ -51,11 +51,18 @@ class default_template extends template_helper
      */
     public function onDisplay()
     {
+
+        $autoload = $this->autoloadAssets('css/autoload', 'css') .
+                    $this->autoloadAssets('js/autoload', 'js');
+
+        $lazy = $this->autoloadAssets('css/lazy', 'css') .
+                $this->autoloadAssets('js/lazy', 'js');
+
         // во входной шаблон добавляем буферы
         // в body добавим то, что вернул пользовательский
         $this->indexTmpl
-            ->set('head', $this->getTotalMeta())
-            ->set('body', $this->getMainTmpl()->out());
+            ->set('head', $this->getTotalMeta() . $autoload)
+            ->set('body', $this->getMainTmpl()->out() . $lazy);
 
         // вернем True
         return parent::onDisplay();

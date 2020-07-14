@@ -273,6 +273,35 @@ class template_helper
         return $template;
     }
 
+    public function autoloadAssets($directory, string $ext = 'css', string $assetsDir = '')
+    {
+        $finally_html = "";
+        $assetsDir = default_val($assetsDir, $this->directory . 'assets' . _DS);
+        $full_directory = CsSecurity::filter($assetsDir . $directory . _DS, 'path');
+
+        if(!CsFS::dirExists($full_directory))
+            return '';
+
+        $files = CsFS::getFiles($full_directory, 0, $ext);
+
+        foreach ($files as $file)
+        {
+            $url = CsUrl::pathToUrl($file);
+
+            switch ($ext)
+            {
+                case 'css':
+                    $finally_html .= "<link rel=\"stylesheet\" href=\"{$url}\">";
+                    break;
+                case 'js':
+                    $finally_html .= "<script src=\"{$url}\"></script>";
+                    break;
+            }
+        }
+
+        return $finally_html;
+    }
+
     /**
      * Поставить Meta данные
      * @param $key
