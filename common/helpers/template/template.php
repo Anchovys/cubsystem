@@ -15,7 +15,7 @@ class template_helper
     protected ?array  $_tmpl = NULL;
 
     private   array   $_meta;
-    public    int     $mainId = 0;
+    private   int     $mainId = 0;
 
     /**
      * @param string $name
@@ -60,28 +60,26 @@ class template_helper
 
     }
 
-    public function onLoad()
-    {
-        return TRUE;
-    }
-
-    public function onDisplay()
-    {
-        return TRUE;
-    }
-
     /**
-     * @param CsTmpl $tmpl
-     * @param int $id
+     * Добавляет новый шаблон в систему
+     *
+     * @param CsTmpl $tmpl - обьект шаблона
+     * @param int $id - предпочитаемый ID
+     * (можно не указывать, тогда будет добавлен следующим)
+     * @param bool $setMain - установит этот шаблон главным.
+     * обьязательно укажите id для этого
      */
-    public function addTmpl(CsTmpl $tmpl, int $id = -1)
+    public function addTmpl(CsTmpl $tmpl, int $id = -1, bool $setMain = FALSE)
     {
-        if($id === -1)
-            $this->_tmpl[] = $tmpl;
-        else $this->_tmpl[$id] = $tmpl;
+        if($id < 0) $this->_tmpl[] = $tmpl;
+        else {
+            $this->_tmpl[$id] = $tmpl;
+            if($setMain) $this->mainId = $id;
+        }
     }
 
     /**
+     * Вернет главный шаблон
      * @return CsTmpl
      */
     public function getMainTmpl()
@@ -90,14 +88,57 @@ class template_helper
     }
 
     /**
+     * Вернет ID главного шаблона
+     * @return int
+     */
+    public function getMainTmplId()
+    {
+        return $this->mainId;
+    }
+
+    /**
+     * Поменять id главного шаблона
+     * @param int $id - id, на который нужно поменять
+     */
+    public function setMainTmplId(int $id)
+    {
+        if(!array_key_exists($id, $this->_tmpl)) return;
+        $this->mainId = $id;
+    }
+
+    public function setMainTmpl(CsTmpl $tmpl)
+    {
+        $tmpl_id = $this->getTmplId($tmpl);
+
+        if(is_int($tmpl_id))
+            $this->setMainTmplId($tmpl_id);
+    }
+
+    /**
      * @param int $id
      * @return CsTmpl
      */
     public function getTmpl(int $id = 0)
     {
+        if(!array_key_exists($id, $this->_tmpl))
+            return NULL;
         return $this->_tmpl[$id];
     }
 
+    /**
+     * Вызвращает ID переданного обьекта в массиве
+     * Если не найден - вернет null
+     * @param CsTmpl $tmpl - обьект шаблона
+     * @return int|null
+     */
+    public function getTmplId(CsTmpl $tmpl)
+    {
+        if(!in_array($tmpl, $this->_tmpl))
+            return NULL;
+
+        $id = array_search($tmpl, $this->_tmpl);
+        return default_val($id, NULL);
+    }
 
     /**
      * @param string $name
@@ -168,19 +209,6 @@ class template_helper
         return (count_chars($result) !== 0) ? $result : FALSE;
     }
 
-    /**
-     * Поставить Meta данные
-     * @param $key
-     * @param $value
-     */
-    public function setMeta(string $key, $value): void
-    {
-        $this->_meta[] =
-        [
-            'k' => $key,
-            'v' => $value
-        ];
-    }
 
     public function handleFile(string $file, $__data = '', $custom = null)
     {
@@ -225,7 +253,17 @@ class template_helper
         return ob_get_clean();
     }
 
-    function tmpl_prepare($template)
+    public function onLoad()
+    {
+        return TRUE;
+    }
+
+    public function onDisplay()
+    {
+        return TRUE;
+    }
+
+    private function tmpl_prepare($template)
     {
         $template =  str_replace(
             array('{?', '?}', '{{', '}}', '{%', '%}'),
@@ -233,6 +271,20 @@ class template_helper
             $template);
 
         return $template;
+    }
+
+    /**
+     * Поставить Meta данные
+     * @param $key
+     * @param $value
+     */
+    public function setMeta(string $key, $value): void
+    {
+        $this->_meta[] =
+            [
+                'k' => $key,
+                'v' => $value
+            ];
     }
 
     /**
@@ -255,6 +307,11 @@ class template_helper
                     case 'description':
                         $total_data .= "<meta name=\"description\" content=\"{$value}\">";
                         $total_data .= "<meta property=\"og:description\" content=\"{$value}\">";
+                        break;
+
+                    case 'keywords':
+                        $total_data .= "<meta name=\"keywords\" content=\"{$value}\">";
+                        $total_data .= "<meta property=\"og:keywords\" content=\"{$value}\">";
                         break;
 
                     case 'icon':
