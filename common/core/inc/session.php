@@ -29,15 +29,15 @@ class CsSession
         return self::$_instance;
     }
 
-    private $prefix = 'cs_';
-    private $sessionStarted = false;
-    private $autoStart = TRUE;
-    private $lifeTime = 0;
+    private string $prefix = 'cs_';
+    private bool $sessionStarted = FALSE;
+    private bool $autoStart = TRUE;
+    private int $lifeTime = 0;
 
     public function init($options = ['lifeTime' => 0, 'autoStart' => TRUE, 'prefix' => 'cs_'])
     {
         if(!$options || !is_array($options))
-            return false;
+            return FALSE;
 
         if(isset($options['autoStart'])) $this->autoStart = (bool)$options['autoStart'];
         if(isset($options['lifeTime'])) $this->lifeTime = (int)$options['lifeTime'];
@@ -46,7 +46,7 @@ class CsSession
         if($this->autoStart)
             $this->start();
 
-        return true;
+        return TRUE;
     }
 
     public function setPrefix($prefix)
@@ -56,7 +56,7 @@ class CsSession
             $this->prefix = $prefix;
             return TRUE;
         }
-        return false;
+        return FALSE;
     }
 
     public function getPrefix()
@@ -73,6 +73,13 @@ class CsSession
         {
             session_set_cookie_params($this->lifeTime);
             session_start();
+        }
+
+        $session_id = $this->get('session_id');
+        if(empty($session_id)) {
+            $this->push('session_id', $this->id());
+        } else if(!$this->checkSessionId($session_id)) {
+            die('Session not match!');
         }
 
         return $this->sessionStarted = TRUE;
@@ -111,13 +118,13 @@ class CsSession
     public function pull($key = '')
     {
         if($key == '' || !is_scalar($key))
-            return null;
+            return NULL;
 
         if(!array_key_exists($key, $_SESSION))
-            return null;
+            return NULL;
 
         if(!isset($_SESSION[$this->prefix . $key]))
-            return null;
+            return NULL;
 
         $value = $_SESSION[$this->prefix . $key];
         unset($_SESSION[$this->prefix . $key]);
@@ -141,14 +148,14 @@ class CsSession
 
         if ($key == '')
         {
-            return isset($_SESSION) ? $_SESSION : null;
-        } elseif ($secondKey === TRUE)
+            return isset($_SESSION) ? $_SESSION : NULL;
+        } else if ($secondKey === TRUE)
         {
             if (isset($_SESSION[$name][$secondKey]))
                 return $_SESSION[$name][$secondKey];
         }
 
-        return isset($_SESSION[$name]) ? $_SESSION[$name] : null;
+        return isset($_SESSION[$name]) ? $_SESSION[$name] : NULL;
     }
 
     /**
