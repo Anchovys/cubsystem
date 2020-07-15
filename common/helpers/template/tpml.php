@@ -49,6 +49,22 @@ class CsTmpl
     }
 
     /**
+     * @param array $data
+     * @param bool $override
+     * @param bool $append
+     */
+    public function setArray(array $data, bool $override = TRUE, bool $append = FALSE)
+    {
+        foreach ($data as $key=>$value)
+        {
+            if(key_exists($key, $this->_buffer) && !$override)
+                continue;
+
+            $this->set($key, $value, FALSE, $append);
+        }
+    }
+
+    /**
      * @param string $name
      * @return array|bool
      */
