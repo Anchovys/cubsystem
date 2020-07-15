@@ -15,7 +15,7 @@ $config['helpers'] = [
     'priority' =>
     [
         'template',
-        // 'mysql', // uncomment for use mysql
+        'mysql',
         'modules'
     ],
     'ignore' =>
@@ -58,7 +58,6 @@ $config['modules'] = [
     'helper'   => 'modules',
     'autoload' =>
     [
-        'landing',
         'demo',
         'welcome' // change it!
     ]
