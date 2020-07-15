@@ -136,6 +136,10 @@ class module_landing extends CsModule
 
         $moduleConfig = $this->config['module'];
 
+        // опции отключены
+        if(!$moduleConfig['enable_options'])
+            return $options_array;
+
         // разрешен кеш, тогда пытаемся взять из кеша
         $options = ($moduleConfig['allow_cache_options'] !== FALSE) ?
             $CS->cache->get('options_' . $filename) : NULL;

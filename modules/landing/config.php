@@ -49,13 +49,19 @@ $config['module']['main_page'] = 'home';
 $config['module']['index_file'] = 'index.php';
 
 /*
-    Разрешить кеширование YAML опциий
-    в файлах страниц. По умолчанию FALSE
+    Нужно ли брабатывать JSON опции
+    в файлах страниц.
+*/
+$config['module']['enable_options'] = TRUE;
+
+/*
+    Разрешить кеширование JSON опциий
+    в файлах страниц. По умолчанию FALSE.
 */
 $config['module']['allow_cache_options'] = FALSE;
 
 /*
-    Время, на которое опции сохраняются в кеше
+    Время, на которое опции сохраняются в кеше.
 */
 $config['module']['cache_options_time'] = 3600;
 
