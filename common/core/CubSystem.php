@@ -202,8 +202,6 @@ class CubSystem
                 $this->template = $template->register($templates_config['default_tmpl']);
             else throw new Exception("Template enabled, but no helper defined.");
         }
-
-        pr($val);
     }
 
     /**
