@@ -93,7 +93,6 @@ class module_landing extends CsModule
                 else if(is_array($options['js'])) foreach ($options['js'] as $css)
                     $CS->template->setMeta('js', $css);
 
-
                 // обработаем страницу шаблоном и шаблонизатором
                 $string = $CS->template->handleFile($filename);
 
@@ -122,7 +121,6 @@ class module_landing extends CsModule
     private function getOptions(string $filename)
     {
         $CS = CubSystem::getInstance();
-        $moduleConfig = $this->config['module'];
 
         // те опции, которые определены по дефолту,
         // но их можно переопределить, просто перезаписав
@@ -136,31 +134,34 @@ class module_landing extends CsModule
         $options_array['tmpl_part'] = 'blank';
         $options_array['content_buffer'] = 'content';
 
-        // читаем файл
-        $data = file_get_contents($filename);
+        $moduleConfig = $this->config['module'];
 
         // разрешен кеш, тогда пытаемся взять из кеша
         $options = ($moduleConfig['allow_cache_options'] !== FALSE) ?
             $CS->cache->get('options_' . $filename) : NULL;
 
-        // не взяли, тогда возьмем сами
-        if(empty($options) && preg_match("!/\* OPTIONS_BLOCK(.*?)\*/!is", $data, $options))
+        if(empty($options)) // кеш оказлся пустым
         {
+            // читаем файл
+            $data = file_get_contents($filename);
+
             // обрабатываем по паттерну:
             // /* OPTIONS_BLOCK {
             //
             //         ** здесь json **
             //
             // } */
-
-            // получаем json из выборки и преобразуем в массив
-            $options = trim($options[1]);
-            $options = json_decode($options, true);
-
-            // если есть возможность записать в кеш, пишем
-            if($moduleConfig['allow_cache_options'])
+            if(preg_match("!/\* OPTIONS_BLOCK(.*?)\*/!is", $data, $options))
             {
-                $CS->cache->set('options_' . $filename, $options, $moduleConfig['cache_options_time']);
+                // получаем json из выборки и преобразуем в массив
+                $options = trim($options[1]);
+                $options = json_decode($options, true);
+
+                // если есть возможность записать в кеш, пишем
+                if($moduleConfig['allow_cache_options'])
+                {
+                    $CS->cache->set('options_' . $filename, $options, $moduleConfig['cache_options_time']);
+                }
             }
         }
 
