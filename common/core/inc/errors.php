@@ -38,9 +38,8 @@ class CsErrors
     {
         $this->printer(
             'Error type('.$level.'): msg:' . $message,
-            'cont:' . json_encode($context),
+            CS_ENV === 'debug' ? 'cont:' . json_encode($context) : '',
             'src:' . $file . ' : ' . $line . ', gen_t: ' . time());
-        die();
     }
 
     public function handleException($exception)
@@ -49,7 +48,6 @@ class CsErrors
             'Exception: code(' . $exception->getCode() . '): ' . $exception->getMessage(),
             'info:' . $this->jTraceEx($exception),
             'src:' . $exception->getFile() . ' : ' . $exception->getLine() . ', gen_t: ' . time());
-        die();
     }
 
     /*
@@ -103,5 +101,6 @@ class CsErrors
             print '<p>'. $body .'</p>';
             print '<p><small color="#ccc">'. $small .'</small></p>';
         print '</details>';
+        die();
     }
 }
