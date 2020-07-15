@@ -22,16 +22,17 @@ define("CS_UPLOADSPATH",  CS_SHAREDPATH  . 'uploads' . _DS);
 
 class CubSystem
 {
-    public ?CsInfo    $info;
-    public ?CsConfig  $config;
-    public ?CsHooks   $hooks;
-    public ?CsHelpers $helpers;
-    public ?CsSession $session;
-    public ?CsRouter  $router;
-    public ?CsShared  $shared;
-    public ?CsErrors  $errors;
-    public ?modules_helper $modules;
-    public ?template_helper $template;
+    public ?CsInfo    $info = NULL;
+    public ?CsConfig  $config = NULL;
+    public ?CsHooks   $hooks = NULL;
+    public ?CsHelpers $helpers = NULL;
+    public ?CsSession $session = NULL;
+    public ?CsRouter  $router = NULL;
+    public ?CsShared  $shared = NULL;
+    public ?CsErrors  $errors = NULL;
+    public ?CsCache   $cache = NULL;
+    public ?modules_helper $modules = NULL;
+    public ?template_helper $template = NULL;
 
     // for singleton
     private static ?CubSystem $_instance = NULL;
@@ -70,6 +71,11 @@ class CubSystem
         // доп функции для безопасности системы
         require_once(CS_COREINCPATH . 'security.php');
 
+        // кеширование и работа с кешем
+        require_once(CS_COREINCPATH . 'cache.php');
+        $this->cache = CsCache::getInstance();
+        $this->cache->init(CS_CACHEPATH);
+
         // сессия и работа с ней
         require_once(CS_COREINCPATH . 'session.php');
         $this->session = CsSession::getInstance();
@@ -86,7 +92,7 @@ class CubSystem
         $this->info = CsInfo::getInstance();
             /* установим какую-то начальную инфу */
             $this->info->setOption('start_time', $_time, TRUE);
-            $this->info->setOption('system', ['version' => '0.11'], TRUE);
+            $this->info->setOption('system', ['version' => '0.12'], TRUE);
             $this->info->setOption('currenturi',  CsUrl::currentUri(), TRUE);
             $this->info->setOption('baseurl',     CsUrl::baseUrl(), TRUE);
             $this->info->setOption('fullurl',     CsUrl::fullUrl(), TRUE);
@@ -125,6 +131,7 @@ class CubSystem
      */
     public function start()
     {
+
         /* Хук при старте */
         $this->hooks->here('system_start');
 
@@ -195,6 +202,8 @@ class CubSystem
                 $this->template = $template->register($templates_config['default_tmpl']);
             else throw new Exception("Template enabled, but no helper defined.");
         }
+
+        pr($val);
     }
 
     /**
@@ -206,9 +215,9 @@ class CubSystem
         /* Хук до вывода шаблона */
         $this->hooks->here('system_print_tmpl');
 
-        //**////////////////////
-        ///   Вывод шаблона  ///
-        ////////////////////////
+                //**////////////////////
+                ///   Вывод шаблона  ///
+                ////////////////////////
         if($this->template !== NULL && $this->template instanceof template_helper)
             $this->template->showBuffer(0);
 
