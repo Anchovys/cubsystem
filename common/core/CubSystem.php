@@ -20,6 +20,9 @@ define('CS_COREINCPATH',  CS_COREPATH    . 'inc'     . _DS);
 define("CS_SHAREDPATH",   CS__BASEPATH   . 'shared'  . _DS);
 define("CS_UPLOADSPATH",  CS_SHAREDPATH  . 'uploads' . _DS);
 
+/* debug, release */
+define("CS_ENV", "release");
+
 class CubSystem
 {
     public ?CsInfo    $info = NULL;
@@ -31,6 +34,7 @@ class CubSystem
     public ?CsShared  $shared = NULL;
     public ?CsErrors  $errors = NULL;
     public ?CsCache   $cache = NULL;
+    public ?mysql_helper $mysql = NULL;
     public ?modules_helper $modules = NULL;
     public ?template_helper $template = NULL;
 
@@ -71,11 +75,6 @@ class CubSystem
         // доп функции для безопасности системы
         require_once(CS_COREINCPATH . 'security.php');
 
-        // кеширование и работа с кешем
-        require_once(CS_COREINCPATH . 'cache.php');
-        $this->cache = CsCache::getInstance();
-        $this->cache->init(CS_CACHEPATH);
-
         // сессия и работа с ней
         require_once(CS_COREINCPATH . 'session.php');
         $this->session = CsSession::getInstance();
@@ -104,6 +103,11 @@ class CubSystem
             // сразу подгрузим из файла
             $this->config->fromFile('default');
 
+        // кеширование и работа с кешем
+        require_once(CS_COREINCPATH . 'cache.php');
+        $this->cache = CsCache::getInstance();
+        $this->cache->init();
+
         // файлы в папке shared
         require_once(CS_COREINCPATH . 'shared.php');
         $this->shared = CsShared::getInstance();
@@ -131,7 +135,6 @@ class CubSystem
      */
     public function start()
     {
-
         /* Хук при старте */
         $this->hooks->here('system_start');
 
@@ -153,6 +156,17 @@ class CubSystem
             $this->helpers->loadFor(CsFS::getDirectories(CS_HELPERSPATH, FALSE));
         }
 
+                    //**///////////////////////
+                    /// Инициализация MySql ///
+                    ///////////////////////////
+        $database_config = $this->config->getOption('database');
+        if($database_config['enabled'] === TRUE)
+        {
+            $this->mysql = $this->helpers->getLoaded($database_config['helper']);
+            $this->mysql->init($database_config['connection_data']);
+            $this->mysql->getObject()->connect();
+        }
+
         /* Хук до загрузки модулей */
         $this->hooks->here('system_load_modules');
 
@@ -164,8 +178,7 @@ class CubSystem
         {
             $this->modules = $this->helpers->getLoaded('modules');
 
-            if($this->modules !== NULL)
-            {
+            if($this->modules !== NULL) {
                 $this->modules->initForDir(CS_MODULESCPATH);
                 $this->modules->loadFor($modules_config['autoload']);
                 $this->modules->loadForData(); // юзерские модули
@@ -181,8 +194,7 @@ class CubSystem
         {
             // загрузим специальный хелпер, который отвечает за установку
             $install_helper = $this->helpers->loadOnce('install');
-            if($install_helper !== NULL) // загружен
-            {
+            if($install_helper !== NULL) { // загружен
                 $install_helper->init(); // по дефолту вызываемая ф-я init
                 $this->info->setOption('ignore_default_template', TRUE, TRUE);
             } else throw new Exception("Error, no defined install helper.");
@@ -198,9 +210,9 @@ class CubSystem
         if($templates_config['enabled'] === TRUE && !$this->info->getOption('ignore_default_template'))
         {
             $template = $this->helpers->getLoaded('template');
-            if($template !== NULL)
+            if($template !== NULL) {
                 $this->template = $template->register($templates_config['default_tmpl']);
-            else throw new Exception("Template enabled, but no helper defined.");
+            } else throw new Exception("Template enabled, but no helper defined.");
         }
     }
 
@@ -217,7 +229,9 @@ class CubSystem
                 ///   Вывод шаблона  ///
                 ////////////////////////
         if($this->template !== NULL && $this->template instanceof template_helper)
+        {
             $this->template->showBuffer(0);
+        }
 
         /* Хук на конец выполнения */
         $this->hooks->here('system_end');

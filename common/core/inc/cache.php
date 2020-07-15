@@ -1,4 +1,4 @@
-<?php  defined('CS__BASEPATH') OR exit('No direct script access allowed');
+<?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
 /* .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
   .  @copyright Copyright (c) 2020, Anchovy.
   .  @author Anchovy, <contact.anchovy@gmail.com>
@@ -24,12 +24,24 @@ class CsCache
     private ?string $_path = '';
     private ?string $_secretKey = '';
     private ?array  $_history = [];
+    private ?string $_ext = 'txt';
 
-    public function init(string $directory = '')
+    /**
+     * @param string $directory - можно указать директорию, где будет нужен кеш
+     * @param string $secret_key - можно указать секретный ключ
+     * @param string $ext - можно указать расширение файла
+     */
+    public function init(string $directory = '', $secret_key = '', $ext = 'txt')
     {
         // получаем путь
         $path = default_val($this->_path, CS_CACHEPATH) . _DS;
         $this->_path = CsSecurity::filter($path, 'path');
+
+        // секретный ключ учитываем
+        $this->_secretKey = default_val($secret_key, CubSystem::getInstance()->config->getOption('secret_key'));
+
+        // расширение
+        $this->_ext = $ext;
     }
 
     public function get(string $key, bool $useHistory = FALSE, bool $keepInHistory = FALSE)
@@ -45,7 +57,7 @@ class CsCache
             // не получается сохранить - нет директории
             if(!CsFS::dirExists($this->_path)) return FALSE;
 
-            $filename = md5($key . $this->_secretKey) . '.txt';
+            $filename = md5($key . $this->_secretKey) . '.' . trim($this->_ext);
             $filename = $this->_path . $filename;
             if(!CsFS::fileExists($filename)) return FALSE;
 

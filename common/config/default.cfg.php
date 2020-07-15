@@ -5,18 +5,18 @@
   .  @license MIT public license
   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . */
 
-
 $config = [];
 
-$config['secret_key'] = '38kv4a';
+$config['secret_key'] = 'secret_key';
 
 $config['helpers'] = [
     'enabled'  => TRUE,
     'singleton_support' => TRUE,
     'priority' =>
     [
-        'modules',
-        'template'
+        'template',
+        // 'mysql', // uncomment for use mysql
+        'modules'
     ],
     'ignore' =>
     [
@@ -33,16 +33,19 @@ $config['template'] = [
 ];
 
 $config['database'] = [
-    'enabled'      => TRUE,
-    'connect_data' =>
+    'enabled'         => TRUE,
+    'helper'          => 'mysql',
+    'error_ignore'    => FALSE,
+    'connection_data' =>
     [
-
+        'host' => 'localhost',
+        'username' => 'root',
+        'password' => '',
+        'db'=> 'cubsystem',
+        'port' => 3306,
+        'prefix' => 'cs_',
+        'charset' => 'utf8'
     ]
-];
-
-$config['cache'] = [
-    'enabled' => TRUE,
-    'time'    => 24 * 60 * 60
 ];
 
 $config['upload'] = [
@@ -52,6 +55,7 @@ $config['upload'] = [
 
 $config['modules'] = [
     'enabled'  => TRUE,
+    'helper'   => 'modules',
     'autoload' =>
     [
         'landing',
