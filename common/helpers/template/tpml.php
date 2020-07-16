@@ -30,6 +30,11 @@ class CsTmpl
         return $this;
     }
 
+    public function getTemplate(): ?template_helper
+    {
+        return $this->template;
+    }
+
     /**
      * @param string $name
      * @param $value
@@ -46,6 +51,22 @@ class CsTmpl
         else $this->_buffer[$name] = $value;
 
         return $this;
+    }
+
+    /**
+     * @param array $data
+     * @param bool $override
+     * @param bool $append
+     */
+    public function setArray(array $data, bool $override = TRUE, bool $append = FALSE)
+    {
+        foreach ($data as $key=>$value)
+        {
+            if(key_exists($key, $this->_buffer) && !$override)
+                continue;
+
+            $this->set($key, $value, FALSE, $append);
+        }
     }
 
     /**

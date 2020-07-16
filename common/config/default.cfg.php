@@ -33,7 +33,7 @@ $config['template'] = [
 ];
 
 $config['database'] = [
-    'enabled'         => TRUE,
+    'enabled'         => FALSE, // mysql are disabled
     'helper'          => 'mysql',
     'error_ignore'    => FALSE,
     'connection_data' =>
