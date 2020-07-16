@@ -30,6 +30,11 @@ class CsTmpl
         return $this;
     }
 
+    public function getTemplate(): ?template_helper
+    {
+        return $this->template;
+    }
+
     /**
      * @param string $name
      * @param $value
