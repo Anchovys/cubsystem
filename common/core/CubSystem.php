@@ -89,19 +89,19 @@ class CubSystem
         // работа с инфой
         require_once(CS_COREINCPATH . 'info.php');
         $this->info = CsInfo::getInstance();
-            /* установим какую-то начальную инфу */
-            $this->info->setOption('start_time', $_time, TRUE);
-            $this->info->setOption('system', ['version' => '0.12'], TRUE);
-            $this->info->setOption('currenturi',  CsUrl::currentUri(), TRUE);
-            $this->info->setOption('baseurl',     CsUrl::baseUrl(), TRUE);
-            $this->info->setOption('fullurl',     CsUrl::fullUrl(), TRUE);
-            $this->info->setOption('segments',    CsUrl::segment(), TRUE);
+        /* установим какую-то начальную инфу */
+        $this->info->setOption('start_time', $_time, TRUE);
+        $this->info->setOption('system', ['version' => '0.12'], TRUE);
+        $this->info->setOption('currenturi',  CsUrl::currentUri(), TRUE);
+        $this->info->setOption('baseurl',     CsUrl::baseUrl(), TRUE);
+        $this->info->setOption('fullurl',     CsUrl::fullUrl(), TRUE);
+        $this->info->setOption('segments',    CsUrl::segment(), TRUE);
 
         // работа с конфигами
         require_once(CS_COREINCPATH . 'config.php');
         $this->config = CsConfig::getInstance();
-            // сразу подгрузим из файла
-            $this->config->fromFile('default');
+        // сразу подгрузим из файла
+        $this->config->fromFile('default');
 
         // кеширование и работа с кешем
         require_once(CS_COREINCPATH . 'cache.php');
@@ -146,9 +146,9 @@ class CubSystem
         /* Хук до загрузки хелперов */
         $this->hooks->here('system_load_helpers');
 
-                    //**/////////////////////
-                    /// Загрузка хелперов ///
-                    /////////////////////////
+                //**/////////////////////
+                /// Загрузка хелперов ///
+                /////////////////////////
         $helpers_config = $this->config->getOption('helpers');
         if($helpers_config['enabled'] === TRUE)
         {
@@ -156,9 +156,37 @@ class CubSystem
             $this->helpers->loadFor(CsFS::getDirectories(CS_HELPERSPATH, FALSE));
         }
 
-                    //**///////////////////////
-                    /// Инициализация MySql ///
-                    ///////////////////////////
+                //**//////////////////////////
+                ///   Проверка установки   ///
+                //////////////////////////////
+        if(!$this->info->getOption('installed'))
+        {
+            // загрузим специальный хелпер, который отвечает за установку
+            $install_helper = $this->helpers->loadOnce('install');
+            if($install_helper !== NULL) { // загружен
+                $install_helper->init(); // по дефолту вызываемая ф-я init
+                $this->info->setOption('ignore_default_template', TRUE, TRUE);
+            } else throw new Exception("Error, no defined install helper.");
+        }
+
+        /* Хук до загрузки шаблона */
+        $this->hooks->here('system_load_tmpl');
+
+                //**////////////////////
+                ///   Шаблон сайта   ///
+                ////////////////////////
+        $templates_config = $this->config->getOption('template');
+        if($templates_config['enabled'] === TRUE && !$this->info->getOption('ignore_default_template'))
+        {
+            $template = $this->helpers->getLoaded('template');
+            if($template !== NULL) {
+                $this->template = $template->register($templates_config['default_tmpl']);
+            } else throw new Exception("Template enabled, but no helper defined.");
+        }
+
+                //**///////////////////////
+                /// Инициализация MySql ///
+                ///////////////////////////
         $database_config = $this->config->getOption('database');
         if($database_config['enabled'] === TRUE)
         {
@@ -170,9 +198,9 @@ class CubSystem
         /* Хук до загрузки модулей */
         $this->hooks->here('system_load_modules');
 
-                    //**////////////////////
-                    /// Бинд для модулей ///
-                    ////////////////////////
+                //**////////////////////
+                /// Бинд для модулей ///
+                ////////////////////////
         $modules_config = $this->config->getOption('modules');
         if($modules_config['enabled'] === TRUE)
         {
@@ -188,32 +216,6 @@ class CubSystem
         /* Хук до выполнения роутов */
         $this->hooks->here('system_load_router');
         $this->router->run(); // запускаем все машруты
-
-        // система не установлена
-        if(!$this->info->getOption('installed'))
-        {
-            // загрузим специальный хелпер, который отвечает за установку
-            $install_helper = $this->helpers->loadOnce('install');
-            if($install_helper !== NULL) { // загружен
-                $install_helper->init(); // по дефолту вызываемая ф-я init
-                $this->info->setOption('ignore_default_template', TRUE, TRUE);
-            } else throw new Exception("Error, no defined install helper.");
-        }
-
-        /* Хук до загрузки шаблона */
-        $this->hooks->here('system_load_tmpl');
-
-                    //**////////////////////
-                    ///   Шаблон сайта   ///
-                    ////////////////////////
-        $templates_config = $this->config->getOption('template');
-        if($templates_config['enabled'] === TRUE && !$this->info->getOption('ignore_default_template'))
-        {
-            $template = $this->helpers->getLoaded('template');
-            if($template !== NULL) {
-                $this->template = $template->register($templates_config['default_tmpl']);
-            } else throw new Exception("Template enabled, but no helper defined.");
-        }
     }
 
     /**
@@ -225,9 +227,9 @@ class CubSystem
         /* Хук до вывода шаблона */
         $this->hooks->here('system_print_tmpl');
 
-                //**////////////////////
-                ///   Вывод шаблона  ///
-                ////////////////////////
+        //**////////////////////
+        ///   Вывод шаблона  ///
+        ////////////////////////
         if($this->template !== NULL && $this->template instanceof template_helper)
         {
             $this->template->showBuffer(0);
