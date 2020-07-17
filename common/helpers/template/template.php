@@ -14,7 +14,7 @@ class template_helper
     public    ?array  $info = NULL;
     protected ?array  $_tmpl = NULL;
 
-    private   array   $_meta;
+    private   array   $_meta = [];
     private   int     $mainId = 0;
 
     /**
