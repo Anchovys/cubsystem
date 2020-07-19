@@ -23,7 +23,7 @@ class modules_helper
 
     public function __construct()
     {
-        require_once(CS_HELPERSPATH . 'modules/module.php');
+        require_once(CS_HELPERSPATH . 'modules' . _DS . 'module.php');
     }
 
     private array $_loaded = [];
