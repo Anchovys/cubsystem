@@ -14,6 +14,7 @@ $config['helpers'] = [
     'singleton_support' => TRUE,
     'priority' =>
     [
+        'ajax',
         'template',
         'mysql',
         'modules'
