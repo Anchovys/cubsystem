@@ -227,7 +227,7 @@ class CsSecurity
 
                 case 'path':
                     $str = preg_replace( '!/+!', '/', $str );
-                    $str = str_replace(['\\','../', './', '..'], '', $str );
+                    $str = str_replace([/*'\\',*/'../', './', '..'], '', $str );
                     break;
 
                 case 'quotes':
