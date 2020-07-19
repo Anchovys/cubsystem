@@ -48,6 +48,11 @@ $config['database'] = [
     ]
 ];
 
+$config['auth'] = [
+    'enabled'         => FALSE, // mysql are disabled
+    'helper'          => 'authorize'
+];
+
 $config['upload'] = [
     'enabled'     => TRUE,
     'max_size_mb' => 2
