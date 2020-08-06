@@ -16,6 +16,7 @@ $config['helpers'] = [
     [
         'ajax',
         'template',
+        'authorize',
         'mysql',
         'modules'
     ],
@@ -25,6 +26,10 @@ $config['helpers'] = [
 ];
 
 $config['hooks'] = [
+    'enabled' => TRUE
+];
+
+$config['ajax'] = [
     'enabled' => TRUE
 ];
 

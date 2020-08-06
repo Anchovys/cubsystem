@@ -34,6 +34,7 @@ class CubSystem
     public ?CsShared  $shared = NULL;
     public ?CsErrors  $errors = NULL;
     public ?CsCache   $cache = NULL;
+    public ?ajax_helper $ajax = NULL;
     public ?mysql_helper $mysql = NULL;
     public ?modules_helper $modules = NULL;
     public ?template_helper $template = NULL;
@@ -146,14 +147,25 @@ class CubSystem
         /* Хук до загрузки хелперов */
         $this->hooks->here('system_load_helpers');
 
-                //**/////////////////////
-                /// Загрузка хелперов ///
-                /////////////////////////
+        //**/////////////////////
+        /// Загрузка хелперов ///
+        /////////////////////////
         $helpers_config = $this->config->getOption('helpers');
-        if($helpers_config['enabled'] === TRUE)
-        {
+        if ($helpers_config['enabled'] === TRUE) {
             $this->helpers->loadFor($helpers_config['priority']);
             $this->helpers->loadFor(CsFS::getDirectories(CS_HELPERSPATH, FALSE));
+        }
+
+                //**//////////////////////////
+                ///   Инициализация AJAX   ///
+                //////////////////////////////
+        $ajax_config = $this->config->getOption('ajax');
+        if ($ajax_config['enabled'] !== FALSE)
+        {
+            $ajax_helper = $this->helpers->loadOnce('ajax');
+            if($ajax_helper !== NULL) { // загружен
+                $this->ajax = $ajax_helper;
+            } else throw new Exception("Error, no defined install helper.");
         }
 
                 //**//////////////////////////

@@ -22,7 +22,7 @@ class CsTmpl
         $this->templateFile  = $template->directory;
         $this->templateFile .= 'parts' . _DS . $part . '.php';
 
-        $this->_buffer = ['CS'=>$CS];
+        $this->_buffer = ['CS' => $CS];
 
         if(!file_exists($this->templateFile) || !is_readable($this->templateFile))
             return NULL;

@@ -21,12 +21,64 @@ class authorize_helper
         return self::$_instance;
     }
 
-    private ?CsUser $_currentUser;
+    private ?UserModel $_currentUser;
 
     public function __construct()
     {
-        require_once(CS_HELPERSPATH . 'authorize/UserModel1.php');
+        $CS = CubSystem::getInstance();
+        require_once(CS_HELPERSPATH . 'authorize/objects/UserModel.php');
         $this->_currentUser = $this->currentUserDetect();
+
+        // инициализируем ajax
+        if ($CS->helpers->getLoaded('ajax') !== NULL)
+        {
+            $CS->ajax->handle('login', function () {
+                die($this->logIn($_GET['login'], $_GET['password']) ? 'ok' : 'fail');
+            });
+
+            $CS->ajax->handle('register', function () {
+                die($this->register($_GET['login'], $_GET['password'], $_GET['email']) ? 'ok' : 'fail');
+            });
+
+            $CS->ajax->handle('logout', function () {
+                die($this->logOut() ? 'ok' : 'fail');
+            });
+        }
+    }
+
+    public function logIn(string $username, string $password)
+    {
+        if($this->currentUserDetect() != NULL) return FALSE;
+
+        $username = CsSecurity::filter($username, 'username');
+        $password = CsSecurity::filter($password, 'password');
+
+        $user = UserModel::getByUsername($username);
+        if($user === NULL || $user->checkPassword($password)) return FALSE;
+
+        $this->makeUserSession($user->id);
+
+        return TRUE;
+    }
+
+    public function logOut()
+    {
+        if($this->currentUserDetect() === NULL)
+            return FALSE;
+
+        $this->dropCurrentSession();
+        return TRUE;
+    }
+
+    public function register(string $username, string $password, string $email)
+    {
+        $user = new UserModel([
+            'name' => $username,
+            'email' => $email,
+            'password' => $password
+        ]);
+
+        return $user->insert() !== NULL;
     }
 
     private function makeUserSession(int $id)
@@ -56,7 +108,7 @@ class authorize_helper
         $CS->session->purge('auth_uid');
     }
 
-    private function currentUserDetect()
+    private function currentUserDetect() : ?UserModel
     {
         $CS = CubSystem::getInstance();
 
@@ -78,7 +130,7 @@ class authorize_helper
         {
             return NULL;
         }
+
+        return UserModel::getById($uid);
     }
-
-
 }
