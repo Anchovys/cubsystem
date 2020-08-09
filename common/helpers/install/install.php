@@ -22,6 +22,16 @@ class install_helper
         return self::$_instance;
     }
 
+    public function __construct()
+    {
+        $CS = CubSystem::getInstance();
+        if(!$CS->info->getOption('installed'))
+        {
+            $this->init(); // по дефолту вызываемая ф-я init
+            $CS->info->setOption('ignore_default_template', TRUE, TRUE);
+        }
+    }
+
     /* Функция запускается, когда требуется выполнить установку  */
     public function init()
     {

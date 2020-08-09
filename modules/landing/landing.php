@@ -7,6 +7,9 @@
 
 class module_landing extends CsModule
 {
+
+    public array $registeredPages = [];
+
     /**
      * Действия при загрузке модуля.
      * @return bool
@@ -45,9 +48,12 @@ class module_landing extends CsModule
             $this->registerPage($half_directory, $filename);
         }
 
+        require_once($this->directory . 'adminpanel' . _DS . 'adminpanel.php');
+        $adminpanelIntegrate = new LandingPageAdmin($this);
+        $adminpanelIntegrate->init($this->directory . 'adminpanel' . _DS);
+
         return parent::onLoad();
     }
-
 
     private function registerHome($filename, $suffix = '')
     {
@@ -60,6 +66,8 @@ class module_landing extends CsModule
 
         /* Определяем файл страницы */
         if ( !CsFS::fileExists($filename)) return FALSE;
+
+        $this->registeredPages[$name] = str_replace(CS__BASEPATH, '', $filename);
 
         /* Вешаем на маршрут */
         $CS->router->get( ('/' . $name) , function() use($filename, $CS)

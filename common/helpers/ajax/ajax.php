@@ -28,6 +28,8 @@ class ajax_helper
         $CS->router->get('/ajax_handler/(\w+)', function($action) use ($CS) {
             $CS->hooks->here('cs_ajax_handle_' . $action);
         });
+
+        $CS->ajax = $this;
     }
 
     public function handle(string $name, callable $func)

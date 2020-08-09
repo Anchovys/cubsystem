@@ -19,6 +19,37 @@ function default_val($check, $default = null)
 }
 
 /**
+ * Return value or default in array
+ * Возвращает значение, если оно есть,
+ * либо возвращает дефолтное
+ * @param $checkArray
+ * @param $checkKey
+ * @param $default
+ * @return null
+ */
+function default_val_array($checkArray, $checkKey, $default = null)
+{
+    return (empty($check) || array_key_exists($checkKey, $checkArray)) ? $default : $check;
+}
+
+/**
+ * Аналогично стандартому empty,
+ * но для нескольких значений
+ * @return bool
+ */
+function empty_val() : bool
+{
+    $args = func_get_args();
+
+    foreach ($args as $arg)
+    {
+        if(empty($arg)) return true;
+    }
+
+    return false;
+}
+
+/**
  * Print any var
  * используется для отладки
  * @param $var

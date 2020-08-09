@@ -35,6 +35,7 @@ class CubSystem
     public ?CsErrors  $errors = NULL;
     public ?CsCache   $cache = NULL;
     public ?ajax_helper $ajax = NULL;
+    public ?admin_helper $admin = NULL;
     public ?mysql_helper $mysql = NULL;
     public ?modules_helper $modules = NULL;
     public ?template_helper $template = NULL;
@@ -90,6 +91,7 @@ class CubSystem
         // работа с инфой
         require_once(CS_COREINCPATH . 'info.php');
         $this->info = CsInfo::getInstance();
+
         /* установим какую-то начальную инфу */
         $this->info->setOption('start_time', $_time, TRUE);
         $this->info->setOption('system', ['version' => '0.12'], TRUE);
@@ -147,65 +149,17 @@ class CubSystem
         /* Хук до загрузки хелперов */
         $this->hooks->here('system_load_helpers');
 
-        //**/////////////////////
-        /// Загрузка хелперов ///
-        /////////////////////////
+                //**/////////////////////
+                /// Загрузка хелперов ///
+                /////////////////////////
         $helpers_config = $this->config->getOption('helpers');
         if ($helpers_config['enabled'] === TRUE) {
             $this->helpers->loadFor($helpers_config['priority']);
             $this->helpers->loadFor(CsFS::getDirectories(CS_HELPERSPATH, FALSE));
         }
 
-                //**//////////////////////////
-                ///   Инициализация AJAX   ///
-                //////////////////////////////
-        $ajax_config = $this->config->getOption('ajax');
-        if ($ajax_config['enabled'] !== FALSE)
-        {
-            $ajax_helper = $this->helpers->loadOnce('ajax');
-            if($ajax_helper !== NULL) { // загружен
-                $this->ajax = $ajax_helper;
-            } else throw new Exception("Error, no defined install helper.");
-        }
-
-                //**//////////////////////////
-                ///   Проверка установки   ///
-                //////////////////////////////
-        if(!$this->info->getOption('installed'))
-        {
-            // загрузим специальный хелпер, который отвечает за установку
-            $install_helper = $this->helpers->loadOnce('install');
-            if($install_helper !== NULL) { // загружен
-                $install_helper->init(); // по дефолту вызываемая ф-я init
-                $this->info->setOption('ignore_default_template', TRUE, TRUE);
-            } else throw new Exception("Error, no defined install helper.");
-        }
-
         /* Хук до загрузки шаблона */
         $this->hooks->here('system_load_tmpl');
-
-                //**////////////////////
-                ///   Шаблон сайта   ///
-                ////////////////////////
-        $templates_config = $this->config->getOption('template');
-        if($templates_config['enabled'] === TRUE && !$this->info->getOption('ignore_default_template'))
-        {
-            $template = $this->helpers->getLoaded('template');
-            if($template !== NULL) {
-                $this->template = $template->register($templates_config['default_tmpl']);
-            } else throw new Exception("Template enabled, but no helper defined.");
-        }
-
-                //**///////////////////////
-                /// Инициализация MySql ///
-                ///////////////////////////
-        $database_config = $this->config->getOption('database');
-        if($database_config['enabled'] === TRUE)
-        {
-            $this->mysql = $this->helpers->getLoaded($database_config['helper']);
-            $this->mysql->init($database_config['connection_data']);
-            $this->mysql->getObject()->connect();
-        }
 
         /* Хук до загрузки модулей */
         $this->hooks->here('system_load_modules');
@@ -225,6 +179,22 @@ class CubSystem
             } else throw new Exception("Modules enabled, but no helper defined.");
         }
 
+        /* Хук после модулей */
+        $this->hooks->here('system_load_modules_end');
+
+
+        //**////////////////////
+                ///   Шаблон сайта   ///
+                ////////////////////////
+        $templates_config = $this->config->getOption('template');
+        if($templates_config['enabled'] === TRUE && !$this->info->getOption('ignore_default_template'))
+        {
+            $template = $this->helpers->getLoaded('template');
+            if($template !== NULL && $template->registered == FALSE) {
+                $this->template = $template->register($templates_config['default_tmpl']);
+            } else throw new Exception("Template enabled, but no helper defined.");
+        }
+
         /* Хук до выполнения роутов */
         $this->hooks->here('system_load_router');
         $this->router->run(); // запускаем все машруты
@@ -239,9 +209,9 @@ class CubSystem
         /* Хук до вывода шаблона */
         $this->hooks->here('system_print_tmpl');
 
-        //**////////////////////
-        ///   Вывод шаблона  ///
-        ////////////////////////
+                //**////////////////////
+                ///   Вывод шаблона  ///
+                ////////////////////////
         if($this->template !== NULL && $this->template instanceof template_helper)
         {
             $this->template->showBuffer(0);
