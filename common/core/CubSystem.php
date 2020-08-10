@@ -7,7 +7,7 @@
 
 define('CS_MODULESCPATH', CS__BASEPATH   . 'modules' . _DS);
 
-define('CS_DISTRPATH',    CS_COMMONPATH  . 'distr'  . _DS);
+define('CS_DISTRPATH',    CS_COMMONPATH  . 'distr'   . _DS);
 define('CS_CONFIGPATH',   CS_COMMONPATH  . 'config'  . _DS);
 define('CS_HELPERSPATH',  CS_COMMONPATH  . 'helpers' . _DS);
 
@@ -39,6 +39,7 @@ class CubSystem
     public ?mysql_helper $mysql = NULL;
     public ?modules_helper $modules = NULL;
     public ?template_helper $template = NULL;
+    public ?authorize_helper $auth = NULL;
 
     // for singleton
     private static ?CubSystem $_instance = NULL;
@@ -183,7 +184,7 @@ class CubSystem
         $this->hooks->here('system_load_modules_end');
 
 
-        //**////////////////////
+                //**////////////////////
                 ///   Шаблон сайта   ///
                 ////////////////////////
         $templates_config = $this->config->getOption('template');

@@ -26,27 +26,58 @@ class authorize_helper
     public function __construct()
     {
         $CS = CubSystem::getInstance();
+        $CS->auth = $this;
+
         require_once(CS_HELPERSPATH . 'authorize/objects/UserModel.php');
+
         $this->_currentUser = $this->currentUserDetect();
+        pr($this->_currentUser);
 
         // инициализируем ajax
         if ($CS->helpers->getLoaded('ajax') !== NULL)
         {
             $CS->ajax->handle('login', function () {
-                $login = default_val_array($_GET, 'login');
+
+                $username = default_val_array($_GET, 'username');
+                $username = CsSecurity::filter($username, 'username');
+
                 $password = default_val_array($_GET, 'password');
-                die($this->logIn($login, $password) ? 'ok' : 'fail');
+                $password = CsSecurity::filter($password, 'password');
+
+                if(empty_val($username, $password))
+                    return FALSE;
+
+                $login = $this->logIn($username, $password);
+
+                die($login ? 'ok' : 'fail');
+
             });
 
             $CS->ajax->handle('register', function () {
-                $login = default_val_array($_GET, 'login');
+
+                $username = default_val_array($_GET, 'username');
+                $username = CsSecurity::filter($username, 'username');
+
                 $password = default_val_array($_GET, 'password');
-                $email = default_val_array($_GET, 'password');
-                die($this->register($login, $password, $email) ? 'ok' : 'fail');
+                $password = CsSecurity::filter($password, 'password');
+
+                $email = default_val_array($_GET, 'email');
+                $email = CsSecurity::filter($email, 'email');
+
+                if(empty_val($username, $password, $email))
+                    return FALSE;
+
+                $register = $this->register($username, $password, $email);
+
+                die($register ? 'ok' : 'fail');
+
             });
 
             $CS->ajax->handle('logout', function () {
-                die($this->logOut() ? 'ok' : 'fail');
+
+                $logout = $this->logOut();
+
+                die($logout ? 'ok' : 'fail');
             });
         }
     }
@@ -55,15 +86,9 @@ class authorize_helper
     {
         if($this->currentUserDetect() != NULL) return FALSE;
 
-        $username = CsSecurity::filter($username, 'username');
-        $password = CsSecurity::filter($password, 'password');
-
-        if(empty_val($username, $password))
-            return FALSE;
-
         $user = UserModel::getByUsername($username);
 
-        if($user === NULL || $user->checkPassword($password))
+        if($user === NULL || !$user->checkPassword($password))
             return FALSE;
 
         $this->makeUserSession($user->id);
@@ -82,11 +107,7 @@ class authorize_helper
 
     public function register(?string $username, ?string $password, ?string $email)
     {
-        $username = CsSecurity::filter($username, 'username');
-        $password = CsSecurity::filter($password, 'password');
-        $email = CsSecurity::filter($email, 'email');
-
-        if(empty_val($username, $password, $email))
+        if($this->currentUserDetect() !== NULL)
             return FALSE;
 
         $user = new UserModel([
@@ -110,11 +131,9 @@ class authorize_helper
         $uip = $_SERVER['REMOTE_ADDR'];
         $uip = CsSecurity::hash($uip, TRUE, 'sha512');
 
-        $CS->session->push([
-            'auth_uua' => $uua,
-            'auth_uid' => $uid,
-            'auth_uip' => $uip
-        ]);
+        $CS->session->push('auth_uua', $uua);
+        $CS->session->push('auth_uid', $uid);
+        $CS->session->push('auth_uip', $uip);
     }
 
     private function dropCurrentSession()

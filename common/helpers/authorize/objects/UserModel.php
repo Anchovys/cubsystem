@@ -10,7 +10,7 @@ class UserModel
     public ?int $id = NULL;
     public ?string $name = NULL;
     public ?string $email = NULL;
-    private int $_faction = 0;
+    private ?int $_faction = 0;
     private ?string $_password = NULL;
     private ?string $_salt = NULL;
 
@@ -18,29 +18,23 @@ class UserModel
     {
         if(empty($data)) return;
 
-        // all basic data
-        $id = CsSecurity::filter($data['id'], 'int');
-        $name = CsSecurity::filter($data['name']);
-        $email = CsSecurity::filter($data['email'], 'email');
-        $faction = CsSecurity::filter($data['faction'], 'int');
-        $salt = CsSecurity::filter($data['salt']);
-        $password = CsSecurity::filter($data['password']);
+        // достаем данные из массива по ключам
+        $id = default_val_array($data, 'id', 0);
+        $name = default_val_array($data, 'name');
+        $email = default_val_array($data, 'email');
+        $password = default_val_array($data, 'password');
+        $salt = default_val_array($data, 'salt');
+        $faction = default_val_array($data, 'faction', 0);
 
-        // check if filter fails
-        if(empty($id)) return;
-        if(empty($name)) return;
-        if(empty($email)) return;
-        if(empty($faction)) return;
-        if(empty($salt)) return;
-        if(empty($password)) return;
+        $this->id = CsSecurity::filter($id, 'int');
+        $this->name = CsSecurity::filter($name, 'username');
+        $this->email = CsSecurity::filter($email, 'email');
+        $this->_password = CsSecurity::filter($password, 'password');
+        $this->_salt = CsSecurity::filter($salt, 'string');
+        $this->_faction = CsSecurity::filter($faction, 'int');
 
-        // set
-        $this->id = $id;
-        $this->name = $name;
-        $this->email = $email;
-        $this->_faction = $faction;
-        $this->_salt = $salt;
-        $this->_password = $password;
+        // проверяем обязательные поля
+        if(empty_val($this->name, $this->email, $this->_password)) return;
     }
 
     public function isAdmin() :bool
@@ -56,27 +50,27 @@ class UserModel
     /**
      * Выбрать одну UserModel из БД по
      * property и selector
-     * @param string $property - по какому столбцу выбирать, например, id
-     * @param $selector - значение столбца, например, 10.
+     * @param string $field - по какому столбцу выбирать, например, id
+     * @param $value - значение столбца, например, 10.
      * @param array|null $needle - какие данные нужны от юзера
      * @return UserModel|null
      * @throws Exception
      */
-    private static function _getBy(string $property, $selector, array $needle = NULL): ?UserModel
+    private static function _getBy(string $field, $value, array $needle = NULL): ?UserModel
     {
         $CS = CubSystem::getInstance();
 
         // фильтрация входных значений
-        $property = CsSecurity::filter($property, 'base|string');
-        $selector = CsSecurity::filter($selector, 'base');
+        $field = CsSecurity::filter($field, 'base|string');
+        $value = CsSecurity::filter($value, 'base');
 
         // после фильтрации, переменные могут быть empty,
         // проверим это
-        if(empty($property) || empty($selector))
+        if(empty_val($field, $value))
             return NULL;
 
-        // разрешаем доступ только к этим пропертсам
-        if(!in_array($property, ['email', 'id', 'name']))
+        // разрешаем доступ только к этим полям
+        if(!in_array($field, ['email', 'id', 'name']))
             return NULL;
 
         // пытаемся получить обьект бд
@@ -84,11 +78,11 @@ class UserModel
             return NULL;
 
         // очистка значений
-        $selector = $db->escape($selector);
-        $property = $db->escape($property);
+        $field = $db->escape($field);
+        $value = $db->escape($value);
 
         // выборка
-        $db->where($selector, $property);
+        $db->where($field, $value);
         if ($data = $db->getOne('users', $needle))
             return new UserModel($data);
 
@@ -108,6 +102,7 @@ class UserModel
     public static function getById(int $id) : ?UserModel
     {
         $id = CsSecurity::filter($id, 'int');
+
         if(empty($id)) return NULL;
 
         try {
@@ -162,11 +157,9 @@ class UserModel
             ];
 
         // function returned current user id
-        try {
-            $id = $db->insert('users', $data);
-        } catch (Exception $e) {
-            return NULL;
-        }
+        try { $id = $db->insert('users', $data); }
+        catch (Exception $e) { return NULL; }
+
         // get user from database
         return is_int($id) ? self::getById($id) : NULL;
     }

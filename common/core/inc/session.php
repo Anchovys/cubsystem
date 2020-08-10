@@ -69,16 +69,19 @@ class CsSession
         if ($this->sessionStarted === TRUE)
             return false;
 
-        if(empty($_SESSION))
+        if(!isset($_SESSION))
         {
             session_set_cookie_params($this->lifeTime);
             session_start();
         }
 
         $session_id = $this->get('session_id');
-        if(empty($session_id)) {
+        if(empty($session_id))
+        {
             $this->push('session_id', $this->id());
-        } else if(!$this->checkSessionId($session_id)) {
+        }
+        else if(!$this->checkSessionId($session_id))
+        {
             die('Session not match!');
         }
 
@@ -100,7 +103,7 @@ class CsSession
         if (is_array($key) && $value == FALSE)
         {
             foreach ($key as $name => $value)
-                $_SESSION[$this->prefix . $name] = $value;
+                $this->push($name, $value);
         } else {
             $_SESSION[$this->prefix . $key] = $value;
         }

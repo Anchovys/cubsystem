@@ -21,6 +21,8 @@ class mysql_helper
         return self::$_instance;
     }
 
+    private MysqliDb $object;
+
     public function __construct()
     {
         require_once(CS_HELPERSPATH . 'mysql/MysqliDb.php');
@@ -30,18 +32,20 @@ class mysql_helper
         if($database_config['enabled'] === TRUE)
         {
             $CS->mysql = $this;
-            $CS->mysql->init($database_config['connection_data']);
-            $CS->mysql->getObject()->connect();
+            $this->init($database_config['connection_data']);
+
+            try { $this->getObject()->connect(); }
+            catch (Exception $e) { _pr($e); }
         }
     }
 
     public function init(array $connection_data)
     {
-        $object = new MysqliDb($connection_data);
+        $this->object = new MysqliDb($connection_data);
     }
 
-    public function getObject()
+    public function getObject() : MysqliDb
     {
-        return MysqliDb::getInstance();
+        return $this->object;
     }
 }

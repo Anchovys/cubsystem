@@ -29,7 +29,10 @@ function default_val($check, $default = null)
  */
 function default_val_array($checkArray, $checkKey, $default = null)
 {
-    return (empty($check) || array_key_exists($checkKey, $checkArray)) ? $default : $check;
+    if(!array_key_exists($checkKey, $checkArray))
+        return $default;
+
+    return default_val($checkArray[$checkKey], $default);
 }
 
 /**
