@@ -67,8 +67,6 @@ class module_landing extends CsModule
         /* Определяем файл страницы */
         if ( !CsFS::fileExists($filename)) return FALSE;
 
-        $this->registeredPages[$name] = str_replace(CS__BASEPATH, '', $filename);
-
         /* Вешаем на маршрут */
         $CS->router->get( ('/' . $name) , function() use($filename, $CS)
         {
@@ -117,6 +115,12 @@ class module_landing extends CsModule
                 $CS->template->setMainTmpl($template_part);
             });
         });
+
+        if(!empty($name))
+        {
+            $path = str_replace(CS__BASEPATH, '', $filename);
+            $this->registeredPages[$name] = $path;
+        }
 
         return TRUE;
     }
