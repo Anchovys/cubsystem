@@ -32,8 +32,13 @@ class ajax_helper
         $CS->ajax = $this;
     }
 
-    public function handle(string $name, callable $func)
+    public function handle(string $name, callable $func, callable $condition = NULL)
     {
+        // можно указать свою функцию с условием
+        // если не выполняется, выходим
+        if($condition != NULL && call_user_func($condition) !== TRUE)
+            return;
+
         $CS = CubSystem::getInstance();
         $CS->hooks->register('cs_ajax_handle_' . $name, $func);
     }
