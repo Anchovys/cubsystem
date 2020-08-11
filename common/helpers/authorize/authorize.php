@@ -31,7 +31,6 @@ class authorize_helper
         require_once(CS_HELPERSPATH . 'authorize/objects/UserModel.php');
 
         $this->_currentUser = $this->currentUserDetect();
-        pr($this->_currentUser);
 
         // инициализируем ajax
         if ($CS->helpers->getLoaded('ajax') !== NULL)
@@ -82,6 +81,11 @@ class authorize_helper
         }
     }
 
+    public function getCurrent() : ?UserModel
+    {
+        return $this->_currentUser;
+    }
+
     public function logIn(?string $username, ?string $password)
     {
         if($this->currentUserDetect() != NULL) return FALSE;
@@ -108,6 +112,14 @@ class authorize_helper
     public function register(?string $username, ?string $password, ?string $email)
     {
         if($this->currentUserDetect() !== NULL)
+            return FALSE;
+
+        // нельзя создать юзера с занятым никнеймом
+        if(UserModel::getByUsername($username) === NULL)
+            return FALSE;
+
+        // нельзя создать юзера с занятым емейлом
+        if(UserModel::getByEmail($username) === NULL)
             return FALSE;
 
         $user = new UserModel([
