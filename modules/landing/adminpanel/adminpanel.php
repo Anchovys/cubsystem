@@ -26,14 +26,19 @@ class LandingPageAdmin
 
             switch (CsUrl::segment(2))
             {
-                case "addpage":
-
-                    $buffer = $CS->template->handleFile($path . 'tmpl'. _DS . 'editor.php', ['pages'=>$pages]);
-                    $CS->template->getMainTmpl()->set('content', $buffer);
-
+                case "editor":
+                    if(CsUrl::segment(3) == 'new')
+                    {
+                        $buffer = $CS->template->handleFile($path  . 'adminpanel' . _DS . 'tmpl'. _DS . 'editor-newpage.php', ['path'=>$path]);
+                        $CS->template->getMainTmpl()->set('content', $buffer);
+                    } else {
+                        $buffer = $CS->template->handleFile($path  . 'adminpanel' . _DS . 'tmpl'. _DS . 'editor.php', ['pages'=>$pages]);
+                        $CS->template->getMainTmpl()->set('content', $buffer);
+                    }
                     break;
                 case FALSE:
-                    die('Home');
+                    $buffer = $CS->template->handleFile($path  . 'adminpanel' . _DS . 'tmpl'. _DS . 'index.php');
+                    $CS->template->getMainTmpl()->set('content', $buffer);
                     break;
             }
         });
