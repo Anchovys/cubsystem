@@ -16,7 +16,7 @@ class admin_menu
         $total = '';
 
         foreach ($this->menuItems as $url=>$name)
-            $total .= "<a class='nav-link' href='$url'>$name</a>";
+            $total .= "<a class='nav-link' href='" . CsUrl::absUrl('admin/' . $url) . "'>$name</a>";
         return $total;
     }
 }

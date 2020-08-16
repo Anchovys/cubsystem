@@ -37,28 +37,67 @@ class admin_helper
         $this->out();
     }
 
-    private array $cutomActions = [];
+    private array $customActions = [];
     public function setAction(string $url, callable $func)
     {
-        $this->cutomActions[ucfirst($url)] = $func;
+        $this->customActions[ucfirst($url)] = $func;
+    }
+
+    public function handleAjax(string $name, callable $func)
+    {
+        $CS = CubSystem::getInstance();
+        $CS->ajax->handle($name, $func, function () {
+            return $this->hasAccess();
+        });
+    }
+
+    public function hasAccess() : bool
+    {
+        $CS = CubSystem::getInstance();
+        $user = $CS->auth->getCurrent();
+        if($user === NULL)
+           return FALSE;
+
+        return $user->isAdmin();
     }
 
     private function out()
     {
         $CS = CubSystem::getInstance();
-        $CS->router->get('/admin.*', function () use ($CS)
+        $CS->router->all('/admin.*', function () use ($CS)
         {
-            $template = $CS->helpers->getLoaded('template');
+            // директория шаблонов
             $template_path = $this->path . 'templates' . _DS;
+
+            // получаем хелпер шаблона
+            $template = $CS->helpers->getLoaded('template');
+
+            // регистранция админ шаблона
             $CS->template = $template->register('admin', $template_path);
 
             $mainTemplate = $CS->template->getMainTmpl();
 
-            $mainTemplate->set('addition_buttons', $this->menu->getHtml());
+            // нет доступа
+            if($this->hasAccess() !== TRUE)
+            {
+              $loginTemplate = new CsTmpl('auth/login', $CS->template);
+              $mainTemplate->set('content', $loginTemplate->out());
+              return;
+            }
 
-            $controller = new CsAdminController();
+            // меню
+            $menuTemplate = new CsTmpl('admin/menu', $CS->template);
+            $mainTemplate->set('menu', $menuTemplate->set('addition_buttons', $this->menu->getHtml())->out());
+
+
+            // панель юзера
+            $authbarTemplate = new CsTmpl('admin/authbar', $CS->template);
+            $mainTemplate->set('authbar', $authbarTemplate->out());
+
             $action = CsUrl::segment(1);
             $action = is_string($action) ? ucfirst($action) : FALSE;
+
+            $controller = new CsAdminController();
 
             if($action != FALSE)
             {
@@ -67,9 +106,9 @@ class admin_helper
                     $controller->$action();
                     return;
                 }
-                else if(array_key_exists($action, $this->cutomActions))
+                else if(array_key_exists($action, $this->customActions))
                 {
-                    call_user_func($this->cutomActions[$action]);
+                    call_user_func($this->customActions[$action]);
                     return;
                 }
             }
@@ -80,5 +119,4 @@ class admin_helper
             }
         });
     }
-
 }
