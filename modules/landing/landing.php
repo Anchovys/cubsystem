@@ -16,6 +16,7 @@ class module_landing extends CsModule
      */
     public function onLoad()
     {
+        $CS = CubSystem::getInstance();
         $moduleConfig = $this->config['module'];
 
         /* устанавливаем директорию поиска */
@@ -48,10 +49,12 @@ class module_landing extends CsModule
             $this->registerPage($half_directory, $filename);
         }
 
-        require_once($this->directory . 'adminpanel' . _DS . 'adminpanel.php');
-        $adminpanelIntegrate = new LandingPageAdmin($this);
-        $adminpanelIntegrate->init($this->directory . 'adminpanel' . _DS);
-
+        if($CS->admin != null)
+        {
+            require_once($this->directory . 'adminpanel' . _DS . 'adminpanel.php');
+            $adminpanelIntegrate = new LandingPageAdmin($this);
+            $adminpanelIntegrate->init($this->directory);
+        }
         return parent::onLoad();
     }
 
