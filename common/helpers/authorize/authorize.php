@@ -37,10 +37,10 @@ class authorize_helper
         {
             $CS->ajax->handle('login', function () {
 
-                $username = default_val_array($_GET, 'username');
+                $username = default_val_array($_POST, 'username');
                 $username = CsSecurity::filter($username, 'username');
 
-                $password = default_val_array($_GET, 'password');
+                $password = default_val_array($_POST, 'password');
                 $password = CsSecurity::filter($password, 'password');
 
                 if(empty_val($username, $password))
@@ -48,25 +48,28 @@ class authorize_helper
 
                 $login = $this->logIn($username, $password);
 
-                die($login ? 'ok' : 'fail');
+                CsUrl::redir('');
 
+                die($login ? 'ok' : 'fail');
             });
 
             $CS->ajax->handle('register', function () {
 
-                $username = default_val_array($_GET, 'username');
+                $username = default_val_array($_POST, 'username');
                 $username = CsSecurity::filter($username, 'username');
 
-                $password = default_val_array($_GET, 'password');
+                $password = default_val_array($_POST, 'password');
                 $password = CsSecurity::filter($password, 'password');
 
-                $email = default_val_array($_GET, 'email');
+                $email = default_val_array($_POST, 'email');
                 $email = CsSecurity::filter($email, 'email');
 
                 if(empty_val($username, $password, $email))
                     return FALSE;
 
                 $register = $this->register($username, $password, $email);
+
+                CsUrl::redir('');
 
                 die($register ? 'ok' : 'fail');
 
@@ -76,6 +79,7 @@ class authorize_helper
 
                 $logout = $this->logOut();
 
+                CsUrl::redir('');
                 die($logout ? 'ok' : 'fail');
             });
         }
