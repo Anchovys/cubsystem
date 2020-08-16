@@ -25,7 +25,7 @@ class ajax_helper
     public function __construct()
     {
         $CS = CubSystem::getInstance();
-        $CS->router->get('/ajax_handler/(\w+)', function($action) use ($CS) {
+        $CS->router->all('/ajax_handler/(\w+)', function($action) use ($CS) {
             $CS->hooks->here('cs_ajax_handle_' . $action);
         });
 
