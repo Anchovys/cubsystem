@@ -53,7 +53,6 @@ class CsErrors
     /*
     public function handleStop()
     {
-
     }
     */
 
@@ -89,7 +88,7 @@ class CsErrors
         }
         $result = join("\n", $result);
         if ($prev)
-            $result  .= "\n" . jTraceEx($prev, $seen);
+            $result  .= "\n" . $this->jTraceEx($prev, $seen);
 
         return $result;
     }

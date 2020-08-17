@@ -38,7 +38,8 @@ class CsCache
         $this->_path = CsSecurity::filter($path, 'path');
 
         // секретный ключ учитываем
-        $this->_secretKey = default_val($secret_key, CubSystem::getInstance()->config->getOption('secret_key'));
+        $this->_secretKey = default_val($secret_key,
+            CubSystem::getInstance()->config->getOption(['security', 'secret_key']));
 
         // расширение
         $this->_ext = $ext;
