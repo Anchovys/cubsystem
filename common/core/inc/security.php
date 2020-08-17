@@ -34,6 +34,17 @@ class CsSecurity
         return !$reverse ? str_replace($cyr, $lat, $text) : str_replace($lat, $cyr, $text);
     }
 
+    /* Защита XSRF (CSRF) */
+    public static function checkCSRFToken(string $token) : bool
+    {
+        $CS = CubSystem::getInstance();
+        $real_token = $CS->info->getOption('security_CSRF-secure_token');
+
+        if(empty_val($CS, $token))
+            return FALSE;
+
+        return hash_equals($real_token, $token);
+    }
 
     /**
      * Очистить строку от XSS кода
@@ -264,7 +275,7 @@ class CsSecurity
         global $CS;
 
         $str = (string)$str;
-        $str .= $salted === TRUE ? (string)$CS->config->getOption('secret_key') :
+        $str .= $salted === TRUE ? (string)$CS->config->getOption(['security', 'secret_key']) :
             ($salted !== FALSE ? (string)$salted : '');
         return hash($algo, $str);
     }

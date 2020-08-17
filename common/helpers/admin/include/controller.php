@@ -30,11 +30,15 @@ class CsAdminController
     {
         $CS = CubSystem::getInstance();
 
-        if($param = CsSecurity::checkPost(['type', 'module', 'action']))
+        if($param = CsSecurity::checkPost(['type', 'module', 'action', 'token']))
         {
           $type = default_val_array($param, 'type');
           $modules = default_val_array($param, 'module');
           $action = default_val_array($param, 'action');
+          $token = default_val_array($param, 'token');
+
+          if(!CsSecurity::checkCSRFToken($token))
+              return FALSE;
 
           if(!empty_val($type, $modules, $action))
           {
@@ -67,7 +71,7 @@ class CsAdminController
               else if($action === 'disable')
               {
                 $loaded_mods = $CS->shared->getTextData('modules', TRUE);
-                $loaded_mods = json_decode($loaded_mods, true);
+                $loaded_mods = json_decode($loaded_mods, TRUE);
                 if(!is_array($loaded_mods)) $loaded_mods = [];
 
                 foreach ($modules as $key => $value)
@@ -104,8 +108,6 @@ class CsAdminController
 
                     $CS->shared->saveTextData('modules', json_encode($loaded_mods), TRUE);
                   }
-
-
             }
           }
           header("Refresh:0");

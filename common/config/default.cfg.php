@@ -7,7 +7,9 @@
 
 $config = [];
 
-$config['secret_key'] = 'secret_key';
+$config['security'] = [
+    'secret_key' => 'secret_key'
+];
 
 $config['helpers'] = [
     'enabled'  => TRUE,

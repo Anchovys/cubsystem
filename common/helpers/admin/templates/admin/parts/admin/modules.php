@@ -6,6 +6,7 @@
   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . */
 ?>
 <form class="" method="post">
+  <input type="hidden" name="token" value="{{$CSRF_TOKEN}}" />
   <input type="hidden" name="type" value="loaded" />
   <div class="jumbotron jumbotron-fluid">
     <div class="container">
@@ -57,6 +58,7 @@
 </form>
 
 <form class="" method="post">
+  <input type="hidden" name="token" value="{{$CSRF_TOKEN}}" />
   <input type="hidden" name="type" value="unloaded" />
   <div class="jumbotron jumbotron-fluid">
     <div class="container">

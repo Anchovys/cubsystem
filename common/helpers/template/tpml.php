@@ -22,7 +22,10 @@ class CsTmpl
         $this->templateFile  = $template->directory;
         $this->templateFile .= 'parts' . _DS . $part . '.php';
 
-        $this->_buffer = ['CS' => $CS];
+        $this->_buffer = [
+            'CS' => $CS,
+            'CSRF_TOKEN' => $CS->info->getOption('security_CSRF-secure_token')
+        ];
 
         if(!file_exists($this->templateFile) || !is_readable($this->templateFile))
             return NULL;
@@ -86,7 +89,6 @@ class CsTmpl
      */
     public function out(bool $echo = FALSE)
     {
-
         $out = $this->outf($this->templateFile, $this->_buffer);
         if($echo) echo $out;
         return $out;

@@ -16,5 +16,8 @@
 ?>
 <h1>
     Hello!
-    Welcome to landing!
 </h1>
+<h2>
+   Welcome to landing!!
+</h2>
+<p>Charly fox was here haha</p>																	

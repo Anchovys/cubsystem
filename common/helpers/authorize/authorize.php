@@ -37,6 +37,9 @@ class authorize_helper
         {
             $CS->ajax->handle('login', function () {
 
+                /* Задержка 3 секунды - простая защита от перебора */
+                sleep(3);
+
                 $username = default_val_array($_POST, 'username');
                 $username = CsSecurity::filter($username, 'username');
 
@@ -55,6 +58,9 @@ class authorize_helper
 
             $CS->ajax->handle('register', function () {
 
+                /* Задержка 3 секунды - простая защита от перебора */
+                sleep(3);
+
                 $username = default_val_array($_POST, 'username');
                 $username = CsSecurity::filter($username, 'username');
 
@@ -70,9 +76,7 @@ class authorize_helper
                 $register = $this->register($username, $password, $email);
 
                 CsUrl::redir('');
-
                 die($register ? 'ok' : 'fail');
-
             });
 
             $CS->ajax->handle('logout', function () {
@@ -139,17 +143,29 @@ class authorize_helper
     {
         $CS = CubSystem::getInstance();
 
+        /* User Agent пользователя */
         $uua = $_SERVER['HTTP_USER_AGENT'];
         $uua = CsSecurity::hash($uua, TRUE, 'sha512');
 
+        /* ID пользователя */
         $uid = CsSecurity::filter($id, 'int');
 
+        /* IP адрес */
         $uip = $_SERVER['REMOTE_ADDR'];
         $uip = CsSecurity::hash($uip, TRUE, 'sha512');
 
+        /* Персональный токен */
+        $token = CsSecurity::rndStr(32, TRUE, TRUE, TRUE);
+        $token = CsSecurity::hash($token, TRUE, 'sha512');
+
+        /* Проверка на пустоту значений */
+        if(empty_val($uua, $uid, $uip, $token))
+            return;
+
         $CS->session->push('auth_uua', $uua);
         $CS->session->push('auth_uid', $uid);
-        $CS->session->push('auth_uip', $uip);
+        $CS->session->push('auth_uip',  $uip);
+        $CS->session->push('auth_token', $token);
     }
 
     private function dropCurrentSession()
@@ -158,6 +174,7 @@ class authorize_helper
         $CS->session->purge('auth_uua');
         $CS->session->purge('auth_uip');
         $CS->session->purge('auth_uid');
+        $CS->session->purge('auth_token');
     }
 
     private function currentUserDetect() : ?UserModel
@@ -176,12 +193,22 @@ class authorize_helper
         $uid = $CS->session->get('auth_uid');
         $uid = CsSecurity::filter($uid, 'int');
 
+        // token
+        $token = $CS->session->get('auth_token');
+        $token = CsSecurity::filter($token, 'sha512');
+
+        /* Проверка на пустоту значений */
+        if(empty_val($uua, $uid, $uip, $token))
+            return NULL;
+
         // check data
-        if($uua != CsSecurity::hash($_SERVER['HTTP_USER_AGENT'], TRUE, 'sha512') ||
-           $uip != CsSecurity::hash($_SERVER['REMOTE_ADDR'], TRUE, 'sha512'))
+        if($uua !== CsSecurity::hash($_SERVER['HTTP_USER_AGENT'], TRUE, 'sha512') ||
+           $uip !== CsSecurity::hash($_SERVER['REMOTE_ADDR'], TRUE, 'sha512'))
         {
             return NULL;
         }
+
+        $CS->info->setOption('security_CSRF-secure_token', $token, TRUE);
 
         return UserModel::getById($uid);
     }
