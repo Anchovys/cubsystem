@@ -36,6 +36,7 @@ class module_landing extends CsModule
         {
             $full_directory = $directory . _DS; // полный путь к папке
             $half_directory = str_replace($seek_dir, '', $directory); // короткий путь (только название папки)
+			if(_DS !== '/') $half_directory = str_replace(_DS, '/', $half_directory); /* Фикс для не UNIX систем */
             unset($directory);
 
             if (!CsFS::dirExists($full_directory)) continue; // нет такой директории
