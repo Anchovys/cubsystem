@@ -59,21 +59,6 @@ class CsShared
         return $this->get($filename, TRUE);
     }
 
-    /* TODO: Разобраться зачем нужен кэш
-    public function putCache($key, string $data)
-    {
-        $filename = $this->getFileName($key, FALSE);
-
-        return $this->put($filename, $data, FALSE, TRUE);
-    }
-
-    public function getCache($key)
-    {
-        $filename = $this->getFileName($key, FALSE);
-
-        return $this->get($filename, TRUE);
-    }*/
-
     /**
      *  Проверяет все нужные директории,
      *  и, если нужно, создает их

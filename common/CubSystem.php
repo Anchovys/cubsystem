@@ -7,6 +7,7 @@
 
 define('CS_MODULESCPATH', CS__BASEPATH   . 'modules' . _DS);
 
+define('CS_COREPATH',      CS_COMMONPATH  . 'core'   . _DS);
 define('CS_DISTRPATH',    CS_COMMONPATH  . 'distr'   . _DS);
 define('CS_CONFIGPATH',   CS_COMMONPATH  . 'config'  . _DS);
 define('CS_HELPERSPATH',  CS_COMMONPATH  . 'helpers' . _DS);
@@ -61,75 +62,40 @@ class CubSystem
      */
     public function init()
     {
-        // для статистики
-        $_time = microtime(TRUE);
+		require_once(CS_COREPATH . 'join.php');
+		
+		/* для статистики */
+		$_time = microtime(TRUE);
+		$this->errors = CsErrors::getInstance();
+		$this->errors->init();
+		$this->session = CsSession::getInstance();
+		$this->session->init();
+		$this->info = CsInfo::getInstance();
 
-        // дополнительные функции
-        require_once(CS_COREINCPATH . 'functions.php');
-
-        // функции статистики
-        require_once(CS_COREINCPATH . 'stats.php');
-
-        // обработчик ошибок
-        require_once(CS_COREINCPATH . 'errors.php');
-        $this->errors = CsErrors::getInstance();
-        $this->errors->init();
-
-        // доп функции для безопасности системы
-        require_once(CS_COREINCPATH . 'security.php');
-
-        // сессия и работа с ней
-        require_once(CS_COREINCPATH . 'session.php');
-        $this->session = CsSession::getInstance();
-        $this->session->init();
-
-        // доп функции для файловой системы
-        require_once(CS_COREINCPATH . 'filesystem.php');
-
-        // доп функции для работы с url
-        require_once(CS_COREINCPATH . 'url.php');
-
-        // работа с инфой
-        require_once(CS_COREINCPATH . 'info.php');
-        $this->info = CsInfo::getInstance();
-
-        /* установим какую-то начальную инфу */
-        $this->info->setOption('start_time', $_time, TRUE);
-        $this->info->setOption('system', ['version' => '0.12'], TRUE);
-        $this->info->setOption('currenturi',  CsUrl::currentUri(), TRUE);
-        $this->info->setOption('baseurl',     CsUrl::baseUrl(), TRUE);
-        $this->info->setOption('fullurl',     CsUrl::fullUrl(), TRUE);
-        $this->info->setOption('segments',    CsUrl::segment(), TRUE);
-
-        // работа с конфигами
-        require_once(CS_COREINCPATH . 'config.php');
-        $this->config = CsConfig::getInstance();
-        // сразу подгрузим из файла
-        $this->config->fromFile('default');
-
-        // кеширование и работа с кешем
-        require_once(CS_COREINCPATH . 'cache.php');
-        $this->cache = CsCache::getInstance();
-        $this->cache->init();
-
-        // файлы в папке shared
-        require_once(CS_COREINCPATH . 'shared.php');
-        $this->shared = CsShared::getInstance();
-
-        // работа с хуками
-        require_once(CS_COREINCPATH . 'hooks.php');
-        $this->hooks = CsHooks::getInstance();
-
-        // роуты (маршруты)
-        require_once(CS_COREINCPATH . 'router.php');
-        $this->router = CsRouter::getInstance();
-        $this->router->set404(function () {
-            $this->hooks->here('system_router_404');
-        });
-
-        // работа с хелперами
-        require_once(CS_COREINCPATH . 'helpers.php');
-        $this->helpers = CsHelpers::getInstance();
+		/* установим какую-то начальную инфу */
+		$this->info->setOption('start_time', $_time, TRUE);
+		$this->info->setOption('system', 
+		[
+			'core_version' => default_val_array($cs_core, 'rev', '1.0'),
+			'version' => '0.13'
+		], TRUE);
+		$this->info->setOption('currenturi',  CsUrl::currentUri(), TRUE);
+		$this->info->setOption('baseurl',     CsUrl::baseUrl(), TRUE);
+		$this->info->setOption('fullurl',     CsUrl::fullUrl(), TRUE);
+		$this->info->setOption('segments',    CsUrl::segment(), TRUE);
+		$this->config = CsConfig::getInstance();
+		
+		/* сразу подгрузим из файла */
+		$this->config->fromFile('default');
+		$this->cache = CsCache::getInstance();
+		$this->cache->init();
+		$this->shared = CsShared::getInstance();
+		$this->hooks = CsHooks::getInstance();
+		$this->router = CsRouter::getInstance();
+		$this->router->set404(function () {
+			$this->hooks->here('system_router_404');
+		});
+		$this->helpers = CsHelpers::getInstance();
     }
 
     /**

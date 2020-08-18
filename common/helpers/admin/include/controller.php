@@ -14,7 +14,7 @@ class CsAdminController
         $templatePanel->set('cache_size', round(CsFS::folderSize(CS_CACHEPATH) / 1024, 3) . ' kB')
             ->set('options_size', round(CsFS::folderSize(CS_DATAPATH) / 1024, 3) . ' kB')
             ->set('logs_size', '0')
-            ->set('core_version', '1.0')
+            ->set('core_version', $CS->info->getOption('system')['core_version'])
             ->set('system_version', $CS->info->getOption('system')['version'])
             ->set('update_date', '?')
             ->set('helpers_count', count($CS->helpers->getLoaded()))

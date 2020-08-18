@@ -9,9 +9,8 @@ define('_DS', DIRECTORY_SEPARATOR);
 define('CS__BASEPATH', dirname(realpath(__FILE__)) . _DS);
 
 define('CS_COMMONPATH',    CS__BASEPATH   . 'common'    . _DS);
-define('CS_COREPATH',      CS_COMMONPATH  . 'core'      . _DS);
 
-require_once(CS_COREPATH . 'CubSystem.php');
+require_once(CS_COMMONPATH . 'CubSystem.php');
 
 global $CS;
 if(!isset($CS) && $CS = CubSystem::getInstance())
@@ -24,5 +23,5 @@ if(!isset($CS) && $CS = CubSystem::getInstance())
      */
 
     $CS->start(); // запускаем
-    $CS->out();   // выводим на эран
+    $CS->out();   // выводим на экран
 }
