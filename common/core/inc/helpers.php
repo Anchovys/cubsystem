@@ -97,8 +97,6 @@ class CsHelpers
 
     public function getLoaded(?string $key = NULL)
     {
-        if(!array_key_exists($key, $this->_loaded))
-            return NULL;
-        return $key ? $this->_loaded[$key] : $this->_loaded;
+        return default_val_array($this->_loaded, $key, $this->_loaded);
     }
 }

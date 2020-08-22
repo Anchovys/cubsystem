@@ -7,12 +7,16 @@
 
 class module_landing extends CsModule
 {
+
+    public array $registeredPages = [];
+
     /**
      * Действия при загрузке модуля.
      * @return bool
      */
     public function onLoad()
     {
+        $CS = CubSystem::getInstance();
         $moduleConfig = $this->config['module'];
 
         /* устанавливаем директорию поиска */
@@ -32,6 +36,7 @@ class module_landing extends CsModule
         {
             $full_directory = $directory . _DS; // полный путь к папке
             $half_directory = str_replace($seek_dir, '', $directory); // короткий путь (только название папки)
+			if(_DS !== '/') $half_directory = str_replace(_DS, '/', $half_directory); /* Фикс для не UNIX систем */
             unset($directory);
 
             if (!CsFS::dirExists($full_directory)) continue; // нет такой директории
@@ -45,9 +50,14 @@ class module_landing extends CsModule
             $this->registerPage($half_directory, $filename);
         }
 
+        if($CS->admin != null)
+        {
+            require_once($this->directory . 'adminpanel' . _DS . 'adminpanel.php');
+            $adminpanelIntegrate = new LandingPageAdmin($this);
+            $adminpanelIntegrate->init($this->directory);
+        }
         return parent::onLoad();
     }
-
 
     private function registerHome($filename, $suffix = '')
     {
@@ -109,6 +119,12 @@ class module_landing extends CsModule
                 $CS->template->setMainTmpl($template_part);
             });
         });
+
+        if(!empty($name))
+        {
+            $path = str_replace(CS__BASEPATH, '', $filename);
+            $this->registeredPages[$name] = $path;
+        }
 
         return TRUE;
     }

@@ -5,30 +5,34 @@
   .  @license MIT public license
   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . */
 
-define("CS_TEMPLATES_PATH", CS__BASEPATH . 'templates' . _DS);
-require_once (__DIR__ . _DS . 'tpml.php');
-
 class template_helper
 {
+    public    ?bool   $registered = false;
     public    ?string $directory = NULL;
     public    ?array  $info = NULL;
     protected ?array  $_tmpl = NULL;
 
-    private   array   $_meta;
+    private   array   $_meta = [];
     private   int     $mainId = 0;
+
+    public function __construct()
+    {
+        if(!defined("CS_TEMPLATES_PATH"))
+            define("CS_TEMPLATES_PATH", CS__BASEPATH . 'templates' . _DS);
+        require_once (__DIR__ . _DS . 'tpml.php');
+    }
 
     /**
      * @param string $name
-     * @param null $dir
+     * @param string $dir
      * @return null|object
      */
-    public function register(string $name, $dir = NULL)
+    public function register(string $name, string $dir = '')
     {
         $CS = CubSystem::getInstance();
 
-        $dir = ($dir !== NULL) ? $dir :
-            CS_TEMPLATES_PATH . $name . _DS;
-
+        $dir = default_val($dir, CS_TEMPLATES_PATH) . $name . _DS;
+        $dir = CsSecurity::filter($dir, 'path');
 
         if(!is_dir($dir) || !file_exists($dir . 'index.php'))
             return NULL;
@@ -56,8 +60,9 @@ class template_helper
         $object->directory = $dir;
         $object->onLoad();
 
-        return $object;
+        $this->registered = true;
 
+        return $object;
     }
 
     /**

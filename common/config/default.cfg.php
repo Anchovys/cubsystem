@@ -7,15 +7,20 @@
 
 $config = [];
 
-$config['secret_key'] = 'secret_key';
+$config['security'] = [
+    'secret_key' => 'secret_key'
+];
 
 $config['helpers'] = [
     'enabled'  => TRUE,
     'singleton_support' => TRUE,
     'priority' =>
     [
+        'ajax',
         'template',
         'mysql',
+        'authorize',
+        'admin',
         'modules'
     ],
     'ignore' =>
@@ -25,6 +30,15 @@ $config['helpers'] = [
 
 $config['hooks'] = [
     'enabled' => TRUE
+];
+
+$config['ajax'] = [
+    'enabled' => TRUE
+];
+
+$config['admin'] = [
+    'enabled' => TRUE,
+    'helper'  => 'admin'
 ];
 
 $config['template'] = [
@@ -46,6 +60,11 @@ $config['database'] = [
         'prefix' => 'cs_',
         'charset' => 'utf8'
     ]
+];
+
+$config['auth'] = [
+    'enabled'         => FALSE, // mysql are disabled
+    'helper'          => 'authorize'
 ];
 
 $config['upload'] = [

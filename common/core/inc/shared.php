@@ -21,16 +21,17 @@ class CsShared
         return self::$_instance;
     }
 
-    /**
-     *  Проверяет все нужные директории,
-     *  и, если нужно, создает их
-     */
-    private function checkDirectories()
+    public function purgeData($key = null, $hashName = FALSE)
     {
-        CsFS::mkdirIfNotExists(CS_SHAREDPATH);
-        CsFS::mkdirIfNotExists(CS_UPLOADSPATH);
-        CsFS::mkdirIfNotExists(CS_DATAPATH);
-        CsFS::mkdirIfNotExists(CS_CACHEPATH);
+        $filename = empty($key) ? null : $this->getFileName($key, $hashName);
+
+        if($filename == NULL) // TODO: удаление всех опций
+            return FALSE;
+
+        if(!CsFS::fileExists($filename))
+            return FALSE;
+
+        return unlink($filename);
     }
 
     /**
@@ -41,10 +42,7 @@ class CsShared
      */
     public function saveTextData($key, $data, bool $hashName = FALSE)
     {
-        $this->checkDirectories();
-
-        $filename = CS_DATAPATH .
-            CsSecurity::hash($key, $hashName, 'sha1') . '.dat';
+        $filename = $this->getFileName($key, $hashName);
 
         return $this->put($filename, $data, TRUE, TRUE);
     }
@@ -56,34 +54,22 @@ class CsShared
      */
     public function getTextData($key, bool $hashName = FALSE)
     {
-        $this->checkDirectories();
-
-        $filename = CS_DATAPATH .
-            CsSecurity::hash($key, $hashName, 'sha1') . '.dat';
+        $filename = $this->getFileName($key, $hashName);
 
         return $this->get($filename, TRUE);
     }
 
-    public function putCache($key, string $data)
+    /**
+     *  Проверяет все нужные директории,
+     *  и, если нужно, создает их
+     */
+    private function checkDirectories()
     {
-        $this->checkDirectories();
-
-        $filename = CS_DATAPATH .
-            CsSecurity::hash($key, true, 'sha1') . '.dat';
-
-        return $this->put($filename, $data, FALSE, TRUE);
+        CsFS::mkdirIfNotExists(CS_SHAREDPATH);
+        CsFS::mkdirIfNotExists(CS_UPLOADSPATH);
+        CsFS::mkdirIfNotExists(CS_DATAPATH);
+        CsFS::mkdirIfNotExists(CS_CACHEPATH);
     }
-
-    public function getCache($key)
-    {
-        $this->checkDirectories();
-
-        $filename = CS_DATAPATH .
-            CsSecurity::hash($key, true, 'sha1') . '.dat';
-
-        return $this->get($filename, TRUE);
-    }
-
 
     private function put(string $filename, $data, bool $toJson = TRUE, bool $replace = TRUE)
     {
@@ -99,10 +85,18 @@ class CsShared
 
     private function get(string $filename, bool $fromJson)
     {
-        if(!CsFS::fileExists($filename))
+
+        if ( !CsFS::fileExists($filename))
             return NULL;
 
         $data = file_get_contents($filename);
         return $fromJson ? json_decode($data, TRUE) : $data;
+    }
+
+    private function getFileName($key, bool $hash = true)
+    {
+        $this->checkDirectories();
+        $key = $hash ? CsSecurity::hash($key, true, 'sha1') : $key;
+        return CS_DATAPATH . $key . '.dat';
     }
 }

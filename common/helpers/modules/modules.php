@@ -23,7 +23,7 @@ class modules_helper
 
     public function __construct()
     {
-        require_once(CS_HELPERSPATH . 'modules/module.php');
+        require_once(CS_HELPERSPATH . 'modules' . _DS . 'module.php');
     }
 
     private array $_loaded = [];
@@ -117,10 +117,10 @@ class modules_helper
     public function loadFor(array $names)
     {
         $return = [];
+
         foreach ($names as $key => $name)
-        {
-            $return[$name] = $this->loadOnce($name);
-        }
+          $return[$name] = $this->loadOnce($name);
+
         return $return;
     }
 
@@ -128,11 +128,10 @@ class modules_helper
     {
         $jsonData = CubSystem::getInstance()->shared->
         getTextData('modules', TRUE);
-
         if(is_string($jsonData) != TRUE)
             return;
 
-        $this->loadFor(json_decode($jsonData));
+        $this->loadFor(json_decode($jsonData, true));
     }
 
     /**
@@ -311,13 +310,13 @@ class modules_helper
         if($module_item == NULL)
             return FALSE;
 
-        // отключаем функцией
-        if ($this->disableOnce($name) !== TRUE)
-            return FALSE; // не выгрузился
-
         // что-то чистим
         if ($module_item->onPurge() !== TRUE)
             return FALSE; // не очистил
+
+        // отключаем функцией
+        if ($this->disableOnce($name) !== TRUE)
+            return FALSE; // не выгрузился
 
         return TRUE;
     }

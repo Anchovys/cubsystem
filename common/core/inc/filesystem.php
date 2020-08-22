@@ -14,7 +14,7 @@ class CsFS
      * @param int $depth - глубина поиска
      * @return array
      */
-    public static function getDirectories($source_dir, int $depth = 0)
+    public static function getDirectories($source_dir, int $depth = 0) : array
     {
         $depth = $depth+2;
         if($depth <= 0) return [];
@@ -32,7 +32,7 @@ class CsFS
      * @param array|string $ext - расширения или массив расширений для поиска
      * @return array
      */
-    public static function getFiles(string $source_dir, int $depth = 0, $ext = ['jpg', 'jpeg', 'png', 'gif', 'ico', 'svg'])
+    public static function getFiles(string $source_dir, int $depth = 0, $ext = ['jpg', 'jpeg', 'png', 'gif', 'ico', 'svg']) : array
     {
         $depth = $depth+2;
         if($depth <= 0) return [];
@@ -111,7 +111,7 @@ class CsFS
      * @param string $file - имя файла
      * @return string|string[]
      */
-    public static function removeExt(string $file)
+    public static function removeExt(string $file) : string
     {
         return str_replace('.' . self::getExt($file), '', $file);
     }
@@ -123,12 +123,12 @@ class CsFS
      * @param string $file - имя файла
      * @return string
      */
-    public static function getExt(string $file)
+    public static function getExt(string $file) : string
     {
         return strtolower(pathinfo($file, PATHINFO_EXTENSION));
     }
 
-    public static function fileExists(string $fileName)
+    public static function fileExists(string $fileName) : bool
     {
         return file_exists($fileName) && is_file($fileName);
     }
@@ -140,7 +140,7 @@ class CsFS
      * @param string $dirName - имя директории
      * @return bool
      */
-    public static function dirExists(string $dirName)
+    public static function dirExists(string $dirName) : bool
     {
         return file_exists($dirName) && is_dir($dirName);
     }
@@ -153,7 +153,7 @@ class CsFS
      * @param bool $recursive - флаг для рекурсивного создания
      * @return bool
      */
-    public static function mkdirIfNotExists($task, int $mode = 777, bool $recursive = true)
+    public static function mkdirIfNotExists($task, int $mode = 777, bool $recursive = true) : bool
     {
         if(is_array($task))
         {
@@ -173,4 +173,20 @@ class CsFS
 
         return mkdir($task, $mode, $recursive);
     }
+
+
+    static function folderSize(string $dir) : int
+    {
+        if(!self::dirExists($dir))
+          return 0;
+
+        $size = 0;
+
+        foreach (glob(rtrim($dir, '/').'/*', GLOB_NOSORT) as $each) {
+            $size += is_file($each) ? filesize($each) : folderSize($each);
+        }
+
+        return $size;
+    }
+
 }
