@@ -34,6 +34,25 @@ class CsSecurity
         return !$reverse ? str_replace($cyr, $lat, $text) : str_replace($lat, $cyr, $text);
     }
 
+    /* Проверка реферера */
+    public static function checkReferer()
+    {
+        if (empty($_POST)) return;
+
+        if (!isset($_SERVER['HTTP_REFERER']))
+            die('Access denied!');
+
+        $url = $ps = parse_url(self::filter($_SERVER['HTTP_REFERER'], 'xss'));
+        $host = default_val_array($url, 'host');
+        $port = default_val_array($url, 'host');
+
+        if ($host && $port and $port != 80)
+            $host .= ':' . $port;
+
+        if ($host != $_SERVER['HTTP_HOST'])
+            die('Access denied!');
+    }
+
     /* Защита XSRF (CSRF) */
     public static function checkCSRFToken(string $token) : bool
     {
@@ -112,7 +131,7 @@ class CsSecurity
      *          special_string  - безопасная строка, в которой используется только
      *                            ОДНО СЛОВО из букв латинского алфавата с нижним регистром
      *          multi_spaces    - заменяет многочисленные пробелы одним символом
-     *       transliterate text - преобразовать русский текст в латиницу
+     *          transliterate   - преобразовать русский текст в латиницу
      *          sha512          - проверить является ли строка sha512 хешем в случае ошибки,
      *                            выведется пустой символ
      *
@@ -308,7 +327,7 @@ class CsSecurity
     public static function checkPost(array $args = [])
     {
         if(!$_POST)
-            return FALSE;
+             return FALSE;
 
         foreach ($args as $key => $field)
         {
