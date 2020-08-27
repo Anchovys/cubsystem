@@ -43,15 +43,7 @@ class SbArticle
 
         if(!empty($this->id))
         {
-            // пытаемся получить обьект бд
-            if ($CS->mysql === NULL || !$db = $CS->mysql->getObject())
-                return NULL;
-
-            $db->where('article_id', $this->id);
-            $db->where('param_name', 'cat');
-
-            $data = $db->get('sb_article_infos', null, 'value');
-
+            $data = SbArticleInfo::getParamsForArticle($this->id, 'cat');
             if(!empty($data))
                 foreach ($data as $cat)
                 {

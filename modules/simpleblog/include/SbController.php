@@ -58,7 +58,12 @@ class SbController
         $CS = CubSystem::getInstance();
         $template = $CS->template;
 
-        $buffer = '';
+        $buffer = [
+            'pagination' => '',
+            'articles' => ''
+        ];
+
+        // состояние первое - выводим список записей в категории
         if(!empty($cat = intval($cat)))
         {
             $paginate = new SbPagination();
@@ -67,35 +72,51 @@ class SbController
             $paginate->setLimit(20);
 
             $articles = SbArticle::getPagesInCategory($cat, $paginate->getLimit(), $paginate->getCurrentPage(), ['slug', 'content_short', 'title']);
-            if ($articles['count'] !== 0) {
-                foreach ($articles['result'] as $article) {
-                    // вывод данных на шаблон страницы
-                    $articleTmpl = new CsTmpl('simpleblog/short_article', $template);
-                    $articleTmpl->set('title', $article->title);
-                    $articleTmpl->set('text', $article->contentShort);
-                    $articleTmpl->set('slug', $article->urlSlug);
 
-                    $catLinks = '';
-                    foreach ($article->categoriesObjects as $cat)
-                        $catLinks .= '<a href="' . CsUrl::absUrl('category/' . $cat['id']) . '">' . $cat['name'] . '</a>';
+            if($articles['count'] == 0)
+            {
+                $this->NotFoundPage();
+                return;
+            }
 
-                    $articleTmpl->set('catLinks', $catLinks);
-                    $buffer .= $articleTmpl->out();
-                }
-            } else return $this->NotFoundPage();
+            foreach ($articles['result'] as $article) {
+                // вывод данных на шаблон страницы
+                $articleTmpl = new CsTmpl('simpleblog/short_article', $template);
+                $articleTmpl->set('title', $article->title);
+                $articleTmpl->set('text', $article->contentShort);
+                $articleTmpl->set('slug', $article->urlSlug);
 
-            // --- вывод на шаблон --- //
-            $blogTmpl = new CsTmpl('simpleblog/home', $template);
-            $blogTmpl->set('articles', $buffer);
-            $blogTmpl->set('pagination', $paginate->getHtml());
-            $buffer = $blogTmpl->out();
-        } else
-        {
+                $catLinks = '';
+                foreach ($article->categoriesObjects as $cat)
+                    $catLinks .= '<a href="' . CsUrl::absUrl('category/' . $cat['id']) . '">' . $cat['name'] . '</a>';
 
+                $articleTmpl->set('catLinks', $catLinks);
+                $buffer['articles'] .= $articleTmpl->out();
+            }
+
+            $buffer['pagination'] = $paginate->getHtml();
+        }
+        // состояние второе - категория указана неккоректно или вообще не указана
+        // выводим список всех категорий
+        else {
+            foreach (SbCategory::getAll(null)['result']  as $item)
+            {
+                $cardTmpl = new CsTmpl('blocks/basic/card', $template);
+
+                $cardTmpl->set('card_title', '<a href='.CsUrl::absUrl('admin/s-blog/category?id=' . $item->id).'>' .
+                    $item->name . '</a> (' . $item->urlSlug . ')');
+                $cardTmpl->set('card_text', $item->description);
+
+                $buffer['articles'] .= $cardTmpl->out();
+            }
         }
 
+        // --- вывод на шаблон --- //
+        $blogTmpl = new CsTmpl('simpleblog/home', $template);
+        $blogTmpl->setArray($buffer); // буфер передаем массивом
+
         $blankTmpl = $template->getTmpl(1);
-        $blankTmpl->set('content', $buffer);
+        $blankTmpl->set('content', $blogTmpl->out());
         $template->setMainTmpl($blankTmpl);
     }
 
@@ -120,28 +141,38 @@ class SbController
         $paginate->setLimit(20);
 
         $articles = SbArticle::getLastPages($paginate->getLimit(), $paginate->getCurrentPage(), ['slug', 'content_short', 'title']);
-        $buffer = '';
-        if ($articles['count'] !== 0) {
-            foreach ($articles['result'] as $article) {
-                // вывод данных на шаблон страницы
-                $articleTmpl = new CsTmpl('simpleblog/short_article', $template);
-                $articleTmpl->set('title', $article->title);
-                $articleTmpl->set('text', $article->contentShort);
-                $articleTmpl->set('slug', $article->urlSlug);
 
-                $catLinks = '';
-                foreach ($article->categoriesObjects as $cat)
-                    $catLinks .= '<a href="' . CsUrl::absUrl('category/' . $cat['id']) . '">' . $cat['name'] . '</a>';
+        $buffer = [
+            'pagination' => '',
+            'articles' => ''
+        ];
 
-                $articleTmpl->set('catLinks', $catLinks);
-                $buffer .= $articleTmpl->out();
-            }
-        } else return $this->NotFoundPage();
+        if($articles['count'] == 0)
+        {
+            $this->NotFoundPage();
+            return;
+        }
+
+        $buffer['pagination'] = $paginate->getHtml();
+
+        foreach ($articles['result'] as $article) {
+            // вывод данных на шаблон страницы
+            $articleTmpl = new CsTmpl('simpleblog/short_article', $template);
+            $articleTmpl->set('title', $article->title);
+            $articleTmpl->set('text', $article->contentShort);
+            $articleTmpl->set('slug', $article->urlSlug);
+
+            $catLinks = '';
+            foreach ($article->categoriesObjects as $cat)
+                $catLinks .= '<a href="' . CsUrl::absUrl('category/' . $cat['id']) . '">' . $cat['name'] . '</a>';
+
+            $articleTmpl->set('catLinks', $catLinks);
+            $buffer['articles'] .= $articleTmpl->out();
+        }
 
         // --- вывод на шаблон --- //
         $blogTmpl = new CsTmpl('simpleblog/home', $template);
-        $blogTmpl->set('articles', $buffer);
-        $blogTmpl->set('pagination', $paginate->getHtml());
+        $blogTmpl->setArray($buffer);
 
         $blankTmpl = $template->getTmpl(1);
         $blankTmpl->set('content', $blogTmpl->out());
