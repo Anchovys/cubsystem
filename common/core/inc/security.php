@@ -257,7 +257,7 @@ class CsSecurity
 
                 case 'path':
                     $str = preg_replace( '!/+!', '/', $str );
-                    $str = str_replace([/*'\\',*/'../', './', '..'], '', $str );
+                    $str = str_replace(['../', './', '..'], '', $str );
                     break;
 
                 case 'quotes':
@@ -324,10 +324,19 @@ class CsSecurity
         return $string;
     }
 
+    /**
+     * Проверить то, что все указанные в args ключи
+     * существуют в POST, иначе вывести false
+     * @param array $args - какие ключи должны быть обязательно в POST
+     * @return array|bool - Весь массив POST
+     */
     public static function checkPost(array $args = [])
     {
         if(!$_POST)
              return FALSE;
+
+        // встроили проверку рефера
+        self::checkReferer();
 
         foreach ($args as $key => $field)
         {
@@ -341,6 +350,12 @@ class CsSecurity
         return $_POST;
     }
 
+    /**
+     * Проверить то, что все указанные в args ключи
+     * существуют в GET, иначе вывести false
+     * @param array $args - какие ключи должны быть обязательно в GET
+     * @return array|bool - Весь массив GET
+     */
     public static function checkGet(array $args = [])
     {
         if(!$_GET)
