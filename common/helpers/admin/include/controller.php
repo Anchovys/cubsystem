@@ -76,6 +76,7 @@ class CsAdminController
 
                 foreach ($modules as $key => $value)
                 {
+                    $CS->modules->disableOnce($value);
                     if(in_array($value, $loaded_mods))
                       unset($loaded_mods[$key]);
                 }
@@ -99,6 +100,8 @@ class CsAdminController
 
                   foreach ($modules as $key => $value)
                   {
+                      $CS->modules->enableOnce($value);
+                      
                       if(!in_array($value, $loaded_mods))
                         $loaded_mods[] = $value;
                   }
