@@ -4,17 +4,29 @@
   .  @author Anchovy, <contact.anchovy@gmail.com>
   .  @license MIT public license
   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . */
+/*
++ -------------------------------------------------------------------------
+| ajax.php [rev 2.0], Назначение: управление Ajax
++ -------------------------------------------------------------------------
+|
+| Хелпер позволяет удобно управлять Ajax и определять свои обработчики
+| Взаимодействие с хелпером очень простое
+|  1. Нужно создать обработчик в коде,
+|     функцией handle(name, func () {  *код обработчика* }).
+|
+|  2. Затем можно обращаться по адресу /домен/ajax_handler/name,
+|     и передавать туда нужные данные, для выполнения.
+|
+|  Если указанный обработчик отсутствует, выводится сообщение.
+|
+*/
 
-// хелпер для обработки ajax
 class ajax_helper
 {
     // for singleton
     private static ?ajax_helper $_instance = NULL;
 
-    /**
-     * @return ajax_helper
-     */
-    public static function getInstance()
+    public static function getInstance() : ajax_helper
     {
         if (self::$_instance == NULL)
             self::$_instance = new ajax_helper();
@@ -26,7 +38,15 @@ class ajax_helper
     {
         $CS = CubSystem::getInstance();
         $CS->router->all('/ajax_handler/(\w+)', function($action) use ($CS) {
-            $CS->hooks->here('cs_ajax_handle_' . $action);
+
+            $hook_name = "cs_ajax_handle_$action";
+
+            if(!$CS->hooks->exists($hook_name))
+                echo ('invalid handler name');
+
+            $CS->hooks->here($hook_name);
+
+            die; // загрузку сайта останавливаем
         });
 
         $CS->ajax = $this;
