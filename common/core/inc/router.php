@@ -5,6 +5,16 @@
   .  @license MIT public license.
   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . */
 
+/*
++ -------------------------------------------------------------------------
+| router.php [rev 1.0], Назначение: управление маршрутами
++ -------------------------------------------------------------------------
+|
+| Класс позволяет управлять маршрутами (ЧПУ);
+| нужен для адресации.
+|
+*/
+
 /**
  * @author      Bram(us) Van Damme <bramus@bram.us>
  * @copyright   Copyright (c), 2013 Bram(us) Van Damme
@@ -16,10 +26,7 @@ class CsRouter
     // for singleton
     private static ?CsRouter $_instance = NULL;
 
-    /**
-     * @return CsRouter
-     */
-    public static function getInstance()
+    public static function getInstance() : CsRouter
     {
         if (self::$_instance == NULL)
             self::$_instance = new CsRouter();

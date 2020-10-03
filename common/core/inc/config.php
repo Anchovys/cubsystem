@@ -5,15 +5,21 @@
   .  @license MIT public license
   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . */
 
+/*
++ -------------------------------------------------------------------------
+| config.php [rev 1.0], Назначение: управление файлами конфигурации
++ -------------------------------------------------------------------------
+|
+| Класс позволяет удобно управлять файлами конфигурации системы.
+|
+*/
+
 class CsConfig
 {
     // for singleton
     private static ?CsConfig $_instance = null;
 
-    /**
-     * @return CsConfig
-     */
-    public static function getInstance()
+    public static function getInstance() : CsConfig
     {
         if (self::$_instance == null)
             self::$_instance = new CsConfig();

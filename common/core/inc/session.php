@@ -10,18 +10,16 @@
 | session.php [rev 1.0], Назначение: управление PHP сессиями
 + -------------------------------------------------------------------------
 |
-| Класс позволяет удобно управлять сессиями
+| Класс позволяет удобно управлять сессиями.
 |
 */
+
 class CsSession
 {
     // for singleton
     private static ?CsSession $_instance = NULL;
 
-    /**
-     * @return CsSession
-     */
-    public static function getInstance()
+    public static function getInstance() : CsSession
     {
         if (self::$_instance == NULL)
             self::$_instance = new CsSession();
