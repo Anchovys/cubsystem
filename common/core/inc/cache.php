@@ -2,18 +2,24 @@
 /* .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
   .  @copyright Copyright (c) 2020, Anchovy.
   .  @author Anchovy, <contact.anchovy@gmail.com>
-  .  @license MIT public license.
+  .  @license MIT public license
   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . */
+
+/*
++ -------------------------------------------------------------------------
+| cache.php [rev 1.0], Назначение: управление файловым кешем
++ -------------------------------------------------------------------------
+|
+| Класс, при помощи котого достигается работа с кешем.
+|
+*/
 
 class CsCache
 {
     // for singleton
     private static ?CsCache $_instance = NULL;
 
-    /**
-     * @return CsCache
-     */
-    public static function getInstance()
+    public static function getInstance() : CsCache
     {
         if (self::$_instance == NULL)
             self::$_instance = new CsCache();
@@ -31,7 +37,7 @@ class CsCache
      * @param string $secret_key - можно указать секретный ключ
      * @param string $ext - можно указать расширение файла
      */
-    public function init(string $directory = '', $secret_key = '', $ext = 'txt')
+    public function init(string $directory = '', $secret_key = '', $ext = 'txt')  : void
     {
         // получаем путь
         $path = default_val($this->_path, CS_CACHEPATH) . _DS;
@@ -80,7 +86,7 @@ class CsCache
 
     }
 
-    public function set(string $key, $value, int $time = 120, bool $keepInHistory = FALSE)
+    public function set(string $key, $value, int $time = 120, bool $keepInHistory = FALSE) : void
     {
         $data = [
             'value' => serialize($value),

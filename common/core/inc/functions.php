@@ -5,15 +5,24 @@
   .  @license MIT public license
   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . */
 
+/*
++ -------------------------------------------------------------------------
+| functions.php [rev 1.0], Назначение: дополнительные функции
++ -------------------------------------------------------------------------
+|
+| Здесь описаны дополнительные функции системы.
+|
+*/
+
 /**
  * Return value or default
  * Возвращает значение, если оно есть,
  * либо возвращает дефолтное
- * @param $check
- * @param $default
+ * @param mixed $check
+ * @param mixed $default
  * @return null
  */
-function default_val($check, $default = null)
+function default_val($check, $default = NULL)
 {
     return empty($check) ? $default : $check;
 }
@@ -22,12 +31,12 @@ function default_val($check, $default = null)
  * Return value or default in array
  * Возвращает значение, если оно есть,
  * либо возвращает дефолтное
- * @param $checkArray
- * @param $checkKey
- * @param $default
+ * @param array $checkArray
+ * @param mixed $checkKey
+ * @param mixed $default
  * @return null
  */
-function default_val_array($checkArray, $checkKey, $default = null)
+function default_val_array(array $checkArray, $checkKey, $default = NULL)
 {
     if(!array_key_exists($checkKey, $checkArray))
         return $default;
@@ -46,19 +55,19 @@ function empty_val() : bool
 
     foreach ($args as $arg)
     {
-        if(empty($arg)) return true;
+        if(empty($arg)) return TRUE;
     }
 
-    return false;
+    return FALSE;
 }
 
 /**
  * Print any var
  * используется для отладки
- * @param $var
+ * @param mixed $var
  * @param bool $html
  * @param bool $echo
- * @return false|string
+ * @return bool|string
  */
 function pr($var, bool $html = TRUE, bool $echo = TRUE)
 {
@@ -106,17 +115,18 @@ function pr($var, bool $html = TRUE, bool $echo = TRUE)
     else
     {
         echo '</pre>';
+        return TRUE;
     }
 }
 
 /**
  * Аналогична pr, только завершающаяся die()
  * используется для отладки с помощью прерывания
- * @param $var
+ * @param mixed $var
  * @param bool $html
  * @param bool $echo
  */
-function _pr($var, bool $html = TRUE, bool $echo = TRUE)
+function _pr($var, bool $html = TRUE, bool $echo = TRUE) : void
 {
     pr($var, $html, $echo);
     die();

@@ -5,15 +5,21 @@
   .  @license MIT public license
   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . */
 
+/*
++ -------------------------------------------------------------------------
+| session.php [rev 1.0], Назначение: управление хелперами
++ -------------------------------------------------------------------------
+|
+| Класс добавляет функции взаимодействия с хелперами.
+|
+*/
+
 class CsHelpers
 {
     // for singleton
     private static ?CsHelpers $_instance = NULL;
 
-    /**
-     * @return CsHelpers
-     */
-    public static function getInstance()
+    public static function getInstance() : CsHelpers
     {
         if (self::$_instance == NULL)
             self::$_instance = new CsHelpers();

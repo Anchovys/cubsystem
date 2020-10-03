@@ -5,15 +5,21 @@
   .  @license MIT public license
   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . */
 
+/*
++ -------------------------------------------------------------------------
+| hooks.php [rev 1.0], Назначение: системные хуки
++ -------------------------------------------------------------------------
+|
+| Класс реализует механизмы хуков.
+|
+*/
+
 class CsHooks
 {
     // for singleton
     private static ?CsHooks $_instance = NULL;
 
-    /**
-     * @return CsHooks
-     */
-    public static function getInstance()
+    public static function getInstance() : CsHooks
     {
         if (self::$_instance == NULL)
         {
@@ -112,10 +118,11 @@ class CsHooks
 
     /**
      * Выполняет все хуки с указанным именем в этом месте
-     * @param $hook - название хука
-     * @param $args - те аргументы, которые нужно применить при подключении функции
+     * @param string $hook - название хука
+     * @param array $args - те аргументы, которые нужно применить при подключении функции
      * При неудачном выполнении, вернет FALSE
      * Если хук что-то возвращает, будет возвращено последнее значение хука
+     * @param int $minPriority - минимальный приоритет для отображения
      * @return Boolean
      */
     public function here(string $hook, array $args = [], int $minPriority = 0)

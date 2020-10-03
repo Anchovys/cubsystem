@@ -5,15 +5,22 @@
   .  @license MIT public license
   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . */
 
+/*
++ -------------------------------------------------------------------------
+| info.php [rev 1.0], Назначение: управление данными
++ -------------------------------------------------------------------------
+|
+| Класс позволяет структурировать данные,
+| для быстрого доступа к ним.
+|
+*/
+
 class CsInfo
 {
     // for singleton
     private static ?CsInfo $_instance = NULL;
 
-    /**
-     * @return CsInfo
-     */
-    public static function getInstance()
+    public static function getInstance() : CsInfo
     {
         if (self::$_instance == NULL)
             self::$_instance = new CsInfo();

@@ -5,15 +5,36 @@
   .  @license MIT public license
   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . */
 
+/*
++ -------------------------------------------------------------------------
+| security.php [rev 1.0], Назначение: безопасность системы
++ -------------------------------------------------------------------------
+|
+| Класс предоставляет функции по безопасности системы.
+|
+|
+*/
+
 class CsSecurity
 {
+    // for singleton
+    private static ?CsSecurity $_instance = NULL;
+
+    public static function getInstance() : CsSecurity
+    {
+        if (self::$_instance == NULL)
+            self::$_instance = new CsSecurity();
+
+        return self::$_instance;
+    }
+
     /**
      * Заменяет всю кириллицу транслитом
      * @param string $text - текст для преобразования
      * @param bool $reverse - наоборот из транслита в кирилицу
      * @return string
      */
-    static function transliterate(string $text, $reverse = FALSE)
+    static function transliterate(string $text, $reverse = FALSE) : string
     {
         $cyr = [
             'а','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н','о','п',
@@ -40,11 +61,11 @@ class CsSecurity
         if (empty($_POST)) return;
 
         if (!isset($_SERVER['HTTP_REFERER']))
-            die('Access denied!');
+            die('Access denied! No referer.');
 
         $url = $ps = parse_url(self::filter($_SERVER['HTTP_REFERER'], 'xss'));
         $host = default_val_array($url, 'host');
-        $port = default_val_array($url, 'host');
+        $port = default_val_array($url, 'port');
 
         if ($host && $port and $port != 80)
             $host .= ':' . $port;

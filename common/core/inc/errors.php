@@ -5,15 +5,21 @@
   .  @license MIT public license
   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . */
 
+/*
++ -------------------------------------------------------------------------
+| errors.php [rev 1.0], Назначение: отлов PHP ошибок и их вывод
++ -------------------------------------------------------------------------
+|
+| Класс позволяет отлавливать ошибки и стандартизировать их вывод.
+|
+*/
+
 class CsErrors
 {
     // for singleton
     private static ?CsErrors $_instance = NULL;
 
-    /**
-     * @return CsErrors
-     */
-    public static function getInstance()
+    public static function getInstance() : CsErrors
     {
         if (self::$_instance == NULL)
             self::$_instance = new CsErrors();
@@ -21,20 +27,16 @@ class CsErrors
         return self::$_instance;
     }
 
-    public function init()
+    public function init() : void
     {
         // for php errors
         set_error_handler([$this, 'handleError']);
 
         // for php exceptions
         set_exception_handler([$this, 'handleException']);
-
-        // on stop script
-        // for catch the fatal errors
-        //register_shutdown_function([$this, 'handleStop']);
     }
 
-    public function handleError($level, $message, $file, $line, $context)
+    public function handleError($level, $message, $file, $line, $context) : void
     {
         $this->printer(
             'Error type('.$level.'): msg:' . $message,
@@ -42,7 +44,7 @@ class CsErrors
             'src:' . $file . ' : ' . $line . ', gen_t: ' . time());
     }
 
-    public function handleException($exception)
+    public function handleException($exception) : void
     {
         $this->printer(
             'Exception: code(' . $exception->getCode() . '): ' . $exception->getMessage(),
@@ -50,13 +52,8 @@ class CsErrors
             'src:' . $exception->getFile() . ' : ' . $exception->getLine() . ', gen_t: ' . time());
     }
 
-    /*
-    public function handleStop()
+    private function jTraceEx($e, $seen=null) : string
     {
-    }
-    */
-
-    private function jTraceEx($e, $seen=null) {
         $starter = $seen ? 'Caused by: ' : '';
         $result = array();
         if (!$seen) $seen = array();
@@ -93,7 +90,7 @@ class CsErrors
         return $result;
     }
 
-    private function printer($title = '', $body = '', $small = '')
+    private function printer($title = '', $body = '', $small = '') : void
     {
         print '<details style="background: white; font-family: \'PT Mono\', sans-serif;">';
             print '<summary><b>'. $title .'</b></summary>';
