@@ -56,7 +56,7 @@ class ajax_helper
     {
         // можно указать свою функцию с условием
         // если не выполняется, выходим
-        if($condition != NULL && call_user_func($condition) !== TRUE)
+        if ($condition != NULL && call_user_func($condition) !== TRUE)
             return;
 
         $CS = CubSystem::getInstance();

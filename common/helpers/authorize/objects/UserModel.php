@@ -142,7 +142,7 @@ class UserModel
 
         // пытаемся получить обьект бд
         if ($CS->mysql === NULL || !$db = $CS->mysql->getObject())
-            return NULL;
+            throw new Exception("No database");
 
         // generate random salt
         $this->_salt = $this->_makePasswordSalt();
@@ -158,7 +158,7 @@ class UserModel
 
         // function returned current user id
         try { $id = $db->insert('users', $data); }
-        catch (Exception $e) { return NULL; }
+        catch (Exception $e) { $CS->errors->handleException($e); }
 
         // get user from database
         return is_int($id) ? self::getById($id) : NULL;

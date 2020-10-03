@@ -7,7 +7,7 @@
 
 define('CS_MODULESCPATH', CS__BASEPATH   . 'modules' . _DS);
 
-define('CS_COREPATH',      CS_COMMONPATH  . 'core'   . _DS);
+define('CS_COREPATH',      CS_COMMONPATH . 'core'    . _DS);
 define('CS_DISTRPATH',    CS_COMMONPATH  . 'distr'   . _DS);
 define('CS_CONFIGPATH',   CS_COMMONPATH  . 'config'  . _DS);
 define('CS_HELPERSPATH',  CS_COMMONPATH  . 'helpers' . _DS);
@@ -28,6 +28,7 @@ class CubSystem
 {
     public ?CsInfo    $info = NULL;
     public ?CsConfig  $config = NULL;
+    public ?CsSecurity $security = NULL;
     public ?CsHooks   $hooks = NULL;
     public ?CsHelpers $helpers = NULL;
     public ?CsSession $session = NULL;
@@ -45,10 +46,7 @@ class CubSystem
     // for singleton
     private static ?CubSystem $_instance = NULL;
 
-    /**
-     * @return CubSystem
-     */
-    public static function getInstance()
+    public static function getInstance() : CubSystem
     {
         if (self::$_instance == NULL)
             self::$_instance = new CubSystem();
@@ -62,39 +60,89 @@ class CubSystem
      */
     public function init()
     {
+        /**
+            время старта скрипта
+            для статистики
+        */
+        $_time = microtime(TRUE);
+
+        /**
+            подключим ядро системы
+         */
 		require_once(CS_COREPATH . 'join.php');
-		
-		/* для статистики */
-		$_time = microtime(TRUE);
+		$_core_config = isset($cs_core) ? $cs_core : [];
+
+        /**
+            инициализация обработчика ошибок
+         */
 		$this->errors = CsErrors::getInstance();
 		$this->errors->init();
+
+        /**
+            инициализация сессий
+         */
 		$this->session = CsSession::getInstance();
 		$this->session->init();
+
+        /**
+            инициализация хранилища информации
+         */
 		$this->info = CsInfo::getInstance();
 
-		/* установим какую-то начальную инфу */
+        /* установим какую-то начальную инфу */
 		$this->info->setOption('start_time', $_time, TRUE);
-		$this->info->setOption('system', 
-		[
-			'core_version' => default_val_array($cs_core, 'rev', '1.0'),
-			'version' => '0.13'
-		], TRUE);
+        $this->info->setOption('system',
+            [
+                'core_version' => default_val_array($_core_config, 'rev', '1.0'),
+                'version' => '0.13'
+            ], TRUE);
 		$this->info->setOption('currenturi',  CsUrl::currentUri(), TRUE);
 		$this->info->setOption('baseurl',     CsUrl::baseUrl(), TRUE);
 		$this->info->setOption('fullurl',     CsUrl::fullUrl(), TRUE);
 		$this->info->setOption('segments',    CsUrl::segment(), TRUE);
+
+        /**
+            инициализация класса безопасности
+         */
+        $this->security = CsSecurity::getInstance();
+
+        /**
+            инициализация класса конфигурации
+         */
 		$this->config = CsConfig::getInstance();
-		
-		/* сразу подгрузим из файла */
+
+		/* сразу подгрузим конфигурацию из файла */
 		$this->config->fromFile('default');
+
+        /**
+            инициализация класса кеширования
+         */
 		$this->cache = CsCache::getInstance();
 		$this->cache->init();
+
+        /**
+            инициализация класса хранения опций и файлов
+         */
 		$this->shared = CsShared::getInstance();
+
+        /**
+            инициализация класса хуков
+         */
 		$this->hooks = CsHooks::getInstance();
+
+        /**
+            инициализация класса роутера
+         */
 		$this->router = CsRouter::getInstance();
-		$this->router->set404(function () {
+		$this->router->set404(function ()
+        {
+            /* Зарегистрируем Хук для ошибки 404 */
 			$this->hooks->here('system_router_404');
 		});
+
+        /**
+            инициализация класса хелперов
+         */
 		$this->helpers = CsHelpers::getInstance();
     }
 
@@ -105,7 +153,7 @@ class CubSystem
      */
     public function start()
     {
-        /* Хук при старте */
+        /* Зарегистрируем Хук при старте */
         $this->hooks->here('system_start');
 
         /* Определим, нужно ли запускать установщик */
@@ -113,7 +161,7 @@ class CubSystem
         $cs_installed = CsFS::fileExists(CS_CONFIGPATH . 'default.cfg.php');
         $this->info->setOption('installed', $cs_installed, TRUE);
 
-        /* Хук до загрузки хелперов */
+        /* Зарегистрируем Хук до загрузки хелперов */
         $this->hooks->here('system_load_helpers');
 
                 //**/////////////////////
@@ -125,10 +173,10 @@ class CubSystem
             $this->helpers->loadFor(CsFS::getDirectories(CS_HELPERSPATH, FALSE));
         }
 
-        /* Хук до загрузки шаблона */
+        /* Зарегистрируем Хук до загрузки шаблона */
         $this->hooks->here('system_load_tmpl');
 
-        /* Хук до загрузки модулей */
+        /* Зарегистрируем Хук до загрузки модулей */
         $this->hooks->here('system_load_modules');
 
                 //**////////////////////
@@ -146,7 +194,7 @@ class CubSystem
             } else throw new Exception("Modules enabled, but no helper defined.");
         }
 
-        /* Хук после модулей */
+        /* Зарегистрируем Хук после модулей */
         $this->hooks->here('system_load_modules_end');
 
 
@@ -154,15 +202,15 @@ class CubSystem
                 ///   Шаблон сайта   ///
                 ////////////////////////
         $templates_config = $this->config->getOption('template');
-        if($templates_config['enabled'] === TRUE && !$this->info->getOption('ignore_default_template'))
+        if ($templates_config['enabled'] === TRUE && !$this->info->getOption('ignore_default_template'))
         {
             $template = $this->helpers->getLoaded('template');
-            if($template !== NULL && $template->registered == FALSE) {
+            if ($template !== NULL && $template->registered == FALSE) {
                 $this->template = $template->register($templates_config['default_tmpl']);
             } else throw new Exception("Template enabled, but no helper defined.");
         }
 
-        /* Хук до выполнения роутов */
+        /* Зарегистрируем Хук до выполнения роутов */
         $this->hooks->here('system_load_router');
         $this->router->run(); // запускаем все машруты
     }
@@ -172,24 +220,21 @@ class CubSystem
      */
     public function out()
     {
-        $buffer = '';
-        /* Хук до вывода шаблона */
+        /* Зарегистрируем Хук до вывода шаблона */
         $this->hooks->here('system_print_tmpl');
 
                 //**////////////////////
                 ///   Вывод шаблона  ///
                 ////////////////////////
-        if($this->template !== NULL && $this->template instanceof template_helper)
+        if ($this->template !== NULL && $this->template instanceof template_helper)
         {
             $this->template->showBuffer(0);
         }
 
-        /* Хук на конец выполнения */
+        /* Зарегистрируем Хук на конец выполнения */
         $this->hooks->here('system_end');
 
         /* Модули: "выгружаем" все */
         $this->modules->unloadAll();
-
-        return $buffer;
     }
 }

@@ -36,55 +36,43 @@ class authorize_helper
         if ($CS->helpers->getLoaded('ajax') !== NULL)
         {
             $CS->ajax->handle('login', function () {
+                if($post = CsSecurity::checkPost(['username', 'password']))
+                {
+                    $username = CsSecurity::filter($post['username'], 'username');
+                    $password = CsSecurity::filter($post['password'], 'password');
 
-                /* Задержка 3 секунды - простая защита от перебора */
-                sleep(3);
+                    /* Задержка 3 секунды - простая защита от перебора */
+                    sleep(3);
+                    $login = $this->logIn($username, $password);
 
-                $username = default_val_array($_POST, 'username');
-                $username = CsSecurity::filter($username, 'username');
-
-                $password = default_val_array($_POST, 'password');
-                $password = CsSecurity::filter($password, 'password');
-
-                if(empty_val($username, $password))
-                    return FALSE;
-
-                $login = $this->logIn($username, $password);
-
-                CsUrl::redir('');
-
-                die($login ? 'ok' : 'fail');
+                    CsUrl::redir($_SERVER['HTTP_REFERER'], FALSE);
+                }
             });
 
             $CS->ajax->handle('register', function () {
+                if($post = CsSecurity::checkPost(['username', 'password', 'email']))
+                {
+                    $username = CsSecurity::filter($post['username'], 'username');
+                    $password = CsSecurity::filter($post['password'], 'password');
+                    $email = CsSecurity::filter($post['email'], 'email');
 
-                /* Задержка 3 секунды - простая защита от перебора */
-                sleep(3);
+                    /* Задержка 3 секунды - простая защита от перебора */
+                    sleep(3);
+                    $register = $this->register($username, $password, $email);
 
-                $username = default_val_array($_POST, 'username');
-                $username = CsSecurity::filter($username, 'username');
-
-                $password = default_val_array($_POST, 'password');
-                $password = CsSecurity::filter($password, 'password');
-
-                $email = default_val_array($_POST, 'email');
-                $email = CsSecurity::filter($email, 'email');
-
-                if(empty_val($username, $password, $email))
-                    return FALSE;
-
-                $register = $this->register($username, $password, $email);
-
-                CsUrl::redir('');
-                die($register ? 'ok' : 'fail');
+                    CsUrl::redir($_SERVER['HTTP_REFERER'], FALSE);
+                }
             });
 
             $CS->ajax->handle('logout', function () {
 
-                $logout = $this->logOut();
+                if($post = CsSecurity::checkPost(['token']))
+                {
+                    if(!CsSecurity::checkCSRFToken($post['token']))
+                        die('Invalid token');
 
-                CsUrl::redir('');
-                die($logout ? 'ok' : 'fail');
+                    $logout = $this->logOut();
+                }
             });
         }
     }

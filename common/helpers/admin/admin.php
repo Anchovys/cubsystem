@@ -81,6 +81,7 @@ class admin_helper
             if($this->hasAccess() !== TRUE)
             {
               $loginTemplate = new CsTmpl('auth/login', $CS->template);
+              $loginTemplate->set('token', $CS->info->getOption('security_CSRF-secure_token'));
               $mainTemplate->set('content', $loginTemplate->out());
               return;
             }

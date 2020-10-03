@@ -5,6 +5,16 @@
   .  @license MIT public license
   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . */
 
+/*
++ -------------------------------------------------------------------------
+| url.php [rev 1.1], Назначение: управление данными
++ -------------------------------------------------------------------------
+|
+| Класс по работе с URL адресами.
+|
+|
+*/
+
 class CsUrl
 {
     /**
@@ -56,6 +66,8 @@ class CsUrl
 
         $url = CsSecurity::filter($_GET['m'], 'base');
         $url = str_replace(['.', '~', '\\'],  '_', $url);
+        $url = trim($url, '/');
+
         if($anchorHashRemove)
             $url = explode('#', $url)[0];
         if($queryStringRemove)
@@ -107,9 +119,9 @@ class CsUrl
      */
     public static function segment(?int $id = NULL)
     {
-        if(!isset($_GET['m'])) return [];
+        $url = self::currentUri(TRUE, TRUE);
+        if($url == "") return [];
 
-        $url = self::currentUri();
         $segments = explode('/', $url);
 
         if($id === NULL) return $segments;
@@ -120,9 +132,9 @@ class CsUrl
     /**
      * @param string $url
      * @param bool $absolute
-     * @param string $header
+     * @param int $header
      */
-    public static function redir($url = '', $absolute = true, $header = '')
+    public static function redir(string $url = '', bool $absolute = true, ?int $header = null)
     {
         $url = $absolute ? self::baseUrl() . $url : $url;
         $url = CsSecurity::filter($url, 'base');

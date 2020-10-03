@@ -1,4 +1,5 @@
-<?php defined('CS__BASEPATH') OR exit('No direct script access allowed');
+<?php defined('CS__BASEPATH') or exit('No direct script access allowed');
+
 /* .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
   .  @copyright Copyright (c) 2020, Anchovy.
   .  @author Anchovy, <contact.anchovy@gmail.com>
@@ -30,149 +31,136 @@ class CsAdminController
     {
         $CS = CubSystem::getInstance();
 
-        if($param = CsSecurity::checkPost(['type', 'module', 'action', 'token']))
-        {
-          $type = default_val_array($param, 'type');
-          $modules = default_val_array($param, 'module');
-          $action = default_val_array($param, 'action');
-          $token = default_val_array($param, 'token');
+        if ($param = CsSecurity::checkPost(['type', 'module', 'action', 'token'])) {
+            $type = default_val_array($param, 'type');
+            $modules = default_val_array($param, 'module');
+            $action = default_val_array($param, 'action');
+            $token = default_val_array($param, 'token');
 
-          if(!CsSecurity::checkCSRFToken($token))
-              return FALSE;
+            if ( !CsSecurity::checkCSRFToken($token))
+                return FALSE;
 
-          if(!empty_val($type, $modules, $action))
-          {
+            if ( !empty_val($type, $modules, $action)) {
 
-            if($type ===  'loaded')
-            {
+                if ($type === 'loaded') {
 
-              if($action === 'delete')
-              {
+                    if ($action === 'delete') {
 
-                $loaded_mods = $CS->shared->getTextData('modules', TRUE);
-                $loaded_mods = json_decode($loaded_mods, true);
-                if(!is_array($loaded_mods)) $loaded_mods = [];
+                        $loaded_mods = $CS->shared->getTextData('modules', TRUE);
+                        $loaded_mods = json_decode($loaded_mods, true);
+                        if ( !is_array($loaded_mods)) $loaded_mods = [];
 
-                foreach ($modules as $key => $value)
-                {
-                    if(in_array($value, $loaded_mods))
-                    {
-                      $CS->modules->purgeOnce($value);
-                      unset($loaded_mods[$key]);
+                        foreach ($modules as $key => $value) {
+                            if (in_array($value, $loaded_mods)) {
+                                $CS->modules->purgeOnce($value);
+                                unset($loaded_mods[$key]);
+                            }
+                        }
+
+                        // переиндексируем массив
+                        $loaded_mods = array_values($loaded_mods);
+
+                        $CS->shared->saveTextData('modules', json_encode($loaded_mods), TRUE);
+
+                    } else if ($action === 'disable') {
+                        $loaded_mods = $CS->shared->getTextData('modules', TRUE);
+                        $loaded_mods = json_decode($loaded_mods, TRUE);
+                        if ( !is_array($loaded_mods)) $loaded_mods = [];
+
+                        foreach ($modules as $key => $value) {
+                            $CS->modules->disableOnce($value);
+                            if (in_array($value, $loaded_mods))
+                                unset($loaded_mods[$key]);
+                        }
+
+                        // переиндексируем массив
+                        $loaded_mods = array_values($loaded_mods);
+
+                        $CS->shared->saveTextData('modules', json_encode($loaded_mods), TRUE);
+
+                    }
+
+                } else if ($type === 'unloaded') {
+
+                    if ($action === 'enable') {
+                        $loaded_mods = $CS->shared->getTextData('modules', TRUE);
+                        $loaded_mods = json_decode($loaded_mods);
+                        if ( !is_array($loaded_mods)) $loaded_mods = [];
+
+                        foreach ($modules as $key => $value) {
+                            $CS->modules->enableOnce($value);
+
+                            if ( !in_array($value, $loaded_mods))
+                                $loaded_mods[] = $value;
+                        }
+
+                        // переиндексируем массив
+                        $loaded_mods = array_values($loaded_mods);
+
+                        $CS->shared->saveTextData('modules', json_encode($loaded_mods), TRUE);
                     }
                 }
-
-                // переиндексируем массив
-                $loaded_mods = array_values($loaded_mods);
-
-                $CS->shared->saveTextData('modules', json_encode($loaded_mods), TRUE);
-
-              }
-              else if($action === 'disable')
-              {
-                $loaded_mods = $CS->shared->getTextData('modules', TRUE);
-                $loaded_mods = json_decode($loaded_mods, TRUE);
-                if(!is_array($loaded_mods)) $loaded_mods = [];
-
-                foreach ($modules as $key => $value)
-                {
-                    $CS->modules->disableOnce($value);
-                    if(in_array($value, $loaded_mods))
-                      unset($loaded_mods[$key]);
-                }
-
-                // переиндексируем массив
-                $loaded_mods = array_values($loaded_mods);
-
-                $CS->shared->saveTextData('modules', json_encode($loaded_mods), TRUE);
-
-              }
-
             }
-            else if($type === 'unloaded')
-            {
-
-              if($action === 'enable')
-              {
-                  $loaded_mods = $CS->shared->getTextData('modules', TRUE);
-                  $loaded_mods = json_decode($loaded_mods);
-                  if(!is_array($loaded_mods)) $loaded_mods = [];
-
-                  foreach ($modules as $key => $value)
-                  {
-                      $CS->modules->enableOnce($value);
-                      
-                      if(!in_array($value, $loaded_mods))
-                        $loaded_mods[] = $value;
-                  }
-
-                    // переиндексируем массив
-                    $loaded_mods = array_values($loaded_mods);
-
-                    $CS->shared->saveTextData('modules', json_encode($loaded_mods), TRUE);
-                  }
-            }
-          }
-          header("Refresh:0");
+            header("Refresh:0");
         }
 
         $loaded_modules = [];
         $unloaded_modules = [];
 
-        foreach ($CS->modules->getLoaded() as $module)
-        {
+        foreach ($CS->modules->getLoaded() as $module) {
             // значит загруженный
-            if(is_object($module))
-            {
+            if (is_object($module)) {
 
-              // получаем реальное имя - убираем префикс, то есть
-              // $real_name = (module_default => default)
-              $real_name = default_val_array(explode('_', $module->classname), 1);
+                // получаем реальное имя - убираем префикс, то есть
+                // $real_name = (module_default => default)
+                $real_name = default_val_array(explode('_', $module->classname), 1);
 
-              // принимаем значения из массива config модуля
-              $config = $module->config;
-              $name = CsSecurity::filter($config['name']);
-              $ver = CsSecurity::filter($config['min_rev']);
-              $desc = CsSecurity::filter($config['desc']);
+                // принимаем значения из массива config модуля
+                $config = $module->config;
+                $name = CsSecurity::filter($config['name']);
+                $ver = CsSecurity::filter($config['min_rev']);
+                $desc = CsSecurity::filter($config['desc']);
 
-              // формируем заголовок и описание
-              $title = $name ? $name : 'no-name';
-              $desc = $desc . ($ver ? ' (for version: ' . $ver . ')' : '');
+                // формируем заголовок и описание
+                $title = $name ? $name : 'no-name';
+                $desc = $desc . ($ver ? ' (for version: ' . $ver . ')' : '');
 
-              // если true, то модуль системный
-              $is_system_module = in_array($real_name, $CS->config->getOption(['modules', 'autoload']));
+                // если true, то модуль системный
+                $is_system_module = $CS->config->getOption(['modules', 'autoload']);
+                $is_system_module = is_array($is_system_module) && in_array($real_name, $is_system_module);
 
-              $loaded_modules[$real_name] =
-              [
-                'title'  =>  $title,
-                'descr'  =>  $desc,
-                'system' =>  $is_system_module
-              ];
+                $loaded_modules[$real_name] =
+                    [
+                        'title' => $title,
+                        'descr' => $desc,
+                        'system' => $is_system_module
+                    ];
 
             } else {
-              // получаем реальное имя - убираем префикс, то есть
-              // $real_name = (module_default => default)
-              $real_name = default_val_array(explode('_', $module['full_name']), 1);
+                // получаем реальное имя - убираем префикс, то есть
+                // $real_name = (module_default => default)
+                $real_name = default_val_array(explode('_', $module['full_name']), 1);
 
-              // принимаем значения из массива config модуля
-              $config = $module['config'];
-              $name = CsSecurity::filter($config['name']);
-              $ver = CsSecurity::filter($config['min_rev']);
-              $desc = CsSecurity::filter($config['desc']);
+                // принимаем значения из массива config модуля
+                $config = $module['config'];
+                $name = CsSecurity::filter($config['name']);
+                $ver = CsSecurity::filter($config['min_rev']);
+                $desc = CsSecurity::filter($config['desc']);
 
-              // формируем заголовок и описание
-              $title = $name ? $name : 'no-name';
-              $desc = $desc . ($ver ? ' (for version: ' . $ver . ')' : '');
+                // формируем заголовок и описание
+                $title = $name ? $name : 'no-name';
+                $desc = $desc . ($ver ? ' (for version: ' . $ver . ')' : '');
 
-              // если true, то модуль системный
-              $is_system_module = in_array($real_name, $CS->config->getOption(['modules', 'autoload']));
+                // если true, то модуль системный
+                $is_system_module = $CS->config->getOption(['modules', 'autoload']);
+                $is_system_module = is_array($is_system_module) && in_array($real_name, $is_system_module);
 
-              $unloaded_modules[$real_name] =
-              [
-                'title'  =>  $title,
-                'descr'  =>  $desc,
-                'system' =>  $is_system_module
-              ];
+                $unloaded_modules[$real_name] =
+                    [
+                        'title' => $title,
+                        'descr' => $desc,
+                        'system' => $is_system_module
+                    ];
 
             }
         }

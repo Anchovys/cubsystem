@@ -14,6 +14,7 @@
     </div>
 {% } %}
 <form class="form-signin" method="post" action="{{CsUrl::pathToUrl('ajax_handler/login') }}">
+    <input type="hidden" name="token" value="{{ $token }}">
     <h1 class="h3 mb-3 font-weight-normal">Пожалуйста, авторизуйтесь</h1>
     <label for="inputLogin" class="sr-only">Логин</label>
     <input type="text" id="inputLogin" class="form-control" name="username" placeholder="Логин" required autofocus>
